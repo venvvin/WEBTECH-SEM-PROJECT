@@ -7,22 +7,21 @@ export default defineConfig({
   plugins: [
     svelte(),
     VitePWA({
-      registerType: 'autoUpdate', // Авто-обновление при изменениях
+      registerType: 'autoUpdate',
       devOptions: {
         enabled: true
       },
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'], // Файлы, которые кешируем
-      manifest: {
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
         name: 'School Journey Game',
         short_name: 'SchoolJourney',
         description: 'A fun journey to school for kids',
         theme_color: '#ffffff',
         background_color: '#ffffff',
-        display: 'standalone', // Убирает интерфейс браузера (выглядит как приложение)
-        orientation: 'landscape', // Просим горизонтальную ориентацию
+        display: 'standalone',
+        orientation: 'landscape',
         icons: [
           {
-            src: 'pwa-192x192.png', // Эти картинки надо будет создать!
+            src: 'pwa-192x192.png',
             sizes: '192x192',
             type: 'image/png'
           },

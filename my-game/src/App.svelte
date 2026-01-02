@@ -1,11 +1,10 @@
 <script>
-  // Тут будет логика
-  let title = "Школьное приключение";
+  let title = "School Journey Game";
 </script>
 
 <main>
   <h1>{title}</h1>
-  <p>Игра скоро начнется...</p>
+  <p>Game will start soon...</p>
 </main>
 
 <style>
