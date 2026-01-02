@@ -8,3 +8,10 @@
 <button onclick={increment}>
   count is {count}
 </button>
+
+<style>
+  button {
+    background-color: yellow;
+    transform: scale(2);
+  }
+</style>
