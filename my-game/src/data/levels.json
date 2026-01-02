@@ -1,16 +1,384 @@
 {
-    "levels": [
-      {
-        "id": "1",
-        "title": "Собери рюкзак",
-        "type": "backpack",
-        "tier": 1
-      },
-      {
-        "id": "2",
-        "title": "Поездка в автобусе",
-        "type": "bus",
-        "tier": 2
+  "meta": {
+    "gameId": "school-day-journey",
+    "version": "1.0.0",
+    "totalHearts": 3,
+    "shuffleWithinTier": true,
+    "tiers": {
+      "1": "Getting Ready",
+      "2": "Bus Ride",
+      "3": "School Entrance"
+    }
+  },
+  "levels": [
+    {
+      "id": "lvl_backpack",
+      "tier": 1,
+      "type": "drag-drop-sort",
+      "description": "Pack the Backpack",
+      "config": {
+        "background": "bg_backpack_room.png",
+        "backpack": {
+          "image": "backpack.png",
+          "dropZoneId": "bag_zone"
+        },
+        "checklist": {
+          "title": "Checklist",
+          "requirements": [
+            { "id": "req_stationery", "label": "Stationery", "minCorrect": 2 },
+            { "id": "req_snack", "label": "Snack", "minCorrect": 1 },
+            { "id": "req_hygiene", "label": "Hygiene", "minCorrect": 1 }
+          ]
+        },
+        "items": [
+          {
+            "id": "it_diary",
+            "name": "Diary",
+            "category": "stationery",
+            "isCorrect": true,
+            "image": "items/diary.png",
+            "hint": "A diary is needed at school"
+          },
+          {
+            "id": "it_pen",
+            "name": "Pen",
+            "category": "stationery",
+            "isCorrect": true,
+            "image": "items/pen.png"
+          },
+          {
+            "id": "it_pencil",
+            "name": "Pencil",
+            "category": "stationery",
+            "isCorrect": true,
+            "image": "items/pencil.png"
+          },
+          {
+            "id": "it_snack",
+            "name": "Snack",
+            "category": "snack",
+            "isCorrect": true,
+            "image": "items/snack.png"
+          },
+          {
+            "id": "it_tissues",
+            "name": "Tissues",
+            "category": "hygiene",
+            "isCorrect": true,
+            "image": "items/tissues.png"
+          },
+          {
+            "id": "it_toy",
+            "name": "Toy",
+            "category": "junk",
+            "isCorrect": false,
+            "image": "items/toy.png"
+          },
+          {
+            "id": "it_gamepad",
+            "name": "Gamepad",
+            "category": "junk",
+            "isCorrect": false,
+            "image": "items/gamepad.png"
+          }
+        ],
+        "rules": {
+          "mistakePenaltyHearts": 1,
+          "maxMistakesBeforeFail": 2,
+          "successGlow": true,
+          "failGlow": true
+        },
+        "sounds": {
+          "success": "sfx/success.wav",
+          "fail": "sfx/fail.wav",
+          "drop": "sfx/drop.wav"
+        }
       }
-    ]
+    },
+    {
+      "id": "lvl_breakfast",
+      "tier": 1,
+      "type": "cooking",
+      "description": "Make Breakfast",
+      "config": {
+        "background": "bg_kitchen.png",
+        "stations": {
+          "fridgeZoneId": "fridge_zone",
+          "boardZoneId": "board_zone",
+          "plateZoneId": "plate_zone"
+        },
+        "recipe": {
+          "title": "Sandwich",
+          "steps": [
+            { "action": "drag", "itemId": "ing_bread", "to": "board_zone", "text": "Put the bread on the board" },
+            { "action": "drag", "itemId": "ing_cheese", "to": "board_zone", "text": "Add cheese" },
+            { "action": "drag", "itemId": "ing_tomato", "to": "board_zone", "text": "Add tomato" },
+            { "action": "cut", "itemId": "ing_tomato", "cutsRequired": 4, "text": "Slice the tomato (4 times)" },
+            { "action": "assemble", "text": "Assemble the sandwich on the plate" }
+          ]
+        },
+        "ingredients": [
+          { "id": "ing_bread", "name": "Bread", "image": "food/bread.png", "states": ["whole"] },
+          { "id": "ing_cheese", "name": "Cheese", "image": "food/cheese.png", "states": ["whole"] },
+          {
+            "id": "ing_tomato",
+            "name": "Tomato",
+            "image": "food/tomato_whole.png",
+            "states": ["whole", "sliced"],
+            "cut": {
+              "cutsRequired": 4,
+              "sound": "sfx/cut.wav",
+              "afterImage": "food/tomato_sliced.png"
+            }
+          },
+          { "id": "ing_lettuce", "name": "Lettuce", "image": "food/lettuce.png", "states": ["whole"], "optional": true }
+        ],
+        "rules": {
+          "strictOrder": true,
+          "mistakePenaltyHearts": 1,
+          "maxMistakesBeforeFail": 2
+        },
+        "sounds": {
+          "success": "sfx/success.wav",
+          "fail": "sfx/fail.wav"
+        }
+      }
+    },
+    {
+      "id": "lvl_dress_up",
+      "tier": 1,
+      "type": "dress-up-iron",
+      "description": "Get Dressed for School",
+      "config": {
+        "background": "bg_wardrobe.png",
+        "outfits": [
+          {
+            "id": "outfit_dirty",
+            "name": "Dirty Clothes",
+            "image": "outfits/dirty_set.png",
+            "isCorrect": false
+          },
+          {
+            "id": "outfit_school",
+            "name": "School Uniform",
+            "image": "outfits/school_set.png",
+            "isCorrect": true
+          },
+          {
+            "id": "outfit_weird",
+            "name": "Weird Costume",
+            "image": "outfits/weird_set.png",
+            "isCorrect": false
+          }
+        ],
+        "selectionRules": {
+          "noErrorAllowed": true,
+          "mistakePenaltyHearts": 1
+        },
+        "ironing": {
+          "enabled": true,
+          "wrinkledOverlay": "outfits/wrinkles_overlay.png",
+          "targetCoverage": 0.85,
+          "brushRadius": 28,
+          "sound": "sfx/iron.wav",
+          "completeSound": "sfx/success.wav"
+        }
+      }
+    },
+    {
+      "id": "tr_maze_to_bus",
+      "tier": 1,
+      "type": "maze-transition",
+      "description": "Reach the Bus Stop",
+      "config": {
+        "background": "bg_street_maze.png",
+        "maze": {
+          "gridWidth": 14,
+          "gridHeight": 8,
+          "cellSize": 64,
+          "walls": "mazes/maze_01.json",
+          "start": { "x": 1, "y": 6 },
+          "finish": { "x": 12, "y": 1 }
+        },
+        "controls": {
+          "desktop": "arrows",
+          "mobile": "onScreenArrows"
+        },
+        "rules": {
+          "timeLimitSec": 45,
+          "mistakePenaltyHearts": 0
+        },
+        "transitionOnSuccess": {
+          "type": "gif",
+          "asset": "transitions/bus_drive_01.gif"
+        }
+      }
+    },
+    {
+      "id": "lvl_fix_wires",
+      "tier": 2,
+      "type": "wires-connect",
+      "description": "Fix the Wires on the Bus",
+      "config": {
+        "background": "bg_bus_wires.png",
+        "leftTerminals": [
+          { "id": "l_red", "color": "red", "y": 0.2 },
+          { "id": "l_blue", "color": "blue", "y": 0.5 },
+          { "id": "l_yellow", "color": "yellow", "y": 0.8 }
+        ],
+        "rightTerminals": [
+          { "id": "r_red", "color": "red", "y": 0.7 },
+          { "id": "r_blue", "color": "blue", "y": 0.3 },
+          { "id": "r_yellow", "color": "yellow", "y": 0.55 }
+        ],
+        "rules": {
+          "allowCrossing": true,
+          "mistakePenaltyHearts": 1,
+          "maxMistakesBeforeFail": 2
+        },
+        "sounds": {
+          "connect": "sfx/connect.wav",
+          "fail": "sfx/fail.wav",
+          "success": "sfx/success.wav"
+        }
+      }
+    },
+    {
+      "id": "lvl_pay_fare",
+      "tier": 2,
+      "type": "pin-memory",
+      "description": "Pay the Fare",
+      "config": {
+        "background": "bg_bus_terminal.png",
+        "rounds": 3,
+        "pin": {
+          "length": 4,
+          "showDurationMs": 2200,
+          "hideDelayMs": 400
+        },
+        "phoneMessage": {
+          "from": "Mom",
+          "bubbleImage": "ui/phone_bubble.png",
+          "position": "right"
+        },
+        "keypad": {
+          "layout": "default",
+          "sound": "sfx/keypad.wav"
+        },
+        "rules": {
+          "mistakePenaltyHearts": 1,
+          "maxMistakesBeforeFail": 2,
+          "regeneratePinEachRound": true
+        },
+        "sounds": {
+          "success": "sfx/success.wav",
+          "fail": "sfx/fail.wav"
+        }
+      }
+    },
+    {
+      "id": "tr_cross_road",
+      "tier": 2,
+      "type": "traffic-light",
+      "description": "Cross the Road",
+      "config": {
+        "background": "bg_crosswalk.png",
+        "lights": [
+          { "state": "red", "durationMs": 2200 },
+          { "state": "yellow", "durationMs": 900 },
+          { "state": "green", "durationMs": 1600 }
+        ],
+        "button": {
+          "label": "GO",
+          "image": "ui/go_button.png"
+        },
+        "rules": {
+          "pressOnGreenOnly": true,
+          "pressOnRed": "gameover",
+          "pressOnYellow": "warning",
+          "warningText": "Wait!"
+        },
+        "visuals": {
+          "gameoverImage": "fx/car_hit.png",
+          "warningFlash": true
+        },
+        "sounds": {
+          "warning": "sfx/warn.wav",
+          "gameover": "sfx/gameover.wav",
+          "success": "sfx/success.wav"
+        }
+      }
+    },
+    {
+      "id": "lvl_memory_pairs",
+      "tier": 3,
+      "type": "memory-pairs",
+      "description": "Defeat the Classmate: Find the Pairs",
+      "config": {
+        "background": "bg_school_entrance.png",
+        "npc": {
+          "name": "Classmate",
+          "image": "npc/classmate.png",
+          "dialogue": [
+            "Don't know where to go?",
+            "Okay, let's play. Find the pairs and I'll show you the classroom."
+          ]
+        },
+        "board": {
+          "cols": 4,
+          "rows": 3,
+          "cardBack": "cards/back.png",
+          "pairs": [
+            { "id": "p1", "front": "cards/pencil.png" },
+            { "id": "p2", "front": "cards/bus.png" },
+            { "id": "p3", "front": "cards/apple.png" },
+            { "id": "p4", "front": "cards/book.png" },
+            { "id": "p5", "front": "cards/star.png" },
+            { "id": "p6", "front": "cards/heart.png" }
+          ]
+        },
+        "rules": {
+          "timeLimitSec": 50,
+          "mistakePenaltyHearts": 1,
+          "maxMistakesBeforeFail": 3,
+          "shuffleCards": true
+        },
+        "sounds": {
+          "flip": "sfx/flip.wav",
+          "match": "sfx/match.wav",
+          "fail": "sfx/fail.wav",
+          "success": "sfx/success.wav"
+        },
+        "endings": {
+          "successTransition": { "type": "gif", "asset": "transitions/arrive_classroom.gif" }
+        }
+      }
+    }
+  ],
+  "endScreens": {
+    "gameOver": {
+      "title": "Game Over",
+      "subtitle": "You ran out of hearts. Life does that sometimes.",
+      "image": "ui/game_over.png"
+    },
+    "victory": {
+      "title": "Hooray, you made it to the classroom!",
+      "subtitle": "Statistics below. Printing is allowed by human laws.",
+      "image": "ui/victory.png",
+      "stats": {
+        "showTotalTime": true,
+        "showLevelSequence": true,
+        "showMistakes": true,
+        "showHeartsLeft": true,
+        "showComparisonToPrevious": true,
+        "printEnabled": true,
+        "storageKey": "sdj_best_run"
+      },
+      "menu": [
+        { "id": "play_again", "label": "Play Again" },
+        { "id": "close_game", "label": "Close Game" },
+        { "id": "save_score", "label": "Save Score for Next Time" }
+      ]
+    }
   }
+}
