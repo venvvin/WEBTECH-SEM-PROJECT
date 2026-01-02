@@ -12,6 +12,7 @@ export default defineConfig({
         enabled: true
       },
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      manifest: {
         name: 'School Journey Game',
         short_name: 'SchoolJourney',
         description: 'A fun journey to school for kids',
