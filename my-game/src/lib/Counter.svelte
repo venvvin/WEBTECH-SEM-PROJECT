@@ -11,7 +11,7 @@
 
 <style>
   button {
-    background-color: yellow;
+    background-color: red;
     transform: scale(2);
   }
 </style>
