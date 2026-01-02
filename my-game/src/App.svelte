@@ -1,21 +1,24 @@
 <script>
   import OrientationGuard from './components/ui/OrientationGuard.svelte';
-  import { currentScreen, levels } from './stores/gameStore.js';
+  import { currentScreen, levels, hearts, gameConfig } from './stores/gameStore.js';
   import { generateGameQueue } from './utils/levelManager.js';
   
-  // import json directly
-  import levelsData from './data/levels.json';
+  // Import the new big JSON
+  import fullGameData from './data/levels.json';
 
   function startGame() {
-    // prepare levels
-    const gameQueue = generateGameQueue(levelsData);
+    // 1. Save full config to store (for later use)
+    gameConfig.set(fullGameData);
+
+    // 2. Reset hearts from meta (or default to 3)
+    hearts.set(fullGameData.meta.totalHearts || 3);
+
+    // 3. Generate queue using the new helper
+    const gameQueue = generateGameQueue(fullGameData);
     levels.set(gameQueue);
     
-    // go to game screen
+    // 4. Go!
     currentScreen.set('game');
-    
-    // debug check
-    console.log('Game Queue:', gameQueue);
   }
 </script>
 
