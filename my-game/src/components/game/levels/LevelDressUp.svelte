@@ -59,6 +59,21 @@
     let ctx;
     let isDrawing = false;
     let ironingProgress = 0;
+    let ironingAudio = null;
+
+    function playSound(path) {
+        if (!path) return;
+        const audio = new Audio(path);
+        audio.play().catch(e => console.log('Audio play error:', e));
+        return audio;
+    }
+
+    function stopSound(audio) {
+        if (audio) {
+            audio.pause();
+            audio.currentTime = 0;
+        }
+    }
 
         $: if (state === 'ironing') {
         setTimeout(initCanvas, 100);
@@ -133,6 +148,11 @@
             isDrawing = false;
             
             console.log("Ironing complete! Waiting...");
+            
+            stopSound(ironingAudio);
+            ironingAudio = null;
+            playSound('/game/sfx/joy.wav');
+            playSound('/game/sfx/success.wav');
 
             setTimeout(() => {
                 finishIroning();
@@ -141,27 +161,45 @@
     }
 
     function nextState() {
-      if (state === 'intro') state = 'closed';
-      else if (state === 'closed') state = 'opened';
-      else if (state === 'opened') state = 'selection';
+      if (state === 'intro') {
+          state = 'closed';
+      } else if (state === 'closed') {
+          playSound('/game/sfx/dooropened.wav');
+          state = 'opened';
+      } else if (state === 'opened') {
+          state = 'selection';
+      }
     }
 
     function chooseOutfit(outfit) {
         if (outfit.isCorrect) {
-            // ПРАВИЛЬНО -> идем гладить
             console.log('Correct outfit!');
+            playSound('/game/sfx/correctdress.wav');
+            playSound('/game/sfx/joy.wav');
             selectedOutfit = outfit;
             state = 'ironing';
+            setTimeout(() => {
+                ironingAudio = playSound('/game/sfx/ironing.wav');
+            }, 500);
         } else {
             console.log('Wrong outfit!');
+            playSound('/game/sfx/fail.wav');
             hearts.update(n => Math.max(0, n - 1));
             state = 'wrong_choice';
         }
     }
 
     function retrySelection() {
+        stopSound(ironingAudio);
+        ironingAudio = null;
         state = 'opened';
     }
+    
+    onMount(() => {
+        return () => {
+            stopSound(ironingAudio);
+        };
+    });
     
     function finishIroning() {
     console.log("Setting outfit to: school_uniform");
@@ -244,7 +282,6 @@
        
        {:else if state === 'ironing'}
        <div class="ironing-screen">
-           <!-- Фоновая картинка (та же, что была в шкафу), но затемненная -->
            <img src={config.backgrounds.opened} class="bg bg-dimmed" alt="Background" />
 
            <div class="z-index-wrapper">

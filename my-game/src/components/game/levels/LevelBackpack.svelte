@@ -313,11 +313,11 @@ function playSound(path) {
   }
   .character-standing {
         position: absolute;
-        bottom: 0;        /* Стоит на полу */
-        left: 0;          /* Слева экрана (или right: 0, если хотите справа) */
-        height: 85%;      /* Высота персонажа */
-        z-index: 10;      /* Ниже предметов (у предметов z-index 20 и 100) */
-        pointer-events: none; /* ВАЖНО: чтобы клики проходили сквозь неё */
+        bottom: 0;
+        left: 0;
+        height: 85%;
+        z-index: 10;
+        pointer-events: none;
         object-fit: contain;
     }
   </style>  

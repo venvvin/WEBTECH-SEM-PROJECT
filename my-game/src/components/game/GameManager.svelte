@@ -8,12 +8,9 @@
   import UnknownLevel from "./levels/UnknownLevel.svelte";
 
   $: currentLevelData = $levels[$currentLevelIndex];
-
   let levelComplete = false;
-      // Отладка: смотрим, что сейчас в сторе
       $: console.log("Current Outfit in Store:", $characterOutfit);
     $: console.log("Selected Happy Image:", happyChar);
-
 
   const charImages = {
       pajamas: {
