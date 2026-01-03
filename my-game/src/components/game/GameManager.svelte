@@ -7,7 +7,10 @@
     import UnknownLevel from './levels/UnknownLevel.svelte';
     
     $: currentLevelData = $levels[$currentLevelIndex];
-  
+
+    function handleLevelComplete() {
+    currentLevelIndex.update(n => n + 1);
+  }
     /**
      * @param {string} type
      * @returns {typeof LevelBackpack | typeof LevelCooking | typeof LevelTransition | typeof UnknownLevel}
@@ -27,13 +30,13 @@
   
   <div class="game-container">
     {#if currentLevelData && CurrentComponent}
-      <!-- @ts-ignore - svelte:component with dynamic component type -->
       <svelte:component 
         this={CurrentComponent} 
         data={currentLevelData} 
+        on:complete={handleLevelComplete}
       />
-    {:else}
-      <p>Error: No level data found!</p>
+      {:else}
+      <p>Game Finished or Error!</p>
     {/if}
   </div>
   
