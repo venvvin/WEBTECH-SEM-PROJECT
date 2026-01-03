@@ -6,18 +6,17 @@
     import LevelTransition from "./levels/LevelTransition.svelte";
     import UnknownLevel from "./levels/UnknownLevel.svelte";
 
-    // текущий уровень
+
     $: currentLevelData = $levels[$currentLevelIndex];
 
     let levelComplete = false;
 
     function handleLevelComplete() {
-        // НЕ переключаем уровень сразу
+
         levelComplete = true;
     }
 
     function handleMistake() {
-        // после победы больше не штрафуем
         if (levelComplete) return;
 
         hearts.update((h) => Math.max(0, h - 1));
@@ -29,7 +28,6 @@
     }
 
     function restartGame() {
-        // полный рестарт игры
         hearts.set(3);
         currentLevelIndex.set(0);
         levelComplete = false;
@@ -51,12 +49,10 @@
     /** @type {any} */
     $: CurrentComponent = currentLevelData ? getComponent(currentLevelData.type) : null;
 
-    // happy-спрайт Лины для win overlay
     $: happyChar =
         currentLevelData?.config?.character?.happy ??
         "/game/characters/Lina/pajamas/happy.png";
 
-    // sad-спрайт Лины для проигрыша
     $: sadChar =
         currentLevelData?.config?.character?.sad ??
         "/game/characters/Lina/pajamas/sad.png";
@@ -76,7 +72,6 @@
         <p>Game Finished or Error!</p>
     {/if}
 
-    <!-- WIN (приоритетнее всего) -->
     {#if levelComplete}
         <div class="win-overlay">
             <div class="character-box">
@@ -89,7 +84,6 @@
             </div>
         </div>
 
-        <!-- GAME OVER (только если НЕ выиграли) -->
     {:else if isGameOver}
         <div class="gameover-overlay">
             <div class="character-box">
