@@ -3,6 +3,14 @@
     import { hearts, characterOutfit } from '../../../stores/gameStore.js';
   
     const dispatch = createEventDispatcher();
+    
+    const images = {
+        pajamas: '/game/characters/Lina/pajamas/thinking.png',
+        school_uniform: '/game/characters/Lina/suit/thinking.png'
+    };
+
+    $: currentCharacterImage = images[$characterOutfit] || images.pajamas;
+    
     const config = {
         fabric: '/game/items/fabric.png',
         character: {
@@ -169,7 +177,7 @@
     {#if state === 'intro'}
     <div class="intro-screen">
        <img src={config.backgrounds.intro} class="bg" alt="Room" />
-       <img src={config.character.pajamas} class="lina-big" alt="Lina" />
+       <img src={currentCharacterImage} class="lina-big" alt="Lina" />
        
        <div class="bubble-center">
           <p>{config.dialogs.intro}</p>

@@ -168,17 +168,7 @@
         },
 
         "layout": {
-          "actors": [
-            {
-              "id": "lina",
-              "image": "/game/characters/Lina/pajamas/base.png",
-              "x": 800,
-              "y": 1550,
-              "w": 1520,
-              "h": 1520,
-              "anchor": "bottom"
-            }
-          ],
+          "actors": [],
           "zones": {
             "fridge_zone": { "x": 165, "y": 10, "w": 240, "h": 580 },
             "board_zone":  { "x": 260, "y": 590, "w": 620, "h": 420 },
