@@ -10,7 +10,6 @@
     const rules = cfg?.rules ?? {};
     const layout = cfg?.layout ?? {};
 
-    // zones ids
     const stations = cfg?.stations ?? {};
     const Z = {
         fridge: stations.fridgeZoneId ?? "fridge_zone",
@@ -18,25 +17,20 @@
         plate: stations.plateZoneId ?? "plate_zone",
     };
 
-    // recipe steps
     const strictOrder = cfg?.recipe?.strictOrder ?? true;
     const steps = cfg?.recipe?.steps ?? [];
     let stepIndex = 0;
     $: currentStep = steps[stepIndex];
 
-    // popups
     let showStartPopup = !!ui?.showStepPopupAtStart;
     let showRetryPopup = false;
 
-    // mistakes/hearts
     const maxMistakes = rules?.maxMistakesBeforeFail ?? 2;
     const penalty = rules?.mistakePenaltyHearts ?? 1;
     let hearts = maxMistakes + 1;
 
-    // tap/cut progress
     let taps = 0;
 
-    // sounds
     const soundMap = cfg?.sounds ?? {};
     const audioCache = new Map();
     function playSound(keyOrPath) {
@@ -55,7 +49,6 @@
         } catch {}
     }
 
-    // ingredients state
     function normalizeIngredients(list = []) {
         return list.map((ing) => ({
             id: ing.id,
@@ -111,7 +104,6 @@
         stepIndex += 1;
     }
 
-    // DnD
     function onDragStart(e, itemId) {
         e.dataTransfer.setData("text/plain", itemId);
     }
@@ -144,7 +136,6 @@
         completeStep();
     }
 
-    // Tap cut
     function handleTapOnBoard(itemId) {
         if (strictOrder && currentStep?.action !== "tap") return failAction();
         if (strictOrder && itemId !== currentStep?.itemId) return failAction();
@@ -158,7 +149,6 @@
         if (taps >= required) {
             const ing = items.find((i) => i.id === itemId);
 
-            // transform whole -> slice
             if (ing?.transformOnCompleteStepId && currentStep?.id === ing.transformOnCompleteStepId) {
                 const tr = ing.transformTo;
 
@@ -176,7 +166,6 @@
         }
     }
 
-    // ====== LAYOUT (COORDINATES) ======
     const zoneRects = layout?.zones ?? {};
     const fridgeSlots = layout?.fridgeSlots ?? {};
     const boardSlots = layout?.boardSlots ?? {};
@@ -210,7 +199,6 @@
     }
 </script>
 
-<!-- HUD -->
 <div class="hud">
     <div class="checklist">
         <div class="title">{cfg?.checklist?.title ?? "Steps"}</div>
@@ -225,16 +213,13 @@
     </div>
 </div>
 
-<!-- SCENE -->
 <div class="scene">
     <img class="bg" src={cfg.background} alt="kitchen" draggable="false" />
 
-    <!-- character -->
     {#each actors as a (a.id)}
         <img class="actor" src={a.image} alt={a.id} style={actorStyle(a)} draggable="false" />
     {/each}
 
-    <!-- zone overlays -->
     <div
             class="zone-overlay fridge"
             style={rectStyle(zoneRects[Z.fridge])}
@@ -265,7 +250,6 @@
             on:drop={(e) => handleDrop(e, Z.plate)}
     ></div>
 
-    <!-- items -->
     {#each visibleItems as it (it.id)}
         <img
                 class="item-abs"
@@ -279,7 +263,6 @@
     {/each}
 </div>
 
-<!-- POPUPS -->
 {#if showStartPopup}
     <div class="modal">
         <div class="card">
