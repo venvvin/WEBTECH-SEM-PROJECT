@@ -225,6 +225,8 @@
             style={rectStyle(zoneRects[Z.fridge])}
             on:dragover={allowDrop}
             on:drop={(e) => handleDrop(e, Z.fridge)}
+            role="region"
+            aria-label="Fridge drop zone"
     ></div>
 
     <div
@@ -248,6 +250,8 @@
             style={rectStyle(zoneRects[Z.plate])}
             on:dragover={allowDrop}
             on:drop={(e) => handleDrop(e, Z.plate)}
+            role="region"
+            aria-label="Plate drop zone"
     ></div>
 
     {#each visibleItems as it (it.id)}
