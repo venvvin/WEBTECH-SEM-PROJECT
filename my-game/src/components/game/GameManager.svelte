@@ -33,7 +33,7 @@
         ? (charImages[$characterOutfit]?.sad || charImages.pajamas.sad)
         : (currentLevelData?.config?.character?.sad || charImages.pajamas.sad);
 
-  $: isGameOver = $hearts <= 0;
+  $: isGameOver = $hearts <= 0 && !(currentLevelData?.config?.rules?.restartOnFail && $currentLevelIndex === 0);
 
   function handleLevelComplete() {
       levelComplete = true;
@@ -78,6 +78,7 @@
               data={currentLevelData}
               on:complete={handleLevelComplete}
               on:mistake={handleMistake}
+              on:restartGame={restartGame}
       />
   {:else}
       <p>Game Finished or Error!</p>
