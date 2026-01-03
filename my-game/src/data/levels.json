@@ -268,40 +268,55 @@
       "id": "lvl_dress_up",
       "tier": 1,
       "type": "dress-up-iron",
-      "description": "Get Dressed for School",
+      "title": "Get Dressed",
+      "instruction": "Choose the right outfit and iron it.",
       "config": {
-        "background": "bg_wardrobe.png",
+        "backgrounds": {
+          "closed": "/game/backgrounds/wardrobeclosed.png",
+          "opened": "/game/backgrounds/wardrobeopened.png",
+          "empty": "/game/backgrounds/wardrobeempty.png"
+        },
+        "character": {
+          "pajamas": "/game/characters/Lina/pajamas/base.png",
+          "happy": "/game/characters/Lina/suit/happy.png"
+        },
+        "dialogs": {
+          "intro": "Hmm... I need to get dressed. Mom told me to pick the right uniform.",
+          "closed": "Let's see what I have inside.",
+          "opened": "Tap on the wardrobe to take out clothes.",
+          "choice": "Choose wisely!",
+          "ironing": "It looks wrinkled! Iron it out with your finger."
+        },
         "outfits": [
           {
             "id": "outfit_dirty",
             "name": "Dirty Clothes",
-            "image": "outfits/dirty_set.png",
-            "isCorrect": false
+            "image": "/game/items/dirty_dress.png",
+            "isCorrect": false,
+            "failMessage": "It's dirty! I can't go to school like this."
           },
           {
             "id": "outfit_school",
             "name": "School Uniform",
-            "image": "outfits/school_set.png",
-            "isCorrect": true
+            "image": "/game/items/school_suit.png",
+            "isCorrect": true,
+            "fabricTexture": "/game/items/fabric.png"
           },
           {
-            "id": "outfit_weird",
-            "name": "Weird Costume",
-            "image": "outfits/weird_set.png",
-            "isCorrect": false
+            "id": "outfit_sport",
+            "name": "Sport Suit",
+            "image": "/game/items/sport_suit.png",
+            "isCorrect": false,
+            "failMessage": "This is for gym class, not for the first day!"
           }
         ],
-        "selectionRules": {
-          "noErrorAllowed": true,
-          "mistakePenaltyHearts": 1
-        },
         "ironing": {
-          "enabled": true,
-          "wrinkledOverlay": "outfits/wrinkles_overlay.png",
-          "targetCoverage": 0.85,
-          "brushRadius": 28,
-          "sound": "sfx/iron.wav",
-          "completeSound": "sfx/success.wav"
+          "brushSize": 40,
+          "requiredCoverage": 0.85
+        },
+        "sounds": {
+            "success": "/game/sfx/success.wav",
+            "fail": "/game/sfx/fail.wav"
         }
       }
     },

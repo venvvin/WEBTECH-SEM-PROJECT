@@ -15,6 +15,13 @@
     let startY = 0;
     let offsetX = 0;
     let offsetY = 0;
+
+    const images = {
+        pajamas: '/game/characters/Lina/pajamas/thinking.png', 
+        school_uniform: '/game/characters/Lina/suit/thinking.png'
+    };
+
+    $: currentCharacterImage = images[$characterOutfit] || images.pajamas; 
   
     const dispatch = createEventDispatcher();
 
@@ -121,7 +128,14 @@ function playSound(path) {
   />
 
   <div class="level-container" style="background-image: url('{background}')">
-  
+    
+
+    <img 
+        src={currentCharacterImage} 
+        class="character-standing" 
+        alt="Lina" 
+    />
+
     <div 
       class="backpack-zone"
       bind:this={backpackEl} 
@@ -297,4 +311,13 @@ function playSound(path) {
       right: 10px;
     }
   }
+  .character-standing {
+        position: absolute;
+        bottom: 0;        /* Стоит на полу */
+        left: 0;          /* Слева экрана (или right: 0, если хотите справа) */
+        height: 85%;      /* Высота персонажа */
+        z-index: 10;      /* Ниже предметов (у предметов z-index 20 и 100) */
+        pointer-events: none; /* ВАЖНО: чтобы клики проходили сквозь неё */
+        object-fit: contain;
+    }
   </style>  
