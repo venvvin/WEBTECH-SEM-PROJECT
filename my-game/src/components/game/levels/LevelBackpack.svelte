@@ -17,26 +17,17 @@
     let offsetY = 0;
   
     const dispatch = createEventDispatcher();
-  
-  let levelComplete = false;
 
   $: remainingRequired = items.filter(i => i.isCorrect && !i.message).length;
 
-  $: if (remainingRequired === 0 && !levelComplete) {
-    setTimeout(() => {
-      levelComplete = true;
-      
-      playSound(config.sounds.joy);
-      
-      setTimeout(() => {
+  $: if (remainingRequired === 0) {
+     playSound(config.sounds.joy);
+     setTimeout(() => {
         playSound(config.sounds.clap);
-      }, 100); 
-      
-    }, 1300);
-  }
-  
-  function nextLevel() {
-    dispatch('complete');
+        
+        dispatch('complete');
+        
+     }, 1000);
   }
 
     function startDrag(event, item) {
@@ -176,20 +167,6 @@ function playSound(path) {
       </div>
     {/if}
 
-    {#if levelComplete}
-    <div class="win-overlay">
-      <div class="character-box">
-        <img src={config.character.happy} alt="Lina Happy" class="char-img" />
-        
-        <div class="dialog-bubble">
-          <p>Great! My backpack is ready...</p>
-          <p>What should I do next?</p>
-          <button on:click={nextLevel}>Next Step ➡</button>
-        </div>
-      </div>
-    </div>
-  {/if}
-
   </div>
   
   <style>
@@ -299,59 +276,6 @@ function playSound(path) {
     border-radius: 5px;
     font-size: 1rem;
     cursor: pointer;
-  }
-
-
-  .win-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(255, 255, 255, 0.85);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 300;
-    animation: fadeIn 0.5s;
-  }
-  
-  .character-box {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-  
-  .char-img {
-    height: 400px;
-    width: auto;
-    filter: drop-shadow(5px 5px 15px rgba(0,0,0,0.2));
-  }
-  
-  .dialog-bubble {
-    background: white;
-    padding: 30px;
-    border-radius: 20px;
-    border: 4px solid #3498db;
-    max-width: 300px;
-    position: relative;
-  }
-  
-  .dialog-bubble::before {
-    content: '';
-    position: absolute;
-    left: -20px; top: 50%;
-    border: 10px solid transparent;
-    border-right-color: #3498db;
-  }
-  
-  .dialog-bubble button {
-    background: #2ecc71;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    font-size: 1.2rem;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-top: 15px;
-    width: 100%;
   }
   
   @keyframes fadeIn {

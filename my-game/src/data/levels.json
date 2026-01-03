@@ -149,7 +149,6 @@
         "ui": {
           "showStepPopupAtStart": true,
           "stepPopup": {
-            "characterImage": "/game/characters/Lina/pajamas/base.png",
             "title": "Lina",
             "lines": [
               "Let's see what we have in the kitchen.",
