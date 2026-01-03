@@ -141,48 +141,127 @@
       "id": "lvl_breakfast",
       "tier": 1,
       "type": "cooking",
-      "description": "Make Breakfast",
+      "title": "Make Breakfast",
+      "instruction": "Follow the steps in order. First, slice the food.",
       "config": {
-        "background": "bg_kitchen.png",
+        "background": "/game/backgrounds/kitchen.png",
+
+        "ui": {
+          "showStepPopupAtStart": true,
+          "stepPopup": {
+            "characterImage": "/game/characters/Lina/pajamas/base.png",
+            "title": "Lina",
+            "lines": [
+              "Let's see what we have in the kitchen.",
+              "Follow the sequence. First, slice the food."
+            ]
+          },
+          "retryPopup": {
+            "title": "Try again",
+            "text": "You made a mistake. You have a couple of tries, watch the hearts."
+          }
+        },
+
         "stations": {
           "fridgeZoneId": "fridge_zone",
           "boardZoneId": "board_zone",
           "plateZoneId": "plate_zone"
         },
+
+        "layout": {
+          "actors": [
+            {
+              "id": "lina",
+              "image": "/game/characters/Lina/pajamas/base.png",
+              "x": 800,
+              "y": 1550,
+              "w": 1520,
+              "h": 1520,
+              "anchor": "bottom"
+            }
+          ],
+          "zones": {
+            "fridge_zone": { "x": 165, "y": 10, "w": 240, "h": 580 },
+            "board_zone":  { "x": 260, "y": 590, "w": 620, "h": 420 },
+            "plate_zone":  { "x": 940, "y": 590, "w": 620, "h": 420 }
+          },
+
+          "fridgeSlots": {
+            "ing_tomato_whole": { "x": 60,  "y": 140, "w": 120, "h": 120 },
+            "ing_bun_bottom":   { "x": 170, "y": 140, "w": 130, "h": 130 },
+            "ing_cheese":       { "x": 60,  "y": 270, "w": 120, "h": 120 },
+            "ing_bun_top":      { "x": 170, "y": 270, "w": 130, "h": 130 },
+
+            "ing_tomato_slice": { "x": 115, "y": 410, "w": 120, "h": 120 }
+          },
+
+          "boardSlots": {
+            "ing_tomato_whole": { "x": 430, "y": 720, "w": 180, "h": 180 },
+            "ing_tomato_slice": { "x": 430, "y": 720, "w": 180, "h": 180 },
+
+            "ing_bun_bottom":   { "x": 620, "y": 720, "w": 220, "h": 220 },
+            "ing_cheese":       { "x": 820, "y": 740, "w": 200, "h": 200 },
+            "ing_bun_top":      { "x": 1020,"y": 720, "w": 220, "h": 220 }
+          },
+
+          "plateSlots": {
+            "ing_bun_bottom":   { "x": 1120, "y": 750, "w": 280, "h": 280, "z": 21 },
+            "ing_cheese":       { "x": 1120, "y": 740, "w": 250, "h": 250, "z": 22 },
+            "ing_tomato_slice": { "x": 1130, "y": 730, "w": 230, "h": 230, "z": 23 },
+            "ing_bun_top":      { "x": 1120, "y": 700, "w": 290, "h": 290, "z": 24 }
+          }
+        },
+
         "recipe": {
           "title": "Sandwich",
+          "strictOrder": true,
           "steps": [
-            { "action": "drag", "itemId": "ing_bread", "to": "board_zone", "text": "Put the bread on the board" },
-            { "action": "drag", "itemId": "ing_cheese", "to": "board_zone", "text": "Add cheese" },
-            { "action": "drag", "itemId": "ing_tomato", "to": "board_zone", "text": "Add tomato" },
-            { "action": "cut", "itemId": "ing_tomato", "cutsRequired": 4, "text": "Slice the tomato (4 times)" },
-            { "action": "assemble", "text": "Assemble the sandwich on the plate" }
+            { "id": "step_drag_tomato_to_board", "action": "drag", "itemId": "ing_tomato_whole", "from": "fridge_zone", "to": "board_zone", "text": "Put the whole tomato on the board." },
+            { "id": "step_cut_tomato", "action": "tap", "itemId": "ing_tomato_whole", "on": "board_zone", "tapsRequired": 15, "tapSound": "cut", "text": "Tap the tomato 15 times to slice it." },
+
+            { "id": "step_drag_bun_bottom_to_board", "action": "drag", "itemId": "ing_bun_bottom", "from": "fridge_zone", "to": "board_zone", "text": "Put the bottom bun on the board." },
+            { "id": "step_drag_cheese_to_board",     "action": "drag", "itemId": "ing_cheese",     "from": "fridge_zone", "to": "board_zone", "text": "Put the cheese on the board." },
+            { "id": "step_drag_bun_top_to_board",    "action": "drag", "itemId": "ing_bun_top",    "from": "fridge_zone", "to": "board_zone", "text": "Put the top bun on the board." },
+
+            { "id": "step_drag_bun_bottom_to_plate", "action": "drag", "itemId": "ing_bun_bottom",   "from": "board_zone", "to": "plate_zone", "text": "Move the bottom bun to the plate." },
+            { "id": "step_drag_cheese_to_plate",     "action": "drag", "itemId": "ing_cheese",       "from": "board_zone", "to": "plate_zone", "text": "Move the cheese to the plate." },
+            { "id": "step_drag_slice_to_plate",      "action": "drag", "itemId": "ing_tomato_slice", "from": "board_zone", "to": "plate_zone", "text": "Move the sliced tomato to the plate." },
+            { "id": "step_drag_bun_top_to_plate",    "action": "drag", "itemId": "ing_bun_top",      "from": "board_zone", "to": "plate_zone", "text": "Move the top bun to the plate to finish." }
           ]
         },
+
         "ingredients": [
-          { "id": "ing_bread", "name": "Bread", "image": "food/bread.png", "states": ["whole"] },
-          { "id": "ing_cheese", "name": "Cheese", "image": "food/cheese.png", "states": ["whole"] },
           {
-            "id": "ing_tomato",
-            "name": "Tomato",
-            "image": "food/tomato_whole.png",
-            "states": ["whole", "sliced"],
-            "cut": {
-              "cutsRequired": 4,
-              "sound": "sfx/cut.wav",
-              "afterImage": "food/tomato_sliced.png"
-            }
+            "id": "ing_tomato_whole",
+            "name": "Tomato (whole)",
+            "image": "/game/items/tomato_whole.png",
+            "initialZone": "fridge_zone",
+            "transformOnCompleteStepId": "step_cut_tomato",
+            "transformTo": { "hideSelf": true, "showIngredientId": "ing_tomato_slice" }
           },
-          { "id": "ing_lettuce", "name": "Lettuce", "image": "food/lettuce.png", "states": ["whole"], "optional": true }
+          {
+            "id": "ing_tomato_slice",
+            "name": "Tomato (sliced)",
+            "image": "/game/items/tomato_slice.png",
+            "initialZone": "fridge_zone",
+            "initiallyVisible": false
+          },
+          { "id": "ing_bun_bottom", "name": "Bottom bun", "image": "/game/items/bun_bottom.png", "initialZone": "fridge_zone" },
+          { "id": "ing_cheese",     "name": "Cheese",     "image": "/game/items/cheese.png",     "initialZone": "fridge_zone" },
+          { "id": "ing_bun_top",    "name": "Top bun",    "image": "/game/items/bun_top.png",    "initialZone": "fridge_zone" }
         ],
-        "rules": {
-          "strictOrder": true,
-          "mistakePenaltyHearts": 1,
-          "maxMistakesBeforeFail": 2
-        },
+
+        "checklist": { "title": "Steps", "bindToRecipeSteps": true, "strikeCompleted": true },
+
+        "rules": { "mistakePenaltyHearts": 1, "maxMistakesBeforeFail": 2, "restartOnFail": true },
+
         "sounds": {
-          "success": "sfx/success.wav",
-          "fail": "sfx/fail.wav"
+          "success": "/game/sfx/success.wav",
+          "fail": "/game/sfx/fail.wav",
+          "drop": "/game/sfx/drop.wav",
+          "cut": "/game/sfx/cut.wav",
+          "joy": "/game/sfx/joy.wav",
+          "clap": "/game/sfx/clap.wav"
         }
       }
     },
@@ -281,7 +360,8 @@
         "sounds": {
           "connect": "sfx/connect.wav",
           "fail": "sfx/fail.wav",
-          "success": "sfx/success.wav"
+          "success": "sfx/success.wav",
+          "cut": "/game/sfx/cut.wav"
         }
       }
     },
