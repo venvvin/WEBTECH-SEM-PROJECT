@@ -20,12 +20,20 @@
       left: 10px;
       right: 10px;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start; 
+      align-items: center;
+      gap: 20px;
+      
       padding: 10px;
-      background: rgba(255,255,255,0.8);
       border-radius: 10px;
       z-index: 100;
       font-size: 1.5rem;
       pointer-events: none;
+      color: white;
+      text-shadow: 1px 1px 2px black;
     }
-  </style>  
+    
+    .hearts {
+      display: flex;
+    }
+  </style>
