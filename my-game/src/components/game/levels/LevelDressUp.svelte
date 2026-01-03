@@ -156,10 +156,11 @@
     }
     
     function finishIroning() {
-   characterOutfit.set('school_uniform'); 
-   
-   console.log('Outfit changed to school_uniform');
-   dispatch('complete');
+    console.log("Setting outfit to: school_uniform");
+    
+    characterOutfit.set('school_uniform'); 
+    
+    dispatch('complete');
 }
   </script>
   

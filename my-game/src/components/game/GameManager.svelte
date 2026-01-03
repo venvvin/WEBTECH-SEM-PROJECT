@@ -1,5 +1,5 @@
 <script>
-  import { levels, currentLevelIndex, hearts } from "../../stores/gameStore.js";
+  import { levels, currentLevelIndex, hearts, characterOutfit } from "../../stores/gameStore.js";
 
   import LevelBackpack from "./levels/LevelBackpack.svelte";
   import LevelCooking from "./levels/LevelCooking.svelte";
@@ -10,6 +10,33 @@
   $: currentLevelData = $levels[$currentLevelIndex];
 
   let levelComplete = false;
+      // Отладка: смотрим, что сейчас в сторе
+      $: console.log("Current Outfit in Store:", $characterOutfit);
+    $: console.log("Selected Happy Image:", happyChar);
+
+
+  const charImages = {
+      pajamas: {
+          happy: '/game/characters/Lina/pajamas/happy.png', 
+          sad: '/game/characters/Lina/pajamas/sad.png'
+      },
+      school_uniform: {
+          happy: '/game/characters/Lina/suit/happy.png', 
+          sad: '/game/characters/Lina/suit/sad.png'
+      }
+  };
+
+  $: currentOutfitImages = charImages[$characterOutfit] || charImages.pajamas;
+
+  $: happyChar = $characterOutfit !== 'pajamas'
+        ? (charImages[$characterOutfit]?.happy || charImages.pajamas.happy)
+        : (currentLevelData?.config?.character?.happy || charImages.pajamas.happy);
+
+    $: sadChar = $characterOutfit !== 'pajamas'
+        ? (charImages[$characterOutfit]?.sad || charImages.pajamas.sad)
+        : (currentLevelData?.config?.character?.sad || charImages.pajamas.sad);
+
+  $: isGameOver = $hearts <= 0;
 
   function handleLevelComplete() {
       levelComplete = true;
@@ -28,40 +55,26 @@
   function restartGame() {
       hearts.set(3);
       currentLevelIndex.set(0);
+      characterOutfit.set('pajamas');
       levelComplete = false;
   }
 
   function getComponent(type) {
       switch (type) {
-          case "drag-drop-sort":
-              return LevelBackpack;
-          case "cooking":
-              return LevelCooking;
-          case 'dress-up-iron': 
-              return LevelDressUp;
-          case "maze-transition":
-              return LevelTransition;
-          default:
-              return UnknownLevel;
+          case "drag-drop-sort": return LevelBackpack;
+          case "cooking": return LevelCooking;
+          case 'dress-up-iron': return LevelDressUp;
+          case "maze-transition": return LevelTransition;
+          default: return UnknownLevel;
       }
   }
 
   /** @type {any} */
   $: CurrentComponent = currentLevelData ? getComponent(currentLevelData.type) : null;
-
-  $: happyChar =
-      currentLevelData?.config?.character?.happy ??
-      "/game/characters/Lina/pajamas/happy.png";
-
-  $: sadChar =
-      currentLevelData?.config?.character?.sad ??
-      "/game/characters/Lina/pajamas/sad.png";
-
-  $: isGameOver = $hearts <= 0;
 </script>
 
 <div class="game-container">
-  <!-- ГЛАВНЫЙ БЛОК ОТРИСОВКИ УРОВНЯ -->
+  
   {#if currentLevelData && CurrentComponent}
       <svelte:component
               this={CurrentComponent}
@@ -73,7 +86,6 @@
       <p>Game Finished or Error!</p>
   {/if}
 
-  <!-- ЭКРАН ПОБЕДЫ В УРОВНЕ -->
   {#if levelComplete}
       <div class="win-overlay">
           <div class="character-box">
@@ -86,7 +98,6 @@
           </div>
       </div>
 
-  <!-- ЭКРАН ПРОИГРЫША -->
   {:else if isGameOver}
       <div class="gameover-overlay">
           <div class="character-box">
@@ -99,7 +110,6 @@
       </div>
   {/if}
 
-  <!-- КНОПКА SKIP -->
   <button class="debug-skip-btn" on:click={nextLevel}>
     ⏩ SKIP LEVEL
   </button>
@@ -108,16 +118,13 @@
 
 <style>
 .game-container {
-    width: 100%;
-    height: 100%;
-    position: relative;
+    width: 100%; height: 100%; position: relative;
 }
 
-.win-overlay,
-.gameover-overlay {
+.win-overlay, .gameover-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.9);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -134,6 +141,7 @@
 .char-img {
     height: 400px;
     width: auto;
+    object-fit: contain;
     filter: drop-shadow(5px 5px 15px rgba(0,0,0,0.2));
 }
 
@@ -173,6 +181,7 @@
     font-size: 1.1rem;
     width: 100%;
     transition: transform 0.1s;
+    font-weight: bold;
 }
 
 .dialog-bubble button:active {
@@ -181,13 +190,12 @@
 
 .debug-skip-btn {
       position: fixed;
-      top: 10px;
-      right: 10px;
+      top: 10px; right: 10px;
       z-index: 9999;
       background-color: red;
       color: white;
       border: 2px solid white;
-      padding: 10px 15px;
+      padding: 8px 12px;
       font-weight: bold;
       border-radius: 8px;
       cursor: pointer;
