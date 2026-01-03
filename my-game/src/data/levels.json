@@ -15,71 +15,111 @@
       "id": "lvl_backpack",
       "tier": 1,
       "type": "drag-drop-sort",
-      "description": "Pack the Backpack",
+      "title": "Pack your Backpack",
+      "instruction": "Drag the correct items into the backpack.",
       "config": {
-        "background": "bg_backpack_room.png",
+        "background": "/game/backgrounds/backpack_room.png",
+        "character": {
+          "happy": "/game/characters/Lina/pajamas/happy.png",
+          "sad": "/game/characters/Lina/pajamas/sad.png",
+          "default": "/game/characters/Lina/pajamas/base.png"
+        },
         "backpack": {
-          "image": "backpack.png",
-          "dropZoneId": "bag_zone"
+          "image": "/game/items/backpack.png",
+          "dropZoneId": "bag_zone",
+          "scale": 1.0,
+          "position": { "x": 50, "y": 80 } 
         },
         "checklist": {
           "title": "Checklist",
           "requirements": [
-            { "id": "req_stationery", "label": "Stationery", "minCorrect": 2 },
+            { "id": "req_stationery", "label": "Stationery", "minCorrect": 3 },
             { "id": "req_snack", "label": "Snack", "minCorrect": 1 },
             { "id": "req_hygiene", "label": "Hygiene", "minCorrect": 1 }
           ]
         },
         "items": [
           {
-            "id": "it_diary",
-            "name": "Diary",
-            "category": "stationery",
+            "id": "it_gamepad",
+            "name": "Gamepad",
+            "category": "junk",
+            "isCorrect": false,
+            "image": "/game/items/gamepad.png",
+            "x": 20,
+            "y": 60
+          },
+          {
+            "id": "it_napkins",
+            "name": "Napkins",
+            "category": "hygiene",
             "isCorrect": true,
-            "image": "items/diary.png",
-            "hint": "A diary is needed at school"
+            "image": "/game/items/napkins.png",
+            "x": 30,
+            "y": 60
+          },
+          {
+            "id": "it_toy",
+            "name": "Toy Bear",
+            "category": "junk",
+            "isCorrect": true,
+            "image": "/game/items/toy.png",
+            "message": "You are too old for this!",
+            "x": 5,
+            "y": 80
+          },
+          {
+            "id": "it_jumprope",
+            "name": "Jump Rope",
+            "category": "junk",
+            "isCorrect": false,
+            "image": "/game/items/jumprope.png",
+            "x": 28,
+            "y": 92
           },
           {
             "id": "it_pen",
             "name": "Pen",
             "category": "stationery",
             "isCorrect": true,
-            "image": "items/pen.png"
+            "image": "/game/items/pen.png",
+            "x": 50,
+            "y": 49
+          },
+          {
+            "id": "it_notebook",
+            "name": "Notebook",
+            "category": "stationery",
+            "isCorrect": true,
+            "image": "/game/items/notebook.png",
+            "x": 60,
+            "y": 62
           },
           {
             "id": "it_pencil",
             "name": "Pencil",
             "category": "stationery",
             "isCorrect": true,
-            "image": "items/pencil.png"
+            "image": "/game/items/pencil.png",
+            "x": 70,
+            "y": 50
           },
           {
-            "id": "it_snack",
-            "name": "Snack",
+            "id": "it_apple",
+            "name": "Apple",
             "category": "snack",
             "isCorrect": true,
-            "image": "items/snack.png"
+            "image": "/game/items/apple.png",
+            "x": 65,
+            "y": 85
           },
           {
-            "id": "it_tissues",
-            "name": "Tissues",
-            "category": "hygiene",
-            "isCorrect": true,
-            "image": "items/tissues.png"
-          },
-          {
-            "id": "it_toy",
-            "name": "Toy",
+            "id": "it_wrench",
+            "name": "Wrench",
             "category": "junk",
             "isCorrect": false,
-            "image": "items/toy.png"
-          },
-          {
-            "id": "it_gamepad",
-            "name": "Gamepad",
-            "category": "junk",
-            "isCorrect": false,
-            "image": "items/gamepad.png"
+            "image": "/game/items/wrench.png",
+            "x": 92,
+            "y": 95
           }
         ],
         "rules": {
@@ -89,9 +129,11 @@
           "failGlow": true
         },
         "sounds": {
-          "success": "sfx/success.wav",
-          "fail": "sfx/fail.wav",
-          "drop": "sfx/drop.wav"
+          "success": "/game/sfx/success.wav",
+          "fail": "/game/sfx/fail.wav",
+          "drop": "/game/sfx/drop.wav",
+          "clap": "/game/sfx/clap.wav",
+          "joy": "/game/sfx/joy.wav"
         }
       }
     },
