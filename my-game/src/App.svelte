@@ -1,21 +1,20 @@
 <script>
   import OrientationGuard from './components/ui/OrientationGuard.svelte';
-  import { currentScreen, levels } from './stores/gameStore.js';
+  
+  import GameManager from './components/game/GameManager.svelte';
+  import HUD from './components/ui/HUD.svelte';
+  
+  import { currentScreen, levels, hearts, gameConfig } from './stores/gameStore.js';
   import { generateGameQueue } from './utils/levelManager.js';
   
-  // import json directly
-  import levelsData from './data/levels.json';
+  import fullGameData from './data/levels.json';
 
   function startGame() {
-    // prepare levels
-    const gameQueue = generateGameQueue(levelsData);
+    gameConfig.set(fullGameData);
+    hearts.set(fullGameData.meta.totalHearts || 3);
+    const gameQueue = generateGameQueue(fullGameData);
     levels.set(gameQueue);
-    
-    // go to game screen
     currentScreen.set('game');
-    
-    // debug check
-    console.log('Game Queue:', gameQueue);
   }
 </script>
 
@@ -29,11 +28,10 @@
     </div>
   
   {:else if $currentScreen === 'game'}
-    <div class="screen">
-      <h1>Game in progress...</h1>
-      <p>Current Level: {$levels[0]?.title}</p>
-      <button on:click={() => currentScreen.set('results')}>Finish (Debug)</button>
-    </div>
+  <div class="screen game-screen">
+    <HUD />
+    <GameManager />
+  </div>
 
   {:else if $currentScreen === 'results'}
     <div class="screen">
