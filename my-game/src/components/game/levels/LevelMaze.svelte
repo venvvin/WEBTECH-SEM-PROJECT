@@ -93,14 +93,145 @@
     let containerElement;
     let viewportScale = 1;
     let resizeObserver;
-    let introVisible = true;
+    let preIntroVisible = true;
+    let introVisible = false;
     const welcomeMessage =
         config?.ui?.introText ?? "Help Lina find the way to the bus!";
     const welcomeButtonText =
         config?.ui?.introButton ?? "OK";
 
+    let stairsSound;
+    let birdNatureSound;
+    let fromHouseSound;
+    let fromHouseToMazeSound;
+    let mazeMusicSound;
+    let linaImageLoaded = false;
+    let dialogText = "";
+    let dialogFullText = "I'm already ready. I need to hurry to school. I'll go to the bus right now. Mom said I might get lost, but I don't believe it!";
+    let dialogTypingIndex = 0;
+    let dialogTypingComplete = false;
+
+    let houseSceneVisible = false;
+    let fadeBlack = false;
+    let linaThinkingLoaded = false;
+    let dialogText2 = "";
+    let dialogFullText2 = "What wonderful weather. A great first day of school. Time to go!";
+    let dialogTypingIndex2 = 0;
+    let dialogTypingComplete2 = false;
+
+    let mazeSceneVisible = false;
+    let mazeSceneBackgroundLoaded = false;
+    let linaScaredLoaded = false;
+    let dialogText3 = "";
+    let dialogFullText3 = "I thought I had already walked this path with mom. But now I can't find the way. Oh no. I can't be late for school. Where is the right path?";
+    let dialogTypingIndex3 = 0;
+    let dialogTypingComplete3 = false;
+
+    let introTextTyped = "";
+    let introTextFull = config?.ui?.introText ?? "Help Lina find the way to the bus!";
+    let introTypingIndex = 0;
+    let introTypingComplete = false;
+
+    function dismissPreIntro() {
+        preIntroVisible = false;
+        houseSceneVisible = true;
+        
+        birdNatureSound = new Audio("/game/sfx/birdnature.wav");
+        birdNatureSound.play().catch(() => {});
+        
+        setTimeout(() => {
+            fromHouseSound = new Audio("/game/sfx/fromhouse.wav");
+            fromHouseSound.play().catch(() => {});
+            
+            setTimeout(() => {
+                linaThinkingLoaded = true;
+                setTimeout(() => {
+                    startTyping2();
+                }, 500);
+            }, 500);
+        }, 1000);
+    }
+
+    function dismissHouseScene() {
+        fadeBlack = true;
+        setTimeout(() => {
+            houseSceneVisible = false;
+            fadeBlack = false;
+            mazeSceneVisible = true;
+            mazeSceneBackgroundLoaded = true;
+            
+            setTimeout(() => {
+                fromHouseToMazeSound = new Audio("/game/sfx/fromhousetomaze.wav");
+                fromHouseToMazeSound.play().catch(() => {});
+                
+                setTimeout(() => {
+                    fadeBlack = true;
+                    setTimeout(() => {
+                        fadeBlack = false;
+                        linaScaredLoaded = true;
+                        setTimeout(() => {
+                            startTyping3();
+                        }, 500);
+                    }, 500);
+                }, 1500);
+            }, 300);
+        }, 500);
+    }
+
+    function dismissMazeScene() {
+        mazeSceneVisible = false;
+        introVisible = true;
+        
+        mazeMusicSound = new Audio("/game/sfx/mazemusic.wav");
+        mazeMusicSound.play().catch(() => {});
+        
+        setTimeout(() => {
+            startTypingIntro();
+        }, 300);
+    }
+
+    function startTypingIntro() {
+        if (introTypingIndex < introTextFull.length) {
+            introTextTyped = introTextFull.substring(0, introTypingIndex + 1);
+            introTypingIndex++;
+            setTimeout(startTypingIntro, 30);
+        } else {
+            introTypingComplete = true;
+        }
+    }
+
+    function startTyping2() {
+        if (dialogTypingIndex2 < dialogFullText2.length) {
+            dialogText2 = dialogFullText2.substring(0, dialogTypingIndex2 + 1);
+            dialogTypingIndex2++;
+            setTimeout(startTyping2, 30);
+        } else {
+            dialogTypingComplete2 = true;
+        }
+    }
+
+    function startTyping3() {
+        if (dialogTypingIndex3 < dialogFullText3.length) {
+            dialogText3 = dialogFullText3.substring(0, dialogTypingIndex3 + 1);
+            dialogTypingIndex3++;
+            setTimeout(startTyping3, 30);
+        } else {
+            dialogTypingComplete3 = true;
+        }
+    }
+
     function dismissIntro() {
         introVisible = false;
+    }
+
+    function startTyping() {
+        if (dialogTypingIndex < dialogFullText.length) {
+            dialogText = dialogFullText.substring(0, dialogTypingIndex + 1);
+            dialogTypingIndex++;
+            setTimeout(startTyping, 30);
+        } else {
+            dialogTypingComplete = true;
+        }
     }
 
     function updateViewportScale() {
@@ -172,34 +303,75 @@
         playerY = newY;
 
         if (Math.abs(playerX - endPosition.x) <= 1 && Math.abs(playerY - endPosition.y) <= 1) {
+            if (mazeMusicSound) {
+                mazeMusicSound.pause();
+                mazeMusicSound.currentTime = 0;
+            }
             dispatch("complete");
         }
     }
 
+    let autoMoveInterval = null;
+    let currentMoveDirection = null;
+
+    function startAutoMove(deltaX, deltaY) {
+        if (autoMoveInterval) {
+            clearInterval(autoMoveInterval);
+        }
+        currentMoveDirection = { x: deltaX, y: deltaY };
+        attemptMovement(deltaX, deltaY);
+        autoMoveInterval = setInterval(() => {
+            attemptMovement(deltaX, deltaY);
+        }, 150);
+    }
+
+    function stopAutoMove() {
+        if (autoMoveInterval) {
+            clearInterval(autoMoveInterval);
+            autoMoveInterval = null;
+        }
+        currentMoveDirection = null;
+    }
+
     function handleKeyboardInput(event) {
-        if (event.repeat) return;
-
-        if (event.key === "ArrowLeft") {
-            attemptMovement(-1, 0);
-        }
-        if (event.key === "ArrowRight") {
-            attemptMovement(1, 0);
-        }
-        if (event.key === "ArrowUp") {
-            attemptMovement(0, -1);
-        }
-        if (event.key === "ArrowDown") {
-            attemptMovement(0, 1);
-        }
-
         if (event.key === "g") {
             debugGrid = !debugGrid;
+            return;
         }
         if (event.key === "c") {
             debugCoordinates = !debugCoordinates;
+            return;
         }
         if (event.key === "t") {
             debugTint = !debugTint;
+            return;
+        }
+
+        if (event.key === "ArrowLeft") {
+            if (event.type === "keydown") {
+                startAutoMove(-1, 0);
+            }
+        }
+        if (event.key === "ArrowRight") {
+            if (event.type === "keydown") {
+                startAutoMove(1, 0);
+            }
+        }
+        if (event.key === "ArrowUp") {
+            if (event.type === "keydown") {
+                startAutoMove(0, -1);
+            }
+        }
+        if (event.key === "ArrowDown") {
+            if (event.type === "keydown") {
+                startAutoMove(0, 1);
+            }
+        }
+    }
+
+    function handleKeyUp(event) {
+        if (event.key === "ArrowLeft" || event.key === "ArrowRight" || event.key === "ArrowUp" || event.key === "ArrowDown") {
+            stopAutoMove();
         }
     }
 
@@ -258,6 +430,16 @@
     $: void initializeMaze();
 
     onMount(() => {
+        stairsSound = new Audio("/game/sfx/stairsrun.wav");
+        stairsSound.play().catch(() => {});
+
+        setTimeout(() => {
+            linaImageLoaded = true;
+            setTimeout(() => {
+                startTyping();
+            }, 500);
+        }, 1500);
+
         mediaQuery = window.matchMedia("(pointer: coarse)");
         
         if (mediaQuery && mediaQuery.matches) {
@@ -299,7 +481,9 @@
 
         window.removeEventListener("orientationchange", updateViewportScale);
         window.removeEventListener("keydown", handleKeyboardInput);
+        window.removeEventListener("keyup", handleKeyUp);
         window.removeEventListener("keydown", blockArrowKeyScrolling);
+        stopAutoMove();
     });
 
     $: playerPixelX = playerX * cellSize;
@@ -345,6 +529,53 @@
     </div>
 {:else}
     <div class="wrap" bind:this={containerElement} style="background-image:url('{backgroundImage}')">
+        {#if fadeBlack}
+            <div class="fade-black"></div>
+        {/if}
+        {#if preIntroVisible}
+            <div class="pre-intro-scene">
+                <img src="/game/backgrounds/stairs.png" alt="stairs" class="stairs-bg" />
+                {#if linaImageLoaded}
+                    <img src="/game/characters/Lina/suit/base.png" alt="Lina" class="lina-character" />
+                    <div class="dialog-box">
+                        <p class="dialog-text">{dialogText}<span class="cursor">|</span></p>
+                        {#if dialogTypingComplete}
+                            <button class="continue-btn" on:click={dismissPreIntro}>Continue</button>
+                        {/if}
+                    </div>
+                {/if}
+            </div>
+        {/if}
+        {#if houseSceneVisible}
+            <div class="house-scene">
+                <img src="/game/backgrounds/house.png" alt="house" class="house-bg" />
+                {#if linaThinkingLoaded}
+                    <img src="/game/characters/Lina/suit/thinking.png" alt="Lina thinking" class="lina-thinking" />
+                    <div class="dialog-box dialog-box-right">
+                        <p class="dialog-text">{dialogText2}<span class="cursor">|</span></p>
+                        {#if dialogTypingComplete2}
+                            <button class="continue-btn" on:click={dismissHouseScene}>Continue</button>
+                        {/if}
+                    </div>
+                {/if}
+            </div>
+        {/if}
+        {#if mazeSceneVisible}
+            <div class="maze-scene">
+                {#if mazeSceneBackgroundLoaded}
+                    <img src="/game/backgrounds/maze_scene.png" alt="maze scene" class="maze-scene-bg" />
+                {/if}
+                {#if linaScaredLoaded}
+                    <img src="/game/characters/Lina/suit/scared.png" alt="Lina scared" class="lina-scared" />
+                    <div class="dialog-box">
+                        <p class="dialog-text">{dialogText3}<span class="cursor">|</span></p>
+                        {#if dialogTypingComplete3}
+                            <button class="continue-btn" on:click={dismissMazeScene}>Continue</button>
+                        {/if}
+                    </div>
+                {/if}
+            </div>
+        {/if}
         {#if !mazeInitialized}
             <div class="banner">
                 Loading maze… {initializationError}
@@ -353,8 +584,10 @@
         {#if introVisible}
             <div class="overlay">
                 <div class="modal">
-                    <p class="intro-text">{welcomeMessage}</p>
-                    <button class="ok-btn" on:click={dismissIntro}>OK</button>
+                    <p class="intro-text">{introTextTyped}<span class="cursor">|</span></p>
+                    {#if introTypingComplete}
+                        <button class="ok-btn" on:click={dismissIntro}>OK</button>
+                    {/if}
                 </div>
             </div>
         {/if}
@@ -412,8 +645,8 @@
                         style="
                         left:{playerPixelX}px;
                         top:{playerPixelY}px;
-                        width:{cellSize * 1.8}px;
-                        height:{cellSize * 1.8}px;
+                        width:{cellSize * 1.5}px;
+                        height:{cellSize * 1.5}px;
                         --ps:{playerScale};
                     "
                 >
@@ -450,12 +683,36 @@
 
         {#if enableMobileControls}
             <div class="controls" aria-label="Mobile controls">
-                <button on:click={() => attemptMovement(0, -1)} aria-label="Up">▲</button>
+                <button 
+                    on:mousedown={() => startAutoMove(0, -1)}
+                    on:mouseup={stopAutoMove}
+                    on:mouseleave={stopAutoMove}
+                    on:touchstart={() => startAutoMove(0, -1)}
+                    on:touchend={stopAutoMove}
+                    aria-label="Up">▲</button>
                 <div class="row">
-                    <button on:click={() => attemptMovement(-1, 0)} aria-label="Left">◀</button>
-                    <button on:click={() => attemptMovement(1, 0)} aria-label="Right">▶</button>
+                    <button 
+                        on:mousedown={() => startAutoMove(-1, 0)}
+                        on:mouseup={stopAutoMove}
+                        on:mouseleave={stopAutoMove}
+                        on:touchstart={() => startAutoMove(-1, 0)}
+                        on:touchend={stopAutoMove}
+                        aria-label="Left">◀</button>
+                    <button 
+                        on:mousedown={() => startAutoMove(1, 0)}
+                        on:mouseup={stopAutoMove}
+                        on:mouseleave={stopAutoMove}
+                        on:touchstart={() => startAutoMove(1, 0)}
+                        on:touchend={stopAutoMove}
+                        aria-label="Right">▶</button>
                 </div>
-                <button on:click={() => attemptMovement(0, 1)} aria-label="Down">▼</button>
+                <button 
+                    on:mousedown={() => startAutoMove(0, 1)}
+                    on:mouseup={stopAutoMove}
+                    on:mouseleave={stopAutoMove}
+                    on:touchstart={() => startAutoMove(0, 1)}
+                    on:touchend={stopAutoMove}
+                    aria-label="Down">▼</button>
             </div>
         {/if}
     </div>
@@ -653,6 +910,167 @@
         box-shadow: 0 4px 0 #e94c8f;
     }
 
+    .pre-intro-scene {
+        position: absolute;
+        inset: 0;
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.3);
+    }
 
+    .stairs-bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 1;
+    }
+
+    .lina-character {
+        position: absolute;
+        bottom: 15%;
+        left: 10%;
+        height: 50vh;
+        width: auto;
+        z-index: 2;
+        animation: fadeInChar 0.5s ease-in;
+    }
+
+    .dialog-box {
+        position: absolute;
+        bottom: 20%;
+        left: 25%;
+        right: 10%;
+        background: white;
+        padding: 24px 28px;
+        border-radius: 20px;
+        border: 4px solid #ff8fb8;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+        z-index: 3;
+        max-width: 600px;
+    }
+
+    .dialog-text {
+        margin: 0 0 16px;
+        font-size: 18px;
+        line-height: 1.6;
+        color: #333;
+        min-height: 80px;
+    }
+
+    .cursor {
+        animation: blink 1s infinite;
+        color: #ff8fb8;
+    }
+
+    .continue-btn {
+        padding: 10px 24px;
+        border: none;
+        border-radius: 12px;
+        background: linear-gradient(180deg, #ff7fb3, #ff5fa2);
+        color: white;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 0 #e94c8f;
+    }
+
+    .continue-btn:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 #e94c8f;
+    }
+
+    @keyframes blink {
+        0%, 50% { opacity: 1; }
+        51%, 100% { opacity: 0; }
+    }
+
+    @keyframes fadeInChar {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-black {
+        position: absolute;
+        inset: 0;
+        background: black;
+        z-index: 10001;
+        animation: fadeBlack 1s ease-in-out;
+    }
+
+    @keyframes fadeBlack {
+        0% { opacity: 0; }
+        50% { opacity: 1; }
+        100% { opacity: 0; }
+    }
+
+    .house-scene {
+        position: absolute;
+        inset: 0;
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    .house-bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 1;
+    }
+
+    .lina-thinking {
+        position: absolute;
+        bottom: 15%;
+        right: 5%;
+        height: 50vh;
+        width: auto;
+        z-index: 2;
+        animation: fadeInChar 0.5s ease-in;
+    }
+
+    .dialog-box-right {
+        position: absolute;
+        bottom: 20%;
+        right: 25%;
+        left: 10%;
+        max-width: 600px;
+    }
+
+    .maze-scene {
+        position: absolute;
+        inset: 0;
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    .maze-scene-bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 1;
+    }
+
+    .lina-scared {
+        position: absolute;
+        bottom: 15%;
+        left: 10%;
+        height: 50vh;
+        width: auto;
+        z-index: 2;
+        animation: fadeInChar 0.5s ease-in;
+    }
 
 </style>
