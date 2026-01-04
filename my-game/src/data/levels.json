@@ -335,7 +335,6 @@
           "cellSize": 8,
           "start": { "x": 7, "y": 25 },
           "finish": { "x": 134, "y": 124 }
-
         },
         "controls": {
           "desktop": "arrows",
