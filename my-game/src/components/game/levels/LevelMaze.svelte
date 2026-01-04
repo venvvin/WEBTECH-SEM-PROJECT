@@ -105,6 +105,8 @@
     let fromHouseSound;
     let fromHouseToMazeSound;
     let mazeMusicSound;
+    let busStoppedSound;
+    let busDoorsSound;
     let linaImageLoaded = false;
     let dialogText = "";
     let dialogFullText = "I'm already ready. I need to hurry to school. I'll go to the bus right now. Mom said I might get lost, but I don't believe it!";
@@ -126,6 +128,15 @@
     let dialogFullText3 = "I thought I had already walked this path with mom. But now I can't find the way. Oh no. I can't be late for school. Where is the right path?";
     let dialogTypingIndex3 = 0;
     let dialogTypingComplete3 = false;
+
+    let busSceneVisible = false;
+    let busCloseVisible = false;
+    let busOpenVisible = false;
+    let linaBusLoaded = false;
+    let dialogText4 = "";
+    let dialogFullText4 = "Well, I found the way. Made it to the bus. Time to go to school.";
+    let dialogTypingIndex4 = 0;
+    let dialogTypingComplete4 = false;
 
     let introTextTyped = "";
     let introTextFull = config?.ui?.introText ?? "Help Lina find the way to the bus!";
@@ -188,6 +199,49 @@
         setTimeout(() => {
             startTypingIntro();
         }, 300);
+    }
+
+    function showBusScene() {
+        stopAutoMove();
+        busSceneVisible = true;
+        busCloseVisible = true;
+        
+        busStoppedSound = new Audio("/game/sfx/busstopped.wav");
+        busStoppedSound.play().catch(() => {});
+        
+        setTimeout(() => {
+            linaBusLoaded = true;
+            setTimeout(() => {
+                startTyping4();
+            }, 500);
+        }, 1000);
+    }
+
+    function startTyping4() {
+        if (dialogTypingIndex4 < dialogFullText4.length) {
+            dialogText4 = dialogFullText4.substring(0, dialogTypingIndex4 + 1);
+            dialogTypingIndex4++;
+            setTimeout(startTyping4, 30);
+        } else {
+            dialogTypingComplete4 = true;
+        }
+    }
+
+    function dismissBusDialog() {
+        busCloseVisible = false;
+        busOpenVisible = true;
+        
+        busDoorsSound = new Audio("/game/sfx/busdoors.wav");
+        busDoorsSound.play().catch(() => {});
+        
+        setTimeout(() => {
+            completeLevel();
+        }, 2000);
+    }
+
+    function completeLevel() {
+        busSceneVisible = false;
+        dispatch("complete");
     }
 
     function startTypingIntro() {
@@ -307,7 +361,7 @@
                 mazeMusicSound.pause();
                 mazeMusicSound.currentTime = 0;
             }
-            dispatch("complete");
+            showBusScene();
         }
     }
 
@@ -571,6 +625,25 @@
                         <p class="dialog-text">{dialogText3}<span class="cursor">|</span></p>
                         {#if dialogTypingComplete3}
                             <button class="continue-btn" on:click={dismissMazeScene}>Continue</button>
+                        {/if}
+                    </div>
+                {/if}
+            </div>
+        {/if}
+        {#if busSceneVisible}
+            <div class="bus-scene">
+                {#if busCloseVisible}
+                    <img src="/game/backgrounds/bus_close.png" alt="bus closed" class="bus-bg" />
+                {/if}
+                {#if busOpenVisible}
+                    <img src="/game/backgrounds/bus_open.png" alt="bus open" class="bus-bg" />
+                {/if}
+                {#if linaBusLoaded && busCloseVisible}
+                    <img src="/game/characters/Lina/suit/base.png" alt="Lina" class="lina-bus" />
+                    <div class="dialog-box">
+                        <p class="dialog-text">{dialogText4}<span class="cursor">|</span></p>
+                        {#if dialogTypingComplete4}
+                            <button class="continue-btn" on:click={dismissBusDialog}>Continue</button>
                         {/if}
                     </div>
                 {/if}
@@ -1064,6 +1137,35 @@
     }
 
     .lina-scared {
+        position: absolute;
+        bottom: 15%;
+        left: 10%;
+        height: 50vh;
+        width: auto;
+        z-index: 2;
+        animation: fadeInChar 0.5s ease-in;
+    }
+
+    .bus-scene {
+        position: absolute;
+        inset: 0;
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    .bus-bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 1;
+    }
+
+    .lina-bus {
         position: absolute;
         bottom: 15%;
         left: 10%;
