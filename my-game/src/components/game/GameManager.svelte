@@ -4,7 +4,7 @@
   import LevelBackpack from "./levels/LevelBackpack.svelte";
   import LevelCooking from "./levels/LevelCooking.svelte";
   import LevelDressUp from './levels/LevelDressUp.svelte';
-  import LevelTransition from "./levels/LevelTransition.svelte";
+  import LevelMaze from "./levels/LevelMaze.svelte";
   import UnknownLevel from "./levels/UnknownLevel.svelte";
 
   $: currentLevelData = $levels[$currentLevelIndex];
@@ -61,7 +61,7 @@
           case "drag-drop-sort": return LevelBackpack;
           case "cooking": return LevelCooking;
           case 'dress-up-iron': return LevelDressUp;
-          case "maze-transition": return LevelTransition;
+          case "maze": return LevelMaze;
           default: return UnknownLevel;
       }
   }

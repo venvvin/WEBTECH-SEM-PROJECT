@@ -311,34 +311,42 @@
       }
     },
     {
-      "id": "tr_maze_to_bus",
+      "id": "lvl_maze_house_to_bus",
       "tier": 1,
-      "type": "maze-transition",
-      "description": "Reach the Bus Stop",
+      "type": "maze",
+      "title": "Get to the Bus",
+      "ui": {
+        "introText": "Help Lina find the way to the bus!",
+        "introButton": "Got it!"
+      },
+      "instruction": "Find the way from home to the bus.",
       "config": {
-        "background": "bg_street_maze.png",
+        "background": "/game/backgrounds/maze_scene.png",
+        "mazeImage": "/game/backgrounds/maze_overlay.jpg",
+        "player": {
+          "image": "/game/characters/Lina/suit/maze.png",
+          "scale": 11
+        },
         "maze": {
-          "gridWidth": 14,
-          "gridHeight": 8,
-          "cellSize": 64,
-          "walls": "mazes/maze_01.json",
-          "start": { "x": 1, "y": 6 },
-          "finish": { "x": 12, "y": 1 }
+          "fromImage": "/game/backgrounds/maze_overlay.jpg",
+          "imageGrid": { "w": 140, "h": 140 },
+          "threshold": 200,
+          "invert": false,
+          "cellSize": 8,
+          "start": { "x": 7, "y": 25 },
+          "finish": { "x": 134, "y": 124 }
+
         },
         "controls": {
           "desktop": "arrows",
           "mobile": "onScreenArrows"
         },
         "rules": {
-          "timeLimitSec": 45,
-          "mistakePenaltyHearts": 0
-        },
-        "transitionOnSuccess": {
-          "type": "gif",
-          "asset": "transitions/bus_drive_01.gif"
+          "timeLimitSec": 0
         }
       }
     },
+
     {
       "id": "lvl_fix_wires",
       "tier": 2,
