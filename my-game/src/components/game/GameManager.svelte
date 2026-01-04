@@ -5,6 +5,7 @@
   import LevelCooking from "./levels/LevelCooking.svelte";
   import LevelDressUp from './levels/LevelDressUp.svelte';
   import LevelMaze from "./levels/LevelMaze.svelte";
+  import LevelFixWires from "./levels/LevelFixWires.svelte";
   import UnknownLevel from "./levels/UnknownLevel.svelte";
 
   $: currentLevelData = $levels[$currentLevelIndex];
@@ -62,6 +63,7 @@
           case "cooking": return LevelCooking;
           case 'dress-up-iron': return LevelDressUp;
           case "maze": return LevelMaze;
+          case "wires-connect": return LevelFixWires;
           default: return UnknownLevel;
       }
   }
