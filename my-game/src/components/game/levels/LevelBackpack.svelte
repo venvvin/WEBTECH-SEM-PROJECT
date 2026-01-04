@@ -15,6 +15,13 @@
     let startY = 0;
     let offsetX = 0;
     let offsetY = 0;
+
+    const images = {
+        pajamas: '/game/characters/Lina/pajamas/thinking.png', 
+        school_uniform: '/game/characters/Lina/suit/thinking.png'
+    };
+
+    $: currentCharacterImage = images[$characterOutfit] || images.pajamas; 
   
     const dispatch = createEventDispatcher();
 
@@ -121,7 +128,14 @@ function playSound(path) {
   />
 
   <div class="level-container" style="background-image: url('{background}')">
-  
+    
+
+    <img 
+        src={currentCharacterImage} 
+        class="character-standing" 
+        alt="Lina" 
+    />
+
     <div 
       class="backpack-zone"
       bind:this={backpackEl} 
@@ -297,4 +311,13 @@ function playSound(path) {
       right: 10px;
     }
   }
+  .character-standing {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 85%;
+        z-index: 10;
+        pointer-events: none;
+        object-fit: contain;
+    }
   </style>  
