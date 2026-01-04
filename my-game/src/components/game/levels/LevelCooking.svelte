@@ -1,5 +1,6 @@
 <script>
     import { createEventDispatcher, onMount } from "svelte";
+    import { hearts, currentLevelIndex } from "../../../stores/gameStore.js";
 
     export let data;
     const dispatch = createEventDispatcher();
@@ -66,6 +67,10 @@
     const penalty = rules?.mistakePenaltyHearts ?? 1;
     let heartsLocal = maxMistakes + 1;
 
+    $: if (heartsLocal <= 0 && rules?.restartOnFail && ($currentLevelIndex === 0 || $hearts > 0)) {
+        showRetryPopup = true;
+    }
+
     let taps = 0;
 
     const soundMap = cfg?.sounds ?? {};
@@ -102,6 +107,10 @@
     $: visibleItems = items.filter((i) => i.initiallyVisible !== false);
 
     function resetLevel() {
+        if ($hearts <= 0 && $currentLevelIndex === 0) {
+            dispatch("restartGame");
+            return;
+        }
         heartsLocal = maxMistakes + 1;
         stepIndex = 0;
         taps = 0;
