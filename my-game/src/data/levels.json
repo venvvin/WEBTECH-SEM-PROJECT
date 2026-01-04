@@ -353,6 +353,16 @@
       "description": "Fix the Wires on the Bus",
       "config": {
         "background": "/game/backgrounds/wires.png",
+        "story": {
+          "enterBusImage": "/game/story/enter_bus.png",
+          "driverSadImage": "/game/story/driver_sad.png",
+          "linaTalkImage": "/game/story/lina_help.png",
+          "brokenWiresImage": "/game/story/broken_wires.png",
+          "fixedWiresImage": "/game/story/fixed_wires.png",
+          "driverHappyImage": "/game/story/driver_happy.png"
+        },
+
+
         "leftTerminals": [
           { "id": "l_yellow", "color": "yellow", "x": 0.12, "y": 0.22 },
           { "id": "l_red",    "color": "red",    "x": 0.12, "y": 0.52 },
@@ -373,7 +383,9 @@
           "connect": "sfx/connect.wav",
           "fail": "sfx/fail.wav",
           "success": "sfx/success.wav",
-          "cut": "/game/sfx/cut.wav"
+          "cut": "/game/sfx/cut.wav",
+          "broken": "/game/sfx/broken_wires.wav",
+          "music":"/game/sfx/angel_music.wav"
         }
       }
     },
