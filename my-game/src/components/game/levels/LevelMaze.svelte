@@ -303,6 +303,10 @@
         playerY = newY;
 
         if (Math.abs(playerX - endPosition.x) <= 1 && Math.abs(playerY - endPosition.y) <= 1) {
+            if (mazeMusicSound) {
+                mazeMusicSound.pause();
+                mazeMusicSound.currentTime = 0;
+            }
             dispatch("complete");
         }
     }
