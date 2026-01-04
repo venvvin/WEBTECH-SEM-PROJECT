@@ -5,308 +5,393 @@
 
     const dispatch = createEventDispatcher();
 
-    $: cfg = data?.config ?? {};
-    $: m = cfg?.maze ?? {};
+    $: config = data?.config ?? {};
+    $: mazeConfig = config?.maze ?? {};
 
-    $: bg = cfg?.background ?? "";
-    $: mazeImage = cfg?.mazeImage ?? "";
+    $: backgroundImage = config?.background ?? "";
+    $: overlayImage = config?.mazeImage ?? "";
 
-    $: fromImage = m?.fromImage ?? "";
-    $: imageGridW = Number(m?.imageGrid?.w ?? 0);
-    $: imageGridH = Number(m?.imageGrid?.h ?? 0);
-    $: threshold = Number(m?.threshold ?? 200);
-    $: invert = !!m?.invert;
+    $: imageSource = mazeConfig?.fromImage ?? "";
+    $: gridWidthFromImage = Number(mazeConfig?.imageGrid?.w ?? 0);
+    $: gridHeightFromImage = Number(mazeConfig?.imageGrid?.h ?? 0);
+    $: brightnessThreshold = Number(mazeConfig?.threshold ?? 200);
+    $: shouldInvert = !!mazeConfig?.invert;
 
-    $: gridWidth = fromImage && imageGridW ? imageGridW : Number(m?.gridWidth ?? 0);
-    $: gridHeight = fromImage && imageGridH ? imageGridH : Number(m?.gridHeight ?? 0);
-
-    $: cellSize = Number(m?.cellSize ?? 64);
-
-    let cells = [];
-    $: baseCells = m?.cells ?? [];
-
-    $: start = m?.start ?? { x: 1, y: 1 };
-    $: finish = m?.finish ?? { x: Math.max(1, gridWidth - 2), y: Math.max(1, gridHeight - 2) };
-
-    $: playerImg = cfg?.player?.image ?? "";
-    $: playerScale = Number(cfg?.player?.scale ?? 1);
-
-    $: stageW = gridWidth * cellSize;
-    $: stageH = gridHeight * cellSize;
-
-    let showGrid = false;
-    let showCoords = false;
-    let tintCells = false;
-
-    let x = 1;
-    let y = 1;
-    let direction = "down";
-
-    function resetPlayerToStart() {
-        x = Number.isFinite(start?.x) ? Number(start.x) : 1;
-        y = Number.isFinite(start?.y) ? Number(start.y) : 1;
-        direction = "down";
+    let gridWidth = 0;
+    let gridHeight = 0;
+    $: {
+        if (imageSource && gridWidthFromImage > 0) {
+            gridWidth = gridWidthFromImage;
+        } else {
+            gridWidth = Number(mazeConfig?.gridWidth ?? 0);
+        }
+        if (imageSource && gridHeightFromImage > 0) {
+            gridHeight = gridHeightFromImage;
+        } else {
+            gridHeight = Number(mazeConfig?.gridHeight ?? 0);
+        }
     }
 
-    let isCoarsePointer = false;
-    let mq;
+    $: cellSize = Number(mazeConfig?.cellSize ?? 64);
 
-    function updatePointer() {
-        isCoarsePointer = !!mq?.matches;
-        recomputeScale();
+    let mazeGrid = [];
+    $: defaultCells = mazeConfig?.cells ?? [];
+
+    $: startPosition = mazeConfig?.start ?? { x: 1, y: 1 };
+    $: endPosition = mazeConfig?.finish ?? { x: Math.max(1, gridWidth - 2), y: Math.max(1, gridHeight - 2) };
+
+    $: playerImage = config?.player?.image ?? "";
+    $: playerScale = Number(config?.player?.scale ?? 1);
+
+    $: stageWidth = gridWidth * cellSize;
+    $: stageHeight = gridHeight * cellSize;
+
+    let debugGrid = false;
+    let debugCoordinates = false;
+    let debugTint = false;
+
+    let playerX = 1;
+    let playerY = 1;
+    let facingDirection = "down";
+
+    function initializePlayerPosition() {
+        if (startPosition && startPosition.x !== undefined) {
+            playerX = startPosition.x;
+        } else {
+            playerX = 1;
+        }
+        if (startPosition && startPosition.y !== undefined) {
+            playerY = startPosition.y;
+        } else {
+            playerY = 1;
+        }
+        facingDirection = "down";
     }
 
-    $: showMobile =
-        (cfg?.controls?.mobile ?? "onScreenArrows") === "onScreenArrows" &&
-        isCoarsePointer;
+    let isTouchDevice = false;
+    let mediaQuery;
 
-    let wrapEl;
-    let scale = 1;
-    let ro;
-    let showIntro = true;
-    const introText =
-        cfg?.ui?.introText ?? "Help Lina find the way to the bus!";
-    const introButton =
-        cfg?.ui?.introButton ?? "OK";
-
-    function closeIntro() {
-        showIntro = false;
+    function handlePointerTypeChange() {
+        if (mediaQuery && mediaQuery.matches) {
+            isTouchDevice = true;
+        } else {
+            isTouchDevice = false;
+        }
+        updateViewportScale();
     }
-    function recomputeScale() {
-        if (!wrapEl || !stageW || !stageH) return;
 
-        const r = wrapEl.getBoundingClientRect();
+    let enableMobileControls = false;
+    $: {
+        const mobileSetting = config?.controls?.mobile;
+        if (mobileSetting === "onScreenArrows" && isTouchDevice) {
+            enableMobileControls = true;
+        } else {
+            enableMobileControls = false;
+        }
+    }
+
+    let containerElement;
+    let viewportScale = 1;
+    let resizeObserver;
+    let introVisible = true;
+    const welcomeMessage =
+        config?.ui?.introText ?? "Help Lina find the way to the bus!";
+    const welcomeButtonText =
+        config?.ui?.introButton ?? "OK";
+
+    function dismissIntro() {
+        introVisible = false;
+    }
+
+    function updateViewportScale() {
+        if (!containerElement) return;
+        if (!stageWidth || !stageHeight) return;
+
+        const rect = containerElement.getBoundingClientRect();
         const padding = 16;
-        const reservedForControls = showMobile ? 170 : 0;
+        let controlsHeight = 0;
+        if (enableMobileControls) {
+            controlsHeight = 170;
+        }
 
-        const availW = Math.max(1, r.width - padding * 2);
-        const availH = Math.max(1, r.height - padding * 2 - reservedForControls);
+        const w = rect.width - padding * 2;
+        const h = rect.height - padding * 2 - controlsHeight;
 
-        const s = Math.min(availW / stageW, availH / stageH);
-        scale = Math.min(1, Math.max(0.2, s));
+        if (w <= 0 || h <= 0) return;
+
+        const scaleW = w / stageWidth;
+        const scaleH = h / stageHeight;
+        let scale = scaleW;
+        if (scaleH < scaleW) {
+            scale = scaleH;
+        }
+
+        if (scale > 1) scale = 1;
+        if (scale < 0.2) scale = 0.2;
+
+        viewportScale = scale;
     }
 
-    function cellAt(cx, cy) {
-        if (!cells?.length) return 1;
+    function getCellValue(col, row) {
+        if (!mazeGrid || mazeGrid.length === 0) {
+            return 1;
+        }
 
-        if (cy < 0 || cy >= gridHeight || cx < 0 || cx >= gridWidth) return 1;
+        if (row < 0 || row >= gridHeight) {
+            return 1;
+        }
+        if (col < 0 || col >= gridWidth) {
+            return 1;
+        }
 
-        const row = cells[cy];
-        if (!row) return 1;
+        if (!mazeGrid[row]) {
+            return 1;
+        }
 
-        return row[cx] ?? 1;
+        if (mazeGrid[row][col] === undefined) {
+            return 1;
+        }
+
+        return mazeGrid[row][col];
     }
 
-    function setDir(dx, dy) {
-        if (dx === 1) direction = "right";
-        else if (dx === -1) direction = "left";
-        else if (dy === 1) direction = "down";
-        else if (dy === -1) direction = "up";
-    }
+    function attemptMovement(deltaX, deltaY) {
+        if (deltaX === 1) facingDirection = "right";
+        if (deltaX === -1) facingDirection = "left";
+        if (deltaY === 1) facingDirection = "down";
+        if (deltaY === -1) facingDirection = "up";
 
-    function tryMove(dx, dy) {
-        setDir(dx, dy);
+        const newX = playerX + deltaX;
+        const newY = playerY + deltaY;
 
-        const nx = x + dx;
-        const ny = y + dy;
-
-
-        if (cellAt(nx, ny) === 1) {
+        if (getCellValue(newX, newY) === 1) {
             return;
         }
 
-        x = nx;
-        y = ny;
+        playerX = newX;
+        playerY = newY;
 
-        const FINISH_RADIUS = 1;
-
-        if (
-            Math.abs(x - finish.x) <= FINISH_RADIUS &&
-            Math.abs(y - finish.y) <= FINISH_RADIUS
-        ) {
+        if (Math.abs(playerX - endPosition.x) <= 1 && Math.abs(playerY - endPosition.y) <= 1) {
             dispatch("complete");
         }
-
     }
 
+    function handleKeyboardInput(event) {
+        if (event.repeat) return;
 
-    function onKeyDown(e) {
-        if (e.repeat) return;
+        if (event.key === "ArrowLeft") {
+            attemptMovement(-1, 0);
+        }
+        if (event.key === "ArrowRight") {
+            attemptMovement(1, 0);
+        }
+        if (event.key === "ArrowUp") {
+            attemptMovement(0, -1);
+        }
+        if (event.key === "ArrowDown") {
+            attemptMovement(0, 1);
+        }
 
-        if (e.key === "ArrowLeft") tryMove(-1, 0);
-        if (e.key === "ArrowRight") tryMove(1, 0);
-        if (e.key === "ArrowUp") tryMove(0, -1);
-        if (e.key === "ArrowDown") tryMove(0, 1);
-
-        if (e.key === "g") showGrid = !showGrid;
-        if (e.key === "c") showCoords = !showCoords;
-        if (e.key === "t") tintCells = !tintCells;
+        if (event.key === "g") {
+            debugGrid = !debugGrid;
+        }
+        if (event.key === "c") {
+            debugCoordinates = !debugCoordinates;
+        }
+        if (event.key === "t") {
+            debugTint = !debugTint;
+        }
     }
 
-    function preventScrollKeys(e) {
-        const keys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
-        if (keys.includes(e.key)) e.preventDefault();
+    function blockArrowKeyScrolling(event) {
+        if (event.key === "ArrowLeft" || event.key === "ArrowRight" || event.key === "ArrowUp" || event.key === "ArrowDown") {
+            event.preventDefault();
+        }
     }
 
-    function buildCellsFromImage(src, gw, gh, thr = 200, inv = false) {
+    function processImageToMazeGrid(imageUrl, width, height, thresholdValue = 200, invertColors = false) {
         return new Promise((resolve, reject) => {
             const img = new Image();
             img.crossOrigin = "anonymous";
-            img.src = src;
+            img.src = imageUrl;
 
             img.onload = () => {
                 const canvas = document.createElement("canvas");
-                canvas.width = gw;
-                canvas.height = gh;
+                canvas.width = width;
+                canvas.height = height;
 
                 const ctx = canvas.getContext("2d", { willReadFrequently: true });
                 ctx.imageSmoothingEnabled = true;
+                ctx.drawImage(img, 0, 0, width, height);
 
-                ctx.drawImage(img, 0, 0, gw, gh);
+                const imageData = ctx.getImageData(0, 0, width, height);
+                const data = imageData.data;
 
-                const { data } = ctx.getImageData(0, 0, gw, gh);
-
-                const out = Array.from({ length: gh }, () => Array(gw).fill(1));
-
-                for (let yy = 0; yy < gh; yy++) {
-                    for (let xx = 0; xx < gw; xx++) {
-                        const i = (yy * gw + xx) * 4;
+                const result = [];
+                for (let row = 0; row < height; row++) {
+                    result[row] = [];
+                    for (let col = 0; col < width; col++) {
+                        const i = (row * width + col) * 4;
                         const r = data[i];
                         const g = data[i + 1];
                         const b = data[i + 2];
-
                         const brightness = (r + g + b) / 3;
 
-                        let isWall = brightness < thr;
-                        if (inv) isWall = !isWall;
+                        let isWall = brightness < thresholdValue;
+                        if (invertColors) {
+                            isWall = !isWall;
+                        }
 
-                        out[yy][xx] = isWall ? 1 : 0;
+                        result[row][col] = isWall ? 1 : 0;
                     }
                 }
 
-                resolve(out);
+                resolve(result);
             };
 
-            img.onerror = (e) => reject(e);
+            img.onerror = (e) => {
+                reject(e);
+            };
         });
     }
 
-    let lastLoadKey = "";
-
-    $: void loadCells();
+    $: void initializeMaze();
 
     onMount(() => {
-        mq = window.matchMedia("(pointer: coarse)");
-        updatePointer();
+        mediaQuery = window.matchMedia("(pointer: coarse)");
+        
+        if (mediaQuery && mediaQuery.matches) {
+            isTouchDevice = false;
+            setTimeout(() => {
+                updateViewportScale();
+                setTimeout(() => {
+                    handlePointerTypeChange();
+                }, 50);
+            }, 50);
+        } else {
+            handlePointerTypeChange();
+        }
 
-        if (mq.addEventListener) mq.addEventListener("change", updatePointer);
-        else mq.addListener(updatePointer);
+        if (mediaQuery.addEventListener) {
+            mediaQuery.addEventListener("change", handlePointerTypeChange);
+        } else {
+            mediaQuery.addListener(handlePointerTypeChange);
+        }
 
-        ro = new ResizeObserver(recomputeScale);
-        ro.observe(wrapEl);
-        recomputeScale();
-        window.addEventListener("orientationchange", recomputeScale);
+        resizeObserver = new ResizeObserver(updateViewportScale);
+        resizeObserver.observe(containerElement);
+        updateViewportScale();
+        window.addEventListener("orientationchange", updateViewportScale);
 
-        window.addEventListener("keydown", onKeyDown);
-        window.addEventListener("keydown", preventScrollKeys, { passive: false });
+        window.addEventListener("keydown", handleKeyboardInput);
+        window.addEventListener("keydown", blockArrowKeyScrolling, { passive: false });
     });
 
     onDestroy(() => {
-        if (mq) {
-            if (mq.removeEventListener) mq.removeEventListener("change", updatePointer);
-            else mq.removeListener(updatePointer);
-        }
-        if (ro) ro.disconnect();
-
-        window.removeEventListener("orientationchange", recomputeScale);
-        window.removeEventListener("keydown", onKeyDown);
-        window.removeEventListener("keydown", preventScrollKeys);
-    });
-
-    $: px = x * cellSize;
-    $: py = y * cellSize;
-
-    let mazeReady = false;
-    let mazeLoadError = "";
-
-    async function loadCells() {
-        mazeReady = false;
-        mazeLoadError = "";
-
-        if (fromImage && gridWidth && gridHeight) {
-            try {
-                cells = await buildCellsFromImage(fromImage, gridWidth, gridHeight, threshold, invert);
-                mazeReady = true;
-                resetPlayerToStart();
-                recomputeScale();
-                return;
-            } catch (e) {
-                console.error("Failed to build maze from image:", fromImage, e);
-                mazeLoadError = "Image load failed: " + fromImage;
+        if (mediaQuery) {
+            if (mediaQuery.removeEventListener) {
+                mediaQuery.removeEventListener("change", handlePointerTypeChange);
+            } else {
+                mediaQuery.removeListener(handlePointerTypeChange);
             }
         }
+        if (resizeObserver) resizeObserver.disconnect();
 
-        cells = baseCells;
-        mazeReady = !!cells?.length;
-        resetPlayerToStart();
+        window.removeEventListener("orientationchange", updateViewportScale);
+        window.removeEventListener("keydown", handleKeyboardInput);
+        window.removeEventListener("keydown", blockArrowKeyScrolling);
+    });
+
+    $: playerPixelX = playerX * cellSize;
+    $: playerPixelY = playerY * cellSize;
+
+    let mazeInitialized = false;
+    let initializationError = "";
+
+    async function initializeMaze() {
+        mazeInitialized = false;
+        initializationError = "";
+
+        if (imageSource && gridWidth > 0 && gridHeight > 0) {
+            try {
+                mazeGrid = await processImageToMazeGrid(imageSource, gridWidth, gridHeight, brightnessThreshold, shouldInvert);
+                mazeInitialized = true;
+                initializePlayerPosition();
+                updateViewportScale();
+            } catch (error) {
+                console.error("Failed to build maze from image:", imageSource, error);
+                initializationError = "Image load failed: " + imageSource;
+                mazeGrid = defaultCells;
+                if (mazeGrid && mazeGrid.length > 0) {
+                    mazeInitialized = true;
+                }
+                initializePlayerPosition();
+            }
+        } else {
+            mazeGrid = defaultCells;
+            if (mazeGrid && mazeGrid.length > 0) {
+                mazeInitialized = true;
+            }
+            initializePlayerPosition();
+        }
     }
 
 </script>
 
-{#if !gridWidth || !gridHeight || !stageW || !stageH}
+{#if !gridWidth || !gridHeight || !stageWidth || !stageHeight}
     <div class="debug">
         <h3>Maze config missing</h3>
-        <pre>{JSON.stringify(m, null, 2)}</pre>
+        <pre>{JSON.stringify(mazeConfig, null, 2)}</pre>
     </div>
 {:else}
-    <div class="wrap" bind:this={wrapEl} style="background-image:url('{bg}')">
-        {#if !mazeReady}
+    <div class="wrap" bind:this={containerElement} style="background-image:url('{backgroundImage}')">
+        {#if !mazeInitialized}
             <div class="banner">
-                Loading maze… {mazeLoadError}
+                Loading maze… {initializationError}
             </div>
         {/if}
-        {#if showIntro}
+        {#if introVisible}
             <div class="overlay">
                 <div class="modal">
-                    <p class="intro-text">{introText}</p>
-                    <button class="ok-btn" on:click={closeIntro}>OK</button>
+                    <p class="intro-text">{welcomeMessage}</p>
+                    <button class="ok-btn" on:click={dismissIntro}>OK</button>
                 </div>
             </div>
         {/if}
 
 
-        <div class="stageHolder" style="width:{stageW * scale}px; height:{stageH * scale}px;">
+        <div class="stageHolder" style="width:{stageWidth * viewportScale}px; height:{stageHeight * viewportScale}px;">
             <div
                     class="stage"
                     style="
-                    width:{stageW}px;
-                    height:{stageH}px;
-                    transform: scale({scale});
+                    width:{stageWidth}px;
+                    height:{stageHeight}px;
+                    transform: scale({viewportScale});
                     transform-origin: top left;
                 "
             >
-                {#if mazeImage}
+                {#if overlayImage}
                     <img
                             class="mazeOverlay"
-                            src={mazeImage}
+                            src={overlayImage}
                             alt="maze"
                             draggable="false"
                     />
                 {/if}
 
                 <div class="walls">
-                    {#each Array(gridHeight) as _, yy}
-                        {#each Array(gridWidth) as _, xx}
-                            {#if cellAt(xx, yy) === 1}
+                    {#each Array(gridHeight) as _, rowIndex}
+                        {#each Array(gridWidth) as _, colIndex}
+                            {#if getCellValue(colIndex, rowIndex) === 1}
                                 <div
                                         class="wall"
                                         style="
-                                        left:{xx * cellSize}px;
-                                        top:{yy * cellSize}px;
+                                        left:{colIndex * cellSize}px;
+                                        top:{rowIndex * cellSize}px;
                                         width:{cellSize}px;
                                         height:{cellSize}px;
                                     "
-                                />
+                                ></div>
                             {/if}
                         {/each}
                     {/each}
@@ -315,45 +400,45 @@
                 <div
                         class="finish"
                         style="
-                        left:{finish.x * cellSize}px;
-                        top:{finish.y * cellSize}px;
+                        left:{endPosition.x * cellSize}px;
+                        top:{endPosition.y * cellSize}px;
                         width:{cellSize}px;
                         height:{cellSize}px;
                     "
-                />
+                ></div>
 
                 <div
-                        class="player {direction}"
+                        class="player {facingDirection}"
                         style="
-                        left:{px}px;
-                        top:{py}px;
-                        width:{cellSize * 1.2}px;
-                        height:{cellSize * 1.2}px;
+                        left:{playerPixelX}px;
+                        top:{playerPixelY}px;
+                        width:{cellSize * 1.8}px;
+                        height:{cellSize * 1.8}px;
                         --ps:{playerScale};
                     "
                 >
-                    {#if playerImg}
-                        <img src={playerImg} alt="player" draggable="false" />
+                    {#if playerImage}
+                        <img src={playerImage} alt="player" draggable="false" />
                     {:else}
                         <div class="fallback"></div>
                     {/if}
                 </div>
 
-                {#if showGrid}
+                {#if debugGrid}
                     <div class="grid">
-                        {#each Array(gridHeight) as _, yy}
-                            {#each Array(gridWidth) as _, xx}
+                        {#each Array(gridHeight) as _, rowIndex}
+                            {#each Array(gridWidth) as _, colIndex}
                                 <div
-                                        class="cell {tintCells ? (cellAt(xx, yy) === 1 ? 'wallCell' : 'freeCell') : ''}"
+                                        class="cell {debugTint ? (getCellValue(colIndex, rowIndex) === 1 ? 'wallCell' : 'freeCell') : ''}"
                                         style="
-                                        left:{xx * cellSize}px;
-                                        top:{yy * cellSize}px;
+                                        left:{colIndex * cellSize}px;
+                                        top:{rowIndex * cellSize}px;
                                         width:{cellSize}px;
                                         height:{cellSize}px;
                                     "
                                 >
-                                    {#if showCoords}
-                                        <span>{xx},{yy}</span>
+                                    {#if debugCoordinates}
+                                        <span>{colIndex},{rowIndex}</span>
                                     {/if}
                                 </div>
                             {/each}
@@ -363,14 +448,14 @@
             </div>
         </div>
 
-        {#if showMobile}
+        {#if enableMobileControls}
             <div class="controls" aria-label="Mobile controls">
-                <button on:click={() => tryMove(0, -1)} aria-label="Up">▲</button>
+                <button on:click={() => attemptMovement(0, -1)} aria-label="Up">▲</button>
                 <div class="row">
-                    <button on:click={() => tryMove(-1, 0)} aria-label="Left">◀</button>
-                    <button on:click={() => tryMove(1, 0)} aria-label="Right">▶</button>
+                    <button on:click={() => attemptMovement(-1, 0)} aria-label="Left">◀</button>
+                    <button on:click={() => attemptMovement(1, 0)} aria-label="Right">▶</button>
                 </div>
-                <button on:click={() => tryMove(0, 1)} aria-label="Down">▼</button>
+                <button on:click={() => attemptMovement(0, 1)} aria-label="Down">▼</button>
             </div>
         {/if}
     </div>
@@ -475,7 +560,7 @@
     @media (pointer: coarse) and (hover: none) {
         .controls {
             position: absolute;
-            left: 0; right: 0;
+            right: 18px;
             bottom: 18px;
             display: grid;
             gap: 10px;
@@ -483,16 +568,22 @@
             z-index: 60;
             pointer-events: auto;
         }
-        .controls .row { display: flex; gap: 12px; }
+        .controls .row {
+            display: flex;
+            gap: 12px;
+        }
         .controls button {
-            width: 64px; height: 64px;
+            width: 64px;
+            height: 64px;
             border-radius: 16px;
             border: 0;
             font-size: 22px;
             background: rgba(255,255,255,0.88);
             box-shadow: 0 8px 20px rgba(0,0,0,0.18);
         }
-        .controls button:active { transform: scale(0.98); }
+        .controls button:active {
+            transform: scale(0.98);
+        }
     }
 
     .debug {
