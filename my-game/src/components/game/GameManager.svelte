@@ -51,6 +51,18 @@
   }
 
   function restartGame() {
+      const allAudioElements = document.querySelectorAll('audio');
+      allAudioElements.forEach(audio => {
+          audio.pause();
+          audio.currentTime = 0;
+      });
+      if (typeof window !== 'undefined' && window['_passwordMusicSound']) {
+          try {
+              window['_passwordMusicSound'].pause();
+              window['_passwordMusicSound'].currentTime = 0;
+              window['_passwordMusicSound'] = null;
+          } catch (e) {}
+      }
       hearts.set(3);
       currentLevelIndex.set(0);
       characterOutfit.set('pajamas');
@@ -70,6 +82,16 @@
 
   /** @type {any} */
   $: CurrentComponent = currentLevelData ? getComponent(currentLevelData.type) : null;
+
+  $: {
+      if (currentLevelData) {
+          const allAudioElements = document.querySelectorAll('audio');
+          allAudioElements.forEach(audio => {
+              audio.pause();
+              audio.currentTime = 0;
+          });
+      }
+  }
 </script>
 
 <div class="game-container">

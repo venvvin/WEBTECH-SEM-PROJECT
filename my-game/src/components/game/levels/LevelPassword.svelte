@@ -1,8 +1,16 @@
 <script>
     import { createEventDispatcher, onMount, onDestroy } from "svelte";
+    import { hearts } from "../../../stores/gameStore.js";
 
     export let data;
     const dispatch = createEventDispatcher();
+
+    const passwords = ["8XGHC4", "WO78QC", "LCXHG2"];
+    let currentPasswordIndex = 0;
+    let inputPassword = "";
+    let timeLeft = 12;
+    let timerInterval = null;
+    let showError = false;
 
     let currentState = 'terminal';
     let showTerminal = true;
@@ -30,6 +38,27 @@
             audio.pause();
             audio.currentTime = 0;
         });
+        if (passwordMusicSound) {
+            try {
+                passwordMusicSound.pause();
+                passwordMusicSound.currentTime = 0;
+            } catch (e) {}
+            passwordMusicSound = null;
+        }
+        if (typeof window !== 'undefined' && window['_passwordMusicSound']) {
+            try {
+                window['_passwordMusicSound'].pause();
+                window['_passwordMusicSound'].currentTime = 0;
+            } catch (e) {}
+            window['_passwordMusicSound'] = null;
+        }
+        if (ringtoneSound) {
+            try {
+                ringtoneSound.pause();
+                ringtoneSound.currentTime = 0;
+            } catch (e) {}
+            ringtoneSound = null;
+        }
     }
 
     function startTypingText1() {
@@ -80,13 +109,20 @@
                 setTimeout(() => {
                     currentState = 'message1';
                     playSound("/game/sfx/msg.wav");
-                    passwordMusicSound = new Audio("/game/sfx/passwordmusic.wav");
-                    passwordMusicSound.loop = true;
-                    passwordMusicSound.play().catch(() => {});
                     
                     setTimeout(() => {
                         currentState = 'message2';
                         playSound("/game/sfx/msg.wav");
+                        passwordMusicSound = new Audio("/game/sfx/passwordmusic.wav");
+                        passwordMusicSound.loop = true;
+                        if (typeof window !== 'undefined') {
+                            window['_passwordMusicSound'] = passwordMusicSound;
+                        }
+                        passwordMusicSound.play().catch(() => {});
+                        setTimeout(() => {
+                            currentState = 'password2';
+                            startPasswordInput();
+                        }, 6000);
                     }, 5000);
                 }, 5500);
             }, 5000);
@@ -100,6 +136,139 @@
         return audio;
     }
 
+    function resetLevel() {
+        currentPasswordIndex = 0;
+        inputPassword = "";
+        timeLeft = 12;
+        showError = false;
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        if (passwordMusicSound) {
+            passwordMusicSound.pause();
+            passwordMusicSound = null;
+        }
+        currentState = 'message1';
+        playSound("/game/sfx/msg.wav");
+        setTimeout(() => {
+            currentState = 'message2';
+            playSound("/game/sfx/msg.wav");
+            passwordMusicSound = new Audio("/game/sfx/passwordmusic.wav");
+            passwordMusicSound.loop = true;
+            passwordMusicSound.play().catch(() => {});
+            setTimeout(() => {
+                currentState = 'password2';
+                startPasswordInput();
+            }, 6000);
+        }, 5000);
+    }
+
+    function handlePasswordError() {
+        const heartsBeforeMistake = $hearts;
+        playSound("/game/sfx/fail.wav");
+        dispatch("mistake");
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        if (passwordMusicSound) {
+            passwordMusicSound.pause();
+            passwordMusicSound = null;
+        }
+        
+        if (heartsBeforeMistake > 1) {
+            showError = true;
+            setTimeout(() => {
+                resetLevel();
+            }, 3000);
+        }
+    }
+
+    function startPasswordInput() {
+        inputPassword = "";
+        timeLeft = 12;
+        if (timerInterval) {
+            clearInterval(timerInterval);
+        }
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                handlePasswordError();
+            }
+        }, 1000);
+    }
+
+    function checkPassword() {
+        if (inputPassword === passwords[currentPasswordIndex]) {
+            playSound("/game/sfx/success.wav");
+            currentPasswordIndex++;
+            inputPassword = "";
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            
+            if (currentPasswordIndex >= passwords.length) {
+                playSound("/game/sfx/joy.wav");
+                setTimeout(() => {
+                    currentState = 'message5';
+                    playSound("/game/sfx/msg.wav");
+                    setTimeout(() => {
+                        dispatch("complete");
+                    }, 5000);
+                }, 1000);
+            } else {
+                setTimeout(() => {
+                    if (currentPasswordIndex === 1) {
+                        currentState = 'message3';
+                        playSound("/game/sfx/msg.wav");
+                        setTimeout(() => {
+                            currentState = 'password3';
+                            startPasswordInput();
+                        }, 6000);
+                    } else if (currentPasswordIndex === 2) {
+                        currentState = 'message4';
+                        playSound("/game/sfx/msg.wav");
+                        setTimeout(() => {
+                            currentState = 'password4';
+                            startPasswordInput();
+                        }, 6000);
+                    }
+                }, 500);
+            }
+        } else if (inputPassword.length >= passwords[currentPasswordIndex].length) {
+            handlePasswordError();
+        }
+    }
+
+    function onKeyPress(key) {
+        if (showError) return;
+        if (key === 'BACKSPACE') {
+            inputPassword = inputPassword.slice(0, -1);
+        } else if (key === 'ENTER') {
+            checkPassword();
+        } else {
+            inputPassword += key;
+            if (inputPassword.length === passwords[currentPasswordIndex].length) {
+                setTimeout(() => {
+                    checkPassword();
+                }, 200);
+            }
+        }
+    }
+
+    const keyboardKeys = [
+        ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
+        ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+        ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+        ['Z', 'X', 'C', 'V', 'B', 'N', 'M']
+    ];
+
+    $: emptyChars = passwords[currentPasswordIndex] ? Array.from({ length: passwords[currentPasswordIndex].length - inputPassword.length }) : [];
+
     onMount(() => {
         stopAllSounds();
         
@@ -110,13 +279,10 @@
     });
 
     onDestroy(() => {
-        if (ringtoneSound) {
-            ringtoneSound.pause();
-            ringtoneSound = null;
-        }
-        if (passwordMusicSound) {
-            passwordMusicSound.pause();
-            passwordMusicSound = null;
+        stopAllSounds();
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
         }
     });
 </script>
@@ -161,8 +327,57 @@
     {:else if currentState === 'message2'}
         <div class="message-screen">
             <img src="/game/backgrounds/message2.png" class="bg" alt="Message 2" />
-            <div class="password-input-placeholder">
-                <p>Password input screen will be here</p>
+        </div>
+    {:else if currentState === 'message3'}
+        <div class="message-screen">
+            <img src="/game/backgrounds/message3.png" class="bg" alt="Message 3" />
+        </div>
+    {:else if currentState === 'message4'}
+        <div class="message-screen">
+            <img src="/game/backgrounds/message4.png" class="bg" alt="Message 4" />
+        </div>
+    {:else if currentState === 'message5'}
+        <div class="message-screen">
+            <img src="/game/backgrounds/message5.png" class="bg" alt="Message 5" />
+        </div>
+    {:else if currentState === 'password2' || currentState === 'password3' || currentState === 'password4'}
+        <div class="password-screen">
+            <div class="password-content">
+                <div class="password-display">
+                    <div class="password-input-field">
+                        {#each inputPassword.split('') as char}
+                            <span class="password-char">{char}</span>
+                        {/each}
+                        {#each emptyChars as _}
+                            <span class="password-char empty">_</span>
+                        {/each}
+                    </div>
+                    <div class="timer">Time: {timeLeft}s</div>
+                </div>
+                <div class="keyboard-container">
+                    <div class="keyboard">
+                        {#each keyboardKeys as row}
+                            <div class="keyboard-row">
+                                {#each row as key}
+                                    <button class="key" on:click={() => onKeyPress(key)}>{key}</button>
+                                {/each}
+                            </div>
+                        {/each}
+                        <div class="keyboard-row">
+                            <button class="key key-wide" on:click={() => onKeyPress('BACKSPACE')}>⌫</button>
+                            <button class="key key-wide" on:click={() => onKeyPress('ENTER')}>ENTER</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {/if}
+
+    {#if showError}
+        <div class="error-overlay">
+            <div class="error-message">
+                <p>Wrong password!</p>
+                <p>Let's start the level again</p>
             </div>
         </div>
     {/if}
@@ -224,23 +439,132 @@
         line-height: 1.5;
     }
 
-    .password-input-placeholder {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(255, 255, 255, 0.9);
-        padding: 30px;
-        border-radius: 15px;
-        z-index: 200;
-        text-align: center;
-        border: 3px solid #3498db;
+    .password-screen {
+        width: 100%;
+        height: 100%;
+        background: #2c3e50;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
     }
 
-    .password-input-placeholder p {
+    .password-content {
+        width: 100%;
+        max-width: 800px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .password-display {
+        width: 100%;
+        margin-bottom: 40px;
+    }
+
+    .password-input-field {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 20px;
+        min-height: 80px;
+        align-items: center;
+    }
+
+    .password-char {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #2c3e50;
+        min-width: 40px;
+        text-align: center;
+    }
+
+    .password-char.empty {
+        color: #bdc3c7;
+    }
+
+    .timer {
+        text-align: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    .keyboard-container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .keyboard {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .keyboard-row {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .key {
+        background: white;
+        border: 2px solid #34495e;
+        border-radius: 8px;
+        padding: 15px 20px;
         font-size: 1.2rem;
-        color: #555;
-        margin: 0;
+        font-weight: bold;
+        cursor: pointer;
+        min-width: 50px;
+        transition: all 0.1s;
+    }
+
+    .key:hover {
+        background: #ecf0f1;
+        transform: scale(1.05);
+    }
+
+    .key:active {
+        background: #bdc3c7;
+        transform: scale(0.95);
+    }
+
+    .key-wide {
+        min-width: 120px;
+    }
+
+    .error-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+    }
+
+    .error-message {
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        text-align: center;
+        border: 4px solid #e74c3c;
+    }
+
+    .error-message p {
+        font-size: 1.5rem;
+        color: #e74c3c;
+        margin: 10px 0;
+        font-weight: bold;
     }
 
     @keyframes popIn {
@@ -251,6 +575,58 @@
         to {
             transform: translateX(-50%) scale(1);
             opacity: 1;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .password-screen {
+            padding: 10px;
+        }
+
+        .password-content {
+            width: 85%;
+            max-width: 500px;
+        }
+
+        .password-display {
+            margin-bottom: 20px;
+        }
+
+        .password-input-field {
+            padding: 15px;
+            gap: 8px;
+            min-height: 60px;
+        }
+
+        .password-char {
+            font-size: 1.5rem;
+            min-width: 28px;
+        }
+
+        .timer {
+            font-size: 1.1rem;
+        }
+
+        .keyboard-container {
+            width: 100%;
+        }
+
+        .keyboard {
+            gap: 4px;
+        }
+
+        .key {
+            padding: 6px 8px;
+            font-size: 0.8rem;
+            min-width: 30px;
+        }
+
+        .key-wide {
+            min-width: 80px;
+        }
+
+        .keyboard-row {
+            gap: 3px;
         }
     }
 </style>
