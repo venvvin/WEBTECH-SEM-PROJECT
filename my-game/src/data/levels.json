@@ -352,17 +352,18 @@
       "type": "wires-connect",
       "description": "Fix the Wires on the Bus",
       "config": {
-        "background": "bg_bus_wires.png",
+        "background": "/game/backgrounds/wires.png",
         "leftTerminals": [
-          { "id": "l_red", "color": "red", "y": 0.2 },
-          { "id": "l_blue", "color": "blue", "y": 0.5 },
-          { "id": "l_yellow", "color": "yellow", "y": 0.8 }
+          { "id": "l_yellow", "color": "yellow", "x": 0.12, "y": 0.22 },
+          { "id": "l_red",    "color": "red",    "x": 0.12, "y": 0.52 },
+          { "id": "l_blue",   "color": "blue",   "x": 0.12, "y": 0.80 }
         ],
         "rightTerminals": [
-          { "id": "r_red", "color": "red", "y": 0.7 },
-          { "id": "r_blue", "color": "blue", "y": 0.3 },
-          { "id": "r_yellow", "color": "yellow", "y": 0.55 }
+          { "id": "r_red",    "color": "red",    "x": 0.88, "y": 0.22 },
+          { "id": "r_blue",   "color": "blue",   "x": 0.88, "y": 0.58 },
+          { "id": "r_yellow", "color": "yellow", "x": 0.88, "y": 0.83 }
         ],
+
         "rules": {
           "allowCrossing": true,
           "mistakePenaltyHearts": 1,
