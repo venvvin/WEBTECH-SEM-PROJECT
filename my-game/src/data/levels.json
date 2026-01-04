@@ -410,6 +410,25 @@
       }
     },
     {
+      "id": "lvl_password",
+      "tier": 2,
+      "type": "password",
+      "title": "Enter Password",
+      "instruction": "Enter the password code that mom sent.",
+      "config": {
+        "rules": {
+          "mistakePenaltyHearts": 1,
+          "maxMistakesBeforeFail": 2
+        },
+        "sounds": {
+          "success": "/game/sfx/success.wav",
+          "fail": "/game/sfx/fail.wav",
+          "ringtone": "/game/sfx/ringtone.wav",
+          "passwordmusic": "/game/sfx/passwordmusic.wav"
+        }
+      }
+    },
+    {
       "id": "tr_cross_road",
       "tier": 2,
       "type": "traffic-light",
