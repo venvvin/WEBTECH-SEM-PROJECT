@@ -115,10 +115,6 @@
       </div>
   {/if}
 
-  <button class="debug-skip-btn" on:click={nextLevel}>
-    ⏩ SKIP LEVEL
-  </button>
-
 </div>
 
 <style>
@@ -192,24 +188,6 @@
 .dialog-bubble button:active {
     transform: scale(0.95);
 }
-
-.debug-skip-btn {
-      position: fixed;
-      top: 10px; right: 10px;
-      z-index: 9999;
-      background-color: red;
-      color: white;
-      border: 2px solid white;
-      padding: 8px 12px;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-      opacity: 0.7;
-  }
-
-  .debug-skip-btn:hover {
-      opacity: 1;
-  }
 
 @keyframes fadeIn {
     from { opacity: 0; }
