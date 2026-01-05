@@ -8,4 +8,5 @@ export const characterOutfit = writable('pajamas');
 
 export const gameConfig = writable({});
 export const gameTimer = writable(0);
-export const isTimerRunning = writable(false); 
+export const isTimerRunning = writable(false);
+export const forceMenuOpen = writable(false); 
