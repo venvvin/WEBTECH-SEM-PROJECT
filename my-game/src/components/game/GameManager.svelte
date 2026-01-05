@@ -1,15 +1,6 @@
 <script>
   import { levels, currentLevelIndex, hearts, characterOutfit } from "../../stores/gameStore.js";
-
-  import LevelBackpack from "./levels/LevelBackpack.svelte";
-  import LevelCooking from "./levels/LevelCooking.svelte";
-  import LevelDressUp from './levels/LevelDressUp.svelte';
-  import LevelMaze from "./levels/LevelMaze.svelte";
-  import LevelFixWires from "./levels/LevelFixWires.svelte";
-  import LevelPassword from "./levels/LevelPassword.svelte";
-  import LevelCrossRoad from "./levels/LevelCrossRoad.svelte";
-  import LevelMemory from "./levels/LevelMemory.svelte";
-  import UnknownLevel from "./levels/UnknownLevel.svelte";
+  import { getLevelComponent } from "../../utils/levelComponents.js";
 
   $: currentLevelData = $levels[$currentLevelIndex];
   let levelComplete = false;
@@ -72,23 +63,8 @@
       levelComplete = false;
   }
 
-  function getComponent(type) {
-      switch (type) {
-          case "drag-drop-sort": return LevelBackpack;
-          case "cooking": return LevelCooking;
-          case 'dress-up-iron': return LevelDressUp;
-          case "maze": return LevelMaze;
-          case "wires-connect": return LevelFixWires;
-          case "password": return LevelPassword;
-          case "traffic-light": return LevelCrossRoad;
-
-          case "memory": return LevelMemory;
-          default: return UnknownLevel;
-      }
-  }
-
   /** @type {any} */
-  $: CurrentComponent = currentLevelData ? getComponent(currentLevelData.type) : null;
+  $: CurrentComponent = currentLevelData ? getLevelComponent(currentLevelData.type) : null;
 
   $: {
       if (currentLevelData) {
@@ -138,10 +114,6 @@
           </div>
       </div>
   {/if}
-
-  <button class="debug-skip-btn" on:click={nextLevel}>
-    ⏩ SKIP LEVEL
-  </button>
 
 </div>
 
@@ -216,24 +188,6 @@
 .dialog-bubble button:active {
     transform: scale(0.95);
 }
-
-.debug-skip-btn {
-      position: fixed;
-      top: 10px; right: 10px;
-      z-index: 9999;
-      background-color: red;
-      color: white;
-      border: 2px solid white;
-      padding: 8px 12px;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-      opacity: 0.7;
-  }
-
-  .debug-skip-btn:hover {
-      opacity: 1;
-  }
 
 @keyframes fadeIn {
     from { opacity: 0; }

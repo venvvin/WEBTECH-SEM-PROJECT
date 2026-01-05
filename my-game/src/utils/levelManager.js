@@ -9,24 +9,31 @@ function shuffle(array) {
     const tier2 = allLevels.filter(l => l.tier === 2);
     const tier3 = allLevels.filter(l => l.tier === 3);
   
-    const tier1WithoutMaze = tier1.filter(l => l.type !== "maze");
+    const tier1GameLevels = tier1.filter(l => l.type !== "maze");
     const mazeLevel = tier1.find(l => l.type === "maze");
   
-    const memoryLevel = tier3.find(l => l.type === "memory");
-    const tier3WithoutMemory = tier3.filter(l => l.type !== "memory");
+    const tier2GameLevels = tier2.filter(l => l.type !== "traffic-light");
+    const crossRoadLevel = tier2.find(l => l.type === "traffic-light");
   
-    const shuffledT1 = shuffle([...tier1WithoutMaze]);
-    const shuffledT2 = shuffle([...tier2]);
-    const shuffledT3 = shuffle([...tier3WithoutMemory]);
+    const memoryLevel = tier3.find(l => l.type === "memory");
+  
+    const shuffledT1Games = shuffle([...tier1GameLevels]);
+    const shuffledT2Games = shuffle([...tier2GameLevels]);
   
     let queue = [];
     
-    if (!mazeLevel) {
-        queue = [...shuffledT1, ...shuffledT2, ...shuffledT3];
-    } else {
-        queue = [...shuffledT1, mazeLevel, ...shuffledT2, ...shuffledT3];
+    queue.push(...shuffledT1Games);
+    
+    if (mazeLevel) {
+        queue.push(mazeLevel);
     }
-  
+    
+    queue.push(...shuffledT2Games);
+    
+    if (crossRoadLevel) {
+        queue.push(crossRoadLevel);
+    }
+    
     if (memoryLevel) {
         queue.push(memoryLevel);
     }
