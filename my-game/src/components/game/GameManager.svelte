@@ -1,10 +1,13 @@
 <script>
-  import { levels, currentLevelIndex, hearts, characterOutfit } from "../../stores/gameStore.js";
+  import { onMount, onDestroy } from "svelte";
+  import { levels, currentLevelIndex, hearts, characterOutfit, gameTimer, isTimerRunning } from "../../stores/gameStore.js";
   import { getLevelComponent } from "../../utils/levelComponents.js";
   import HintButton from "../ui/HintButton.svelte";
+  import { saveCurrentTime, saveBestTime, clearCurrentTime } from "../../utils/timerManager.js";
 
   $: currentLevelData = $levels[$currentLevelIndex];
   let levelComplete = false;
+  let timerInterval = null;
       $: console.log("Current Outfit in Store:", $characterOutfit);
     $: console.log("Selected Happy Image:", happyChar);
 
@@ -30,6 +33,13 @@
         : (currentLevelData?.config?.character?.sad || charImages.pajamas.sad);
 
   $: isGameOver = $hearts <= 0 && !(currentLevelData?.config?.rules?.restartOnFail && $currentLevelIndex === 0);
+  
+  $: {
+      if (isGameOver) {
+          stopTimer();
+          saveCurrentTime($gameTimer);
+      }
+  }
 
   function handleLevelComplete() {
       levelComplete = true;
@@ -42,7 +52,14 @@
 
   function nextLevel() {
       levelComplete = false;
-      currentLevelIndex.update((n) => n + 1);
+      const nextIndex = $currentLevelIndex + 1;
+      currentLevelIndex.set(nextIndex);
+      
+      if (nextIndex >= $levels.length) {
+          stopTimer();
+          saveCurrentTime($gameTimer);
+          saveBestTime($gameTimer);
+      }
   }
 
   function restartGame() {
@@ -58,10 +75,29 @@
               window['_passwordMusicSound'] = null;
           } catch (e) {}
       }
+      stopTimer();
+      clearCurrentTime();
+      gameTimer.set(0);
       hearts.set(3);
       currentLevelIndex.set(0);
       characterOutfit.set('pajamas');
       levelComplete = false;
+  }
+
+  function startTimer() {
+      if (timerInterval) return;
+      isTimerRunning.set(true);
+      timerInterval = setInterval(() => {
+          gameTimer.update(t => t + 1);
+      }, 1000);
+  }
+
+  function stopTimer() {
+      if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+      }
+      isTimerRunning.set(false);
   }
 
   /** @type {any} */
@@ -74,8 +110,22 @@
               audio.pause();
               audio.currentTime = 0;
           });
+          
+          if ($currentLevelIndex === 0 && !$isTimerRunning) {
+              startTimer();
+          }
       }
   }
+
+  onMount(() => {
+      if ($levels.length > 0 && $currentLevelIndex === 0) {
+          startTimer();
+      }
+  });
+
+  onDestroy(() => {
+      stopTimer();
+  });
 </script>
 
 <div class="game-container">

@@ -4,8 +4,9 @@
   import GameManager from './components/game/GameManager.svelte';
   import HUD from './components/ui/HUD.svelte';
   
-  import { currentScreen, levels, hearts, gameConfig } from './stores/gameStore.js';
+  import { currentScreen, levels, hearts, gameConfig, gameTimer, currentLevelIndex } from './stores/gameStore.js';
   import { generateGameQueue } from './utils/levelManager.js';
+  import { clearCurrentTime } from './utils/timerManager.js';
   
   import fullGameData from './data/levels.json';
 
@@ -14,6 +15,9 @@
     hearts.set(fullGameData.meta.totalHearts || 3);
     const gameQueue = generateGameQueue(fullGameData);
     levels.set(gameQueue);
+    gameTimer.set(0);
+    currentLevelIndex.set(0);
+    clearCurrentTime();
     currentScreen.set('game');
   }
 </script>

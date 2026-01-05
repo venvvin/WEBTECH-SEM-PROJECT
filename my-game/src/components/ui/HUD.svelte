@@ -1,5 +1,6 @@
 <script>
-    import { hearts, currentLevelIndex, levels } from '../../stores/gameStore.js';
+    import { hearts, currentLevelIndex, levels, gameTimer } from '../../stores/gameStore.js';
+    import { formatTime } from '../../utils/timerManager.js';
   </script>
   
   <div class="hud">
@@ -7,6 +8,11 @@
       {#each Array($hearts) as _}
         <span class="heart">❤️</span>
       {/each}
+    </div>
+    <div class="center-section">
+      <div class="timer">
+        ⏱️ {formatTime($gameTimer)}
+      </div>
     </div>
     <div class="progress">
       Level: {$currentLevelIndex + 1} / {$levels.length}
@@ -20,7 +26,7 @@
       left: 10px;
       right: 10px;
       display: flex;
-      justify-content: flex-start; 
+      justify-content: space-between; 
       align-items: center;
       gap: 20px;
       
@@ -35,5 +41,18 @@
     
     .hearts {
       display: flex;
+    }
+
+    .center-section {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+    }
+
+    .timer {
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
     }
   </style>

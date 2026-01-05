@@ -6,4 +6,6 @@ export const hearts = writable(3);
 export const levels = writable([]);
 export const characterOutfit = writable('pajamas'); 
 
-export const gameConfig = writable({}); 
+export const gameConfig = writable({});
+export const gameTimer = writable(0);
+export const isTimerRunning = writable(false); 

@@ -1,0 +1,78 @@
+const STORAGE_KEY = 'school_journey_timer';
+const BEST_TIME_KEY = 'school_journey_best_time';
+
+export function saveCurrentTime(timeInSeconds) {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      time: timeInSeconds,
+      timestamp: Date.now()
+    }));
+  } catch (e) {
+    console.error('Error saving time:', e);
+  }
+}
+
+export function loadCurrentTime() {
+  if (typeof window === 'undefined') return null;
+  
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) return null;
+    return JSON.parse(stored);
+  } catch (e) {
+    console.error('Error loading time:', e);
+    return null;
+  }
+}
+
+export function saveBestTime(timeInSeconds) {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    const currentBest = getBestTime();
+    if (!currentBest || timeInSeconds < currentBest) {
+      localStorage.setItem(BEST_TIME_KEY, JSON.stringify({
+        time: timeInSeconds,
+        timestamp: Date.now()
+      }));
+      return true;
+    }
+    return false;
+  } catch (e) {
+    console.error('Error saving best time:', e);
+    return false;
+  }
+}
+
+export function getBestTime() {
+  if (typeof window === 'undefined') return null;
+  
+  try {
+    const stored = localStorage.getItem(BEST_TIME_KEY);
+    if (!stored) return null;
+    const data = JSON.parse(stored);
+    return data.time;
+  } catch (e) {
+    console.error('Error loading best time:', e);
+    return null;
+  }
+}
+
+export function clearCurrentTime() {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (e) {
+    console.error('Error clearing time:', e);
+  }
+}
+
+export function formatTime(seconds) {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
