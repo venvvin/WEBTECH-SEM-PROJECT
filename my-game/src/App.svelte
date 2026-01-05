@@ -49,7 +49,7 @@
         </div>
 
     {:else if $currentScreen === 'intro'}
-        <IntroScreen intro={$gameConfig?.meta?.intro} on:done={finishIntro} />
+        <IntroScreen intro={fullGameData?.meta?.intro} on:done={finishIntro} />
 
     {:else if $currentScreen === 'game'}
         <div class="screen game-screen">
