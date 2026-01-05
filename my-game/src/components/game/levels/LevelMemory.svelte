@@ -21,7 +21,6 @@
     let birdnatureSound = null;
     let cardgamemusicSound = null;
 
-    // Intro dialog variables
     let dialogText1 = "";
     let dialogFullText1 = "Hi! My name is Michael. You're late. The lesson is about to start. And I already know where we need to go";
     let dialogTypingIndex1 = 0;
@@ -32,7 +31,6 @@
     let dialogTypingIndex2 = 0;
     let dialogTypingComplete2 = false;
 
-    // Ending dialog variables
     let michaelEndingText = "";
     let michaelEndingFullText = "You did great. You handled it quickly. Oh, and here's the bell. Let's hurry up";
     let michaelEndingTypingIndex = 0;
@@ -43,7 +41,6 @@
     let linaEndingTypingIndex = 0;
     let linaEndingTypingComplete = false;
 
-    // Final novel variables
     let finalNovelScene = 1;
     let finalNovelImages = [
         '/game/end/scene_1.png',
@@ -269,7 +266,7 @@
         currentNovelTypingIndex = 0;
         currentNovelTypingComplete = false;
 
-        // Start classroom ambient sound
+
         classroomSound = new Audio('/game/sfx/classroom.wav');
         classroomSound.loop = true;
         classroomSound.play().catch(e => console.log('Audio play error:', e));
@@ -294,7 +291,6 @@
             currentNovelTypingIndex = 0;
             currentNovelTypingComplete = false;
 
-            // Update scene number based on dialog index
             if (currentNovelDialogIndex === 2) finalNovelScene = 2;
             else if (currentNovelDialogIndex === 4) finalNovelScene = 3;
             else if (currentNovelDialogIndex === 5) finalNovelScene = 4;
@@ -303,7 +299,6 @@
 
             startTypingNovelText();
         } else {
-            // End of novel - return to main game or complete level
             dispatch('complete');
         }
     }

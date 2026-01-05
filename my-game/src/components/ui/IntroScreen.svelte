@@ -1,7 +1,7 @@
 <script>
     import { createEventDispatcher } from "svelte";
 
-    export let intro; // { title, slides:[{image, lines:[] }], startButton }
+    export let intro;
 
     const dispatch = createEventDispatcher();
     let i = 0;
