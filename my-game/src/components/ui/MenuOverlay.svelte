@@ -13,10 +13,6 @@
   $: currentTimeFormatted = formatTime($gameTimer);
   
   function handleRestart() {
-    const currentBest = getBestTime();
-    if (currentBest === null || $gameTimer < currentBest) {
-      saveBestTime($gameTimer);
-    }
     onRestart();
     onClose();
   }

@@ -1,6 +1,6 @@
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { levels, currentLevelIndex, hearts, characterOutfit, gameTimer, isTimerRunning, currentScreen, gameConfig } from "../../stores/gameStore.js";
+  import { levels, currentLevelIndex, hearts, characterOutfit, gameTimer, isTimerRunning, currentScreen, gameConfig, forceMenuOpen } from "../../stores/gameStore.js";
   import { getLevelComponent } from "../../utils/levelComponents.js";
   import { generateGameQueue } from "../../utils/levelManager.js";
   import HintButton from "../ui/HintButton.svelte";
@@ -11,11 +11,19 @@
   import fullGameData from "../../data/levels.json";
 
   $: currentLevelData = $levels[$currentLevelIndex];
+  $: isGameComplete = $currentLevelIndex >= $levels.length;
   let levelComplete = false;
   let timerInterval = null;
   let showTransition = false;
   let transitionInstruction = "";
   let menuOpen = false;
+
+  $: {
+      if ($forceMenuOpen) {
+          menuOpen = true;
+          forceMenuOpen.set(false);
+      }
+  }
       $: console.log("Current Outfit in Store:", $characterOutfit);
     $: console.log("Selected Happy Image:", happyChar);
 
@@ -51,6 +59,12 @@
 
   function handleLevelComplete() {
       levelComplete = true;
+      const nextIndex = $currentLevelIndex + 1;
+      if (nextIndex >= $levels.length) {
+          stopTimer();
+          saveCurrentTime($gameTimer);
+          currentLevelIndex.set(nextIndex);
+      }
   }
 
   function handleMistake() {
@@ -65,7 +79,6 @@
       if (nextIndex >= $levels.length) {
           stopTimer();
           saveCurrentTime($gameTimer);
-          saveBestTime($gameTimer);
           currentLevelIndex.set(nextIndex);
           return;
       }
@@ -83,6 +96,11 @@
       showTransition = false;
       const nextIndex = $currentLevelIndex + 1;
       currentLevelIndex.set(nextIndex);
+  }
+
+  function finishGame() {
+      saveBestTime($gameTimer);
+      currentScreen.set('results');
   }
 
   function restartGame() {
@@ -108,11 +126,6 @@
   }
 
   function restartGameFromMenu() {
-      const currentBest = getBestTime();
-      if (currentBest === null || $gameTimer < currentBest) {
-          saveBestTime($gameTimer);
-      }
-      
       stopTimer();
       clearCurrentTime();
       gameTimer.set(0);
@@ -198,11 +211,19 @@
               on:mistake={handleMistake}
               on:restartGame={restartGame}
       />
-  {:else}
-      <p>Game Finished or Error!</p>
+  {:else if isGameComplete}
+      <div class="game-complete-overlay">
+          <div class="character-box">
+              <img src={happyChar} alt="Lina Happy" class="char-img" />
+              <div class="dialog-bubble">
+                  <p>Congratulations! You completed all levels!</p>
+                  <button on:click={finishGame}>Finish the Game</button>
+              </div>
+          </div>
+      </div>
   {/if}
 
-  {#if levelComplete}
+  {#if levelComplete && !isGameComplete}
       <div class="win-overlay">
           <div class="character-box">
               <img src={happyChar} alt="Lina Happy" class="char-img" />
@@ -226,8 +247,10 @@
       </div>
   {/if}
 
-  {#if currentLevelData && !levelComplete && !isGameOver && !showTransition}
-    <HintButton hintText={currentLevelData.config?.hint || "Text will be here."} />
+  {#if (currentLevelData && !levelComplete && !isGameOver && !showTransition) || isGameComplete}
+    {#if currentLevelData && !levelComplete && !isGameOver && !showTransition}
+      <HintButton hintText={currentLevelData.config?.hint || "Text will be here."} />
+    {/if}
     <MenuButton bind:isOpen={menuOpen}>
       {#if menuOpen}
         <MenuOverlay 
@@ -246,7 +269,7 @@
     width: 100%; height: 100%; position: relative;
 }
 
-.win-overlay, .gameover-overlay {
+.win-overlay, .gameover-overlay, .game-complete-overlay {
     position: absolute;
     inset: 0;
     background: rgba(255, 255, 255, 0.9);

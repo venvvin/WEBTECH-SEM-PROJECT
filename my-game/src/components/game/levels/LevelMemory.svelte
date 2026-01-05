@@ -1,5 +1,7 @@
 <script>
     import { createEventDispatcher, onMount, onDestroy } from 'svelte';
+    import { gameTimer, forceMenuOpen } from '../../../stores/gameStore.js';
+    import { saveBestTime, getBestTime } from '../../../utils/timerManager.js';
 
     export let data = {};
     const dispatch = createEventDispatcher();
@@ -299,7 +301,11 @@
 
             startTypingNovelText();
         } else {
+            saveBestTime($gameTimer);
             dispatch('complete');
+            setTimeout(() => {
+                forceMenuOpen.set(true);
+            }, 100);
         }
     }
 
