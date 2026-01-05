@@ -2,6 +2,7 @@
     import { createEventDispatcher, onMount } from 'svelte';
     import { hearts, characterOutfit } from '../../../stores/gameStore.js';
   
+    export let data;
     const dispatch = createEventDispatcher();
     
     const images = {
@@ -224,8 +225,8 @@
     </div>
 
        {:else if state === 'closed'}
-       <div class="full-screen-click" on:click={nextState}>
-           <img src={config.backgrounds.closed} class="bg" />
+       <div class="full-screen-click" on:click={nextState} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && nextState()}>
+           <img src={config.backgrounds.closed} class="bg" alt="Closed wardrobe" />
            <div class="message-box-bottom">
               <p>{config.dialogs.closed}</p>
               <small>(Tap anywhere)</small>
@@ -255,22 +256,28 @@
            </div>
        </div>   
   
-    {:else if state === 'selection'}
-       <img src={config.backgrounds.empty} class="bg" />
+       {:else if state === 'selection'}
+       <img src={config.backgrounds.empty} class="bg" alt="Empty wardrobe" />
        <div class="outfits-row">
           {#each config.outfits as outfit}
-             <img 
-               src={outfit.image} 
-               class="outfit-item" 
-               on:click={() => chooseOutfit(outfit)} 
-             />
+             <button 
+               class="outfit-item-button" 
+               on:click={() => chooseOutfit(outfit)}
+               aria-label="Choose {outfit.name}"
+             >
+               <img 
+                 src={outfit.thumb || outfit.image} 
+                 class="outfit-item" 
+                 alt={outfit.name}
+               />
+             </button>
           {/each}
        </div>
        <div class="instruction">{config.dialogs.choice}</div>
        
        {:else if state === 'wrong_choice'}
        <div class="error-screen">
-           <img src={config.backgrounds.opened} class="bg bg-dimmed" />
+           <img src={config.backgrounds.opened} class="bg bg-dimmed" alt="Wardrobe background" />
            
            <div class="error-modal">
                <span style="font-size: 3rem;">❌</span>
@@ -579,6 +586,39 @@
         0%, 100% { transform: translateX(0); }
         25% { transform: translateX(-10px); }
         75% { transform: translateX(10px); }
+    }
+
+    .outfits-row {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        bottom: 20%;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .outfit-item-button {
+        background: transparent;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .outfit-item-button:hover {
+        transform: scale(1.1);
+    }
+
+    .outfit-item-button:active {
+        transform: scale(0.95);
+    }
+
+    .outfit-item {
+        width: 150px;
+        height: auto;
+        object-fit: contain;
     }
 
 </style> 
