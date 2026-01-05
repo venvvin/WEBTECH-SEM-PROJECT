@@ -94,7 +94,7 @@
           "image": "/game/items/backpack.png",
           "dropZoneId": "bag_zone",
           "scale": 1.0,
-          "position": { "x": 50, "y": 80 } 
+          "position": { "x": 50, "y": 80 }
         },
         "checklist": {
           "title": "Checklist",
@@ -243,28 +243,28 @@
           },
 
           "fridgeSlots": {
-            "ing_tomato_whole": { "x": 60,  "y": 152, "w": 150, "h": 150 },
-            "ing_bun_bottom":   { "x": 170, "y": 152, "w": 160, "h": 160 },
-            "ing_cheese":       { "x": 60,  "y": 282, "w": 150, "h": 150 },
-            "ing_bun_top":      { "x": 170, "y": 282, "w": 160, "h": 160 },
+            "ing_tomato_whole": { "x": 150,  "y": 152, "w": 150, "h": 150 },
+            "ing_bun_bottom":   { "x": 250, "y": 152, "w": 160, "h": 160 },
+            "ing_cheese":       { "x": 150,  "y": 282, "w": 150, "h": 150 },
+            "ing_bun_top":      { "x": 250, "y": 282, "w": 160, "h": 160 },
 
             "ing_tomato_slice": { "x": 115, "y": 422, "w": 150, "h": 150 }
           },
 
           "boardSlots": {
-            "ing_tomato_whole": { "x": 430, "y": 720, "w": 180, "h": 180 },
+            "ing_tomato_whole": { "x": 430, "y": 720, "w": 250, "h": 250 },
             "ing_tomato_slice": { "x": 430, "y": 720, "w": 180, "h": 180 },
 
-            "ing_bun_bottom":   { "x": 590, "y": 720, "w": 220, "h": 220 },
-            "ing_cheese":       { "x": 780, "y": 740, "w": 200, "h": 200 },
-            "ing_bun_top":      { "x": 980, "y": 720, "w": 220, "h": 220 }
+            "ing_bun_bottom":   { "x": 540, "y": 720, "w": 250, "h": 250 },
+            "ing_cheese":       { "x": 300, "y": 740, "w": 230, "h": 230 },
+            "ing_bun_top":      { "x": 700, "y": 720, "w": 250, "h": 250 }
           },
 
           "plateSlots": {
-            "ing_bun_bottom":   { "x": 1120, "y": 750, "w": 280, "h": 280, "z": 21 },
-            "ing_cheese":       { "x": 1120, "y": 740, "w": 250, "h": 250, "z": 22 },
-            "ing_tomato_slice": { "x": 1130, "y": 730, "w": 230, "h": 230, "z": 23 },
-            "ing_bun_top":      { "x": 1120, "y": 700, "w": 290, "h": 290, "z": 24 }
+            "ing_bun_bottom":   { "x": 1270, "y": 610, "w": 280, "h": 280, "z": 21 },
+            "ing_cheese":       { "x": 1280, "y": 600, "w": 250, "h": 250, "z": 22 },
+            "ing_tomato_slice": { "x": 1270, "y": 590, "w": 230, "h": 230, "z": 23 },
+            "ing_bun_top":      { "x": 1260, "y": 560, "w": 290, "h": 290, "z": 24 }
           }
         },
 
@@ -314,7 +314,7 @@
         "sounds": {
           "success": "/game/sfx/success.wav",
           "fail": "/game/sfx/fail.wav",
-          "drop": "/game/sfx/drop.wav",
+
           "cut": "/game/sfx/cut.wav",
           "joy": "/game/sfx/joy.wav",
           "clap": "/game/sfx/clap.wav"
@@ -535,6 +535,7 @@
       }
     }
   ],
+
   "endScreens": {
     "gameOver": {
       "title": "Game Over",

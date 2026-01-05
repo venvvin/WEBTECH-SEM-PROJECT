@@ -6,14 +6,18 @@
 
     const WIRE_WIDTH = 3.0;
     const END_DOT_R = 1.6;
-    const LEFT_HIT_R = 3.2;
-    const RIGHT_HIT_R = 3.6;
+    const LEFT_HIT_R = 5.0;
+    const RIGHT_HIT_R = 5.0;
     const TIP_PUSH_LEFT = 2.3;
     const TIP_PUSH_RIGHT = -2.0;
     const DEBUG = false;
 
+    const VISIBLE_START_POINTS = true;
+    const VISIBLE_END_POINTS = true;
+    const POINT_R = 4.0;
+    const POINT_OPACITY = 0.4;
+
     $: cfg = data?.config ?? {};
-    $: story = cfg?.story ?? {};
     $: taskBg = cfg?.background ?? "";
     $: sounds = cfg?.sounds ?? {};
     $: rules = cfg?.rules ?? {};
@@ -36,14 +40,14 @@
             type: "scene",
             image: "/game/story/lina_help.png",
             speaker: "Lina",
-            text: "Don’t worry. I can fix it. Just tell me which wires go together."
+            text: "Don't worry. I can fix it. Just tell me which wires go together."
         },
         {
             type: "scene",
             image: "/game/story/broken_wires.png",
             speaker: "",
             text: "The wiring panel is open. Connect the matching colors to restore power.",
-            sound: "broken" // Звук сломанных проводов ТОЛЬКО на этом шаге
+            sound: "broken"
         },
         { type: "task" },
         {
@@ -64,20 +68,13 @@
     let phase = "story";
     let levelFinished = false;
 
-    // Музыка на весь уровень
     let backgroundMusic = null;
-
-    // Флаг для отслеживания первого клика (для автоплея)
     let userInteracted = false;
     let musicStarted = false;
-
-    // Флаг для отслеживания, играл ли уже звук broken на текущем шаге
     let brokenSoundPlayed = false;
 
     function goNext() {
         if (phase === "task") return;
-
-        // Сбрасываем флаг звука broken при переходе на другой шаг
         brokenSoundPlayed = false;
 
         if (stepIndex < steps.length - 1) {
@@ -116,7 +113,7 @@
     function finishLevel() {
         if (levelFinished) return;
         levelFinished = true;
-        // Останавливаем музыку при завершении уровня
+
         if (backgroundMusic) {
             backgroundMusic.pause();
             backgroundMusic = null;
@@ -124,7 +121,6 @@
         dispatch("complete");
     }
 
-    // Функция для проигрывания звука
     function play(name) {
         const src = sounds?.[name];
 
@@ -136,21 +132,18 @@
         try {
             const audio = new Audio(src);
 
-            // Для музыки устанавливаем цикличное воспроизведение
             if (name === "music") {
                 audio.loop = true;
-                audio.volume = 0.5; // Тише для фоновой музыки
+                audio.volume = 0.5;
 
-                // Останавливаем предыдущую музыку если есть
                 if (backgroundMusic) {
                     backgroundMusic.pause();
                 }
                 backgroundMusic = audio;
             } else {
-                audio.volume = 0.7; // Громкость для звуковых эффектов
+                audio.volume = 0.7;
             }
 
-            // Пытаемся воспроизвести
             const playPromise = audio.play();
 
             if (playPromise) {
@@ -166,7 +159,6 @@
         }
     }
 
-    // Функция для запуска музыки
     function startBackgroundMusic() {
         if (!musicStarted && sounds?.music) {
             musicStarted = true;
@@ -174,7 +166,6 @@
         }
     }
 
-    // Запускаем фоновую музыку при первом взаимодействии пользователя
     function handleUserInteraction() {
         if (!userInteracted) {
             userInteracted = true;
@@ -182,15 +173,12 @@
         }
     }
 
-    // Проигрываем звук broken проводов на 4-м шаге
     $: if (phase === "story" && stepIndex === 3 && !brokenSoundPlayed) {
-        // Шаг 3 - это 4-й шаг (индекс 3) где broken_wires.png
         const currentStep = steps[stepIndex];
         if (currentStep?.sound === "broken") {
-            // Небольшая задержка для лучшего восприятия
             setTimeout(() => {
                 play("broken");
-                brokenSoundPlayed = true; // Помечаем, что звук уже сыграл
+                brokenSoundPlayed = true;
             }, 300);
         }
     }
@@ -199,6 +187,47 @@
     let stageRect = { left: 0, top: 0, width: 1, height: 1 };
     let imgBox = { left: 0, top: 0, width: 1, height: 1 };
 
+    const leftOrder = ["yellow", "red", "blue"];
+    const rightOrder = ["red", "blue", "yellow"];
+
+    let leftPoints = [];
+    let rightPoints = [];
+
+    const BASE_XL = 22.0;
+    const BASE_XR = 78.0;
+    const Y_LEVELS = [12, 20, 28];
+
+    const BASE_SCREEN_WIDTH = 1920;
+
+    function updatePointsForScreen() {
+        if (!stageEl) return;
+
+        const screenWidth = stageRect.width;
+
+        let baseXL = BASE_XL;
+        let baseXR = BASE_XR;
+
+        if (screenWidth > BASE_SCREEN_WIDTH) {
+            const extraWidth = screenWidth - BASE_SCREEN_WIDTH;
+            const adjustment = Math.min(10, extraWidth / 100);
+
+            baseXL = BASE_XL - adjustment;
+            baseXR = BASE_XR + adjustment;
+        }
+
+        leftPoints = leftOrder.map((color, i) => ({
+            color,
+            x: baseXL + TIP_PUSH_LEFT,
+            y: Y_LEVELS[i]
+        }));
+
+        rightPoints = rightOrder.map((color, i) => ({
+            color,
+            x: baseXR + TIP_PUSH_RIGHT,
+            y: Y_LEVELS[i]
+        }));
+    }
+
     function updateRects() {
         if (!stageEl) return;
         const s = stageEl.getBoundingClientRect();
@@ -206,6 +235,7 @@
 
         if (!imgEl) {
             imgBox = { left: stageRect.left, top: stageRect.top, width: stageRect.width, height: stageRect.height };
+            updatePointsForScreen();
             return;
         }
 
@@ -228,6 +258,8 @@
             width: drawnW,
             height: drawnH
         };
+
+        updatePointsForScreen();
     }
 
     function onTaskBgLoad() {
@@ -250,25 +282,6 @@
         const dy = a.y - b.y;
         return dx * dx + dy * dy;
     }
-
-    const baseXL = 22.0;
-    const baseXR = 78.0;
-    const yLevels = [12, 20, 28];
-
-    const leftOrder = ["yellow", "red", "blue"];
-    const rightOrder = ["red", "blue", "yellow"];
-
-    const leftPoints = leftOrder.map((color, i) => ({
-        color,
-        x: baseXL + TIP_PUSH_LEFT,
-        y: yLevels[i]
-    }));
-
-    const rightPoints = rightOrder.map((color, i) => ({
-        color,
-        x: baseXR + TIP_PUSH_RIGHT,
-        y: yLevels[i]
-    }));
 
     function getLeft(color) {
         return leftPoints.find((p) => p.color === color);
@@ -296,7 +309,6 @@
         const end = pointerToSvg(e);
         active = { color, x1: L.x, y1: L.y, x2: end.x, y2: end.y };
 
-        // Запускаем музыку при первом взаимодействии
         handleUserInteraction();
 
         try {
@@ -331,7 +343,6 @@
             active = null;
 
             if (connected.size === leftOrder.length) {
-                // Проигрываем success звук когда все провода соединены
                 play("success");
                 phase = "after";
                 stepIndex = Math.min(stepIndex + 1, steps.length - 1);
@@ -350,13 +361,10 @@
         phase = "story";
         levelFinished = false;
         resetTask();
-
-        // Сбрасываем флаги
         brokenSoundPlayed = false;
         userInteracted = false;
         musicStarted = false;
 
-        // Останавливаем старую музыку
         if (backgroundMusic) {
             backgroundMusic.pause();
             backgroundMusic = null;
@@ -367,7 +375,6 @@
         updateRects();
         window.addEventListener("resize", updateRects);
 
-        // Добавляем обработчики для запуска музыки при взаимодействии
         const startMusicOnInteraction = () => {
             handleUserInteraction();
         };
@@ -378,7 +385,6 @@
     });
 
     onDestroy(() => {
-        // Останавливаем музыку при уничтожении компонента
         if (backgroundMusic) {
             backgroundMusic.pause();
             backgroundMusic = null;
@@ -394,12 +400,7 @@
 
         <div class="novel" on:click={handleUserInteraction}>
             {#if sceneSrc}
-                <img
-                        class="sceneImg"
-                        src={sceneSrc}
-                        alt=""
-                        draggable="false"
-                />
+                <img class="sceneImg" src={sceneSrc} alt="" draggable="false" />
             {:else}
                 <div class="sceneFallback"></div>
             {/if}
@@ -438,6 +439,18 @@
                 {#if active}
                     <line class="wire" x1={active.x1} y1={active.y1} x2={active.x2} y2={active.y2} stroke={active.color} stroke-width={WIRE_WIDTH} stroke-linecap="round" opacity="0.95" />
                     <circle class="wire" cx={active.x2} cy={active.y2} r={END_DOT_R} fill={active.color} opacity="0.95" />
+                {/if}
+
+                {#if VISIBLE_START_POINTS}
+                    {#each leftPoints as p (p.color)}
+                        <circle class="point left-point" cx={p.x} cy={p.y} r={POINT_R} fill={p.color} opacity={POINT_OPACITY} stroke="rgba(255,255,255,0.5)" stroke-width="0.5" />
+                    {/each}
+                {/if}
+
+                {#if VISIBLE_END_POINTS}
+                    {#each rightPoints as p (p.color)}
+                        <circle class="point right-point" cx={p.x} cy={p.y} r={POINT_R} fill={p.color} opacity={POINT_OPACITY} stroke="rgba(255,255,255,0.5)" stroke-width="0.5" />
+                    {/each}
                 {/if}
 
                 {#each leftPoints as p (p.color)}
@@ -553,6 +566,7 @@
     .wire{ pointer-events: none; }
     .hit{ pointer-events: all; cursor: pointer; }
     .target{ pointer-events: none; }
+    .point { pointer-events: none; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3)); }
 
     .sceneFallback{
         position: absolute;
