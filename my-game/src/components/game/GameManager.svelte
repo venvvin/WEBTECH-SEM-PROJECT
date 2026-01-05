@@ -81,7 +81,6 @@
           case "wires-connect": return LevelFixWires;
           case "password": return LevelPassword;
           case "traffic-light": return LevelCrossRoad;
-
           case "memory": return LevelMemory;
           default: return UnknownLevel;
       }
