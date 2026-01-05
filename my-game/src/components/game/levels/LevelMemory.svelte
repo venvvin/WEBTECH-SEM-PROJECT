@@ -19,6 +19,7 @@
 
     let currentState = 'intro';
     let birdnatureSound = null;
+    let cardgamemusicSound = null;
 
     let dialogText1 = "";
     let dialogFullText1 = "Hi! My name is Michael. You're late. The lesson is about to start. And I already know where we need to go";
@@ -41,6 +42,7 @@
     let linaEndingTypingComplete = false;
 
     let joySound = null;
+    let bellSound = null;
 
     function stopAllSounds() {
         const allAudioElements = document.querySelectorAll('audio');
@@ -61,6 +63,20 @@
                 joySound.currentTime = 0;
             } catch (e) {}
             joySound = null;
+        }
+        if (cardgamemusicSound) {
+            try {
+                cardgamemusicSound.pause();
+                cardgamemusicSound.currentTime = 0;
+            } catch (e) {}
+            cardgamemusicSound = null;
+        }
+        if (bellSound) {
+            try {
+                bellSound.pause();
+                bellSound.currentTime = 0;
+            } catch (e) {}
+            bellSound = null;
         }
         if (typeof window !== 'undefined' && window['_passwordMusicSound']) {
             try {
@@ -122,14 +138,29 @@
         } else if (currentState === 'dialog2') {
             currentState = 'game';
             initGame();
+            startCardGameMusic();
         }
+    }
+
+    function startCardGameMusic() {
+        cardgamemusicSound = new Audio('/game/sfx/cardgamemusic.wav');
+        cardgamemusicSound.loop = true;
+        cardgamemusicSound.play().catch(e => console.log('Audio play error:', e));
     }
 
     function startEnding() {
         if (birdnatureSound) {
             birdnatureSound.pause();
         }
+        if (cardgamemusicSound) {
+            cardgamemusicSound.pause();
+            cardgamemusicSound = null;
+        }
         currentState = 'michaelEnding';
+        
+        bellSound = new Audio('/game/sfx/bell.wav');
+        bellSound.play().catch(e => console.log('Audio play error:', e));
+        
         setTimeout(() => {
             startTypingMichaelEnding();
         }, 500);
@@ -187,6 +218,9 @@
 
     function handleCardClick(card) {
         if (isChecking || card.isFlipped || card.isMatched) return;
+
+        const flipSound = new Audio('/game/sfx/cardflip.wav');
+        flipSound.play().catch(e => console.log('Audio play error:', e));
 
         card.isFlipped = true;
         cards = cards;
