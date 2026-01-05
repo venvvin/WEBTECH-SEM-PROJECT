@@ -12,13 +12,24 @@ function shuffle(array) {
     const tier1WithoutMaze = tier1.filter(l => l.type !== "maze");
     const mazeLevel = tier1.find(l => l.type === "maze");
   
+    const memoryLevel = tier3.find(l => l.type === "memory");
+    const tier3WithoutMemory = tier3.filter(l => l.type !== "memory");
+  
     const shuffledT1 = shuffle([...tier1WithoutMaze]);
     const shuffledT2 = shuffle([...tier2]);
-    const shuffledT3 = shuffle([...tier3]);
+    const shuffledT3 = shuffle([...tier3WithoutMemory]);
   
+    let queue = [];
+    
     if (!mazeLevel) {
-        return [...shuffledT1, ...shuffledT2, ...shuffledT3];
+        queue = [...shuffledT1, ...shuffledT2, ...shuffledT3];
+    } else {
+        queue = [...shuffledT1, mazeLevel, ...shuffledT2, ...shuffledT3];
     }
   
-    return [...shuffledT1, mazeLevel, ...shuffledT2, ...shuffledT3];
+    if (memoryLevel) {
+        queue.push(memoryLevel);
+    }
+  
+    return queue;
   }  
