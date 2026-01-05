@@ -32,7 +32,7 @@
   }
 </script>
 
-<div class="menu-overlay" on:click={onClose} role="dialog" aria-modal="true" aria-label="Game menu" tabindex="-1" on:keydown={(e) => e.key === 'Escape' && onClose()}>
+<div class="menu-overlay" on:click={onClose} role="dialog" aria-modal="true" aria-label="Game menu" tabindex="-1" on:keydown={(e) => { if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') { onClose(); } }}>
   <div class="menu-window" on:click|stopPropagation>
     <button class="close-button" on:click={onClose} aria-label="Close menu">
       ×

@@ -5,10 +5,10 @@
     import { createEventDispatcher } from 'svelte';
     import { characterOutfit } from '../../../stores/gameStore.js'
   
-    let { config } = data;
-    let items = config.items.map(item => ({ ...item }));
-    let backpack = config.backpack;
-    let background = config.background;
+    const config = data?.config ?? {};
+    let items = (config.items || []).map(item => ({ ...item }));
+    let backpack = config.backpack ?? {};
+    let background = config.background ?? '';
     let backpackEl;
     let draggedItem = null;
     let startX = 0; 
@@ -28,9 +28,9 @@
   $: remainingRequired = items.filter(i => i.isCorrect && !i.message).length;
 
   $: if (remainingRequired === 0) {
-     playSound(config.sounds.joy);
+     playSound(config.sounds?.joy);
      setTimeout(() => {
-        playSound(config.sounds.clap);
+        playSound(config.sounds?.clap);
         
         dispatch('complete');
         
@@ -92,17 +92,17 @@ function playSound(path) {
 
     if (isInside) {
       if (draggedItem.message) {
-         playSound(config.sounds.success);
+         playSound(config.sounds?.success);
          showMessage = draggedItem.message;
          items = items.filter(i => i.id !== draggedItem.id);
          
       } else if (draggedItem.isCorrect) {
         items = items.filter(i => i.id !== draggedItem.id);
-        playSound(config.sounds.drop);
+        playSound(config.sounds?.drop);
         
       } else {
         hearts.update(h => h - 1);
-        playSound(config.sounds.fail);
+        playSound(config.sounds?.fail);
         
         items = items.map(i => {
           if (i.id === draggedItem.id) {
@@ -139,9 +139,9 @@ function playSound(path) {
     <div 
       class="backpack-zone"
       bind:this={backpackEl} 
-      style="left: {backpack.position.x}%; top: {backpack.position.y}%;"
+      style="left: {backpack.position?.x ?? 50}%; top: {backpack.position?.y ?? 80}%;"
     >
-      <img src={backpack.image} alt="Backpack" />
+      <img src={backpack.image || ''} alt="Backpack" />
     </div>
   
   {#each items as item}
@@ -160,7 +160,7 @@ function playSound(path) {
     <div class="information">
       <h3>Information</h3>
       <ul>
-        {#each config.checklist.requirements as req}
+        {#each (config.checklist?.requirements || []) as req}
           <li>- {req.label} (Need: {req.minCorrect})</li>
         {/each}
       </ul>

@@ -10,7 +10,7 @@
   import { saveCurrentTime, saveBestTime, clearCurrentTime } from "../../utils/timerManager.js";
   import fullGameData from "../../data/levels.json";
 
-  $: currentLevelData = $levels[$currentLevelIndex];
+  $: currentLevelData = ($currentLevelIndex >= 0 && $currentLevelIndex < $levels.length) ? $levels[$currentLevelIndex] : null;
   $: isGameComplete = $currentLevelIndex >= $levels.length;
   let levelComplete = false;
   let timerInterval = null;
@@ -82,10 +82,14 @@
             return;
         }
         
-        const nextLevelData = $levels[nextIndex];
-        if (nextLevelData) {
-            transitionInstruction = nextLevelData.instruction || "";
-            showTransition = true;
+        if (nextIndex >= 0 && nextIndex < $levels.length) {
+            const nextLevelData = $levels[nextIndex];
+            if (nextLevelData) {
+                transitionInstruction = nextLevelData.instruction || "";
+                showTransition = true;
+            } else {
+                currentLevelIndex.set(nextIndex);
+            }
         } else {
             currentLevelIndex.set(nextIndex);
         }
@@ -245,8 +249,8 @@
       </div>
   {/if}
 
-  {#if currentLevelData && !levelComplete && !isGameOver && !showTransition  || isGameComplete}
-    <HintButton hintText={currentLevelData.config?.hint || "Text will be here."} />
+  {#if (currentLevelData && !levelComplete && !isGameOver && !showTransition) || isGameComplete}
+    <HintButton hintText={currentLevelData?.config?.hint || "Text will be here."} />
   {/if}
   <MenuButton bind:isOpen={menuOpen}>
     {#if menuOpen}
@@ -271,7 +275,7 @@
         height: 100%;
     }
 
-.win-overlay, .gameover-overlay .game-complete-overlay {
+.win-overlay, .gameover-overlay, .game-complete-overlay {
     position: absolute;
     inset: 0;
     background: rgba(255, 255, 255, 0.9);
