@@ -7,7 +7,7 @@
   import LevelMaze from "./levels/LevelMaze.svelte";
   import LevelFixWires from "./levels/LevelFixWires.svelte";
   import LevelPassword from "./levels/LevelPassword.svelte";
-  import UnknownLevel from "./levels/UnknownLevel.svelte";
+  import LevelCrossRoad from "./levels/LevelCrossRoad.svelte";
 
   $: currentLevelData = $levels[$currentLevelIndex];
   let levelComplete = false;
@@ -78,7 +78,8 @@
           case "maze": return LevelMaze;
           case "wires-connect": return LevelFixWires;
           case "password": return LevelPassword;
-          default: return UnknownLevel;
+          case "traffic-light": return LevelCrossRoad;
+
       }
   }
 
