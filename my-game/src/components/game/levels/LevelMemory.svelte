@@ -1,7 +1,7 @@
 <script>
     import { createEventDispatcher, onMount, onDestroy } from 'svelte';
-    
-    export let data = {}; 
+
+    export let data = {};
     const dispatch = createEventDispatcher();
 
     const cardIcons = [
@@ -9,7 +9,7 @@
         '/game/items/cardtennis.png',
         '/game/items/cardball.png'
     ];
-    
+
     const cardBack = '/game/items/cardback.png';
 
     let cards = [];
@@ -41,8 +41,59 @@
     let linaEndingTypingIndex = 0;
     let linaEndingTypingComplete = false;
 
+    let finalNovelScene = 1;
+    let finalNovelImages = [
+        '/game/end/scene_1.png',
+        '/game/end/scene_2.png',
+        '/game/end/scene_3.png',
+        '/game/end/scene_4.png',
+        '/game/end/scene_5.png',
+        '/game/end/scene_6.png'
+    ];
+
+    let finalNovelTexts = [
+        {
+            character: 'girl',
+            text: "So, where do we go now?"
+        },
+        {
+            character: 'boy',
+            text: "It's right here, very close."
+        },
+        {
+            character: 'boy',
+            text: "Look, everyone is already waiting for us."
+        },
+        {
+            character: 'girl',
+            text: "Oh no, I'm scared. Why don't you go in first and I'll catch up with you?"
+        },
+        {
+            character: 'teacher',
+            text: "Hello! We've been waiting for you. Come to the board and introduce yourself to your classmates."
+        },
+        {
+            character: 'girl',
+            text: "Hi everyone! My name is Lina, I'm 8 years old. I'm very happy to meet all of you and I hope we can become good friends."
+        },
+        {
+            character: 'classmates',
+            text: "Lina, you're awesome! Of course we'll be friends with you!"
+        },
+        {
+            character: 'girl',
+            text: "Well, thank you for helping me get ready and get to school ."
+        }
+    ];
+
+    let currentNovelText = "";
+    let currentNovelTypingIndex = 0;
+    let currentNovelTypingComplete = false;
+    let currentNovelDialogIndex = 0;
+
     let joySound = null;
     let bellSound = null;
+    let classroomSound = null;
 
     function stopAllSounds() {
         const allAudioElements = document.querySelectorAll('audio');
@@ -78,6 +129,13 @@
             } catch (e) {}
             bellSound = null;
         }
+        if (classroomSound) {
+            try {
+                classroomSound.pause();
+                classroomSound.currentTime = 0;
+            } catch (e) {}
+            classroomSound = null;
+        }
         if (typeof window !== 'undefined' && window['_passwordMusicSound']) {
             try {
                 window['_passwordMusicSound'].pause();
@@ -100,7 +158,7 @@
         birdnatureSound = new Audio('/game/sfx/birdnature.wav');
         birdnatureSound.loop = true;
         birdnatureSound.play().catch(e => console.log('Audio play error:', e));
-        
+
         setTimeout(() => {
             startTypingDialog1();
         }, 500);
@@ -157,10 +215,10 @@
             cardgamemusicSound = null;
         }
         currentState = 'michaelEnding';
-        
+
         bellSound = new Audio('/game/sfx/bell.wav');
         bellSound.play().catch(e => console.log('Audio play error:', e));
-        
+
         setTimeout(() => {
             startTypingMichaelEnding();
         }, 500);
@@ -181,10 +239,10 @@
         michaelEndingText = "";
         michaelEndingTypingIndex = 0;
         michaelEndingTypingComplete = false;
-        
+
         joySound = new Audio('/game/sfx/joy.wav');
         joySound.play().catch(e => console.log('Audio play error:', e));
-        
+
         setTimeout(() => {
             startTypingLinaEnding();
         }, 500);
@@ -201,7 +259,48 @@
     }
 
     function goToSchool() {
-        dispatch('complete');
+        currentState = 'finalNovel';
+        finalNovelScene = 1;
+        currentNovelDialogIndex = 0;
+        currentNovelText = "";
+        currentNovelTypingIndex = 0;
+        currentNovelTypingComplete = false;
+
+
+        classroomSound = new Audio('/game/sfx/classroom.wav');
+        classroomSound.loop = true;
+        classroomSound.play().catch(e => console.log('Audio play error:', e));
+
+        startTypingNovelText();
+    }
+
+    function startTypingNovelText() {
+        if (currentNovelTypingIndex < finalNovelTexts[currentNovelDialogIndex].text.length) {
+            currentNovelText = finalNovelTexts[currentNovelDialogIndex].text.substring(0, currentNovelTypingIndex + 1);
+            currentNovelTypingIndex++;
+            setTimeout(startTypingNovelText, 30);
+        } else {
+            currentNovelTypingComplete = true;
+        }
+    }
+
+    function nextNovelScene() {
+        if (currentNovelDialogIndex < finalNovelTexts.length - 1) {
+            currentNovelDialogIndex++;
+            currentNovelText = "";
+            currentNovelTypingIndex = 0;
+            currentNovelTypingComplete = false;
+
+            if (currentNovelDialogIndex === 2) finalNovelScene = 2;
+            else if (currentNovelDialogIndex === 4) finalNovelScene = 3;
+            else if (currentNovelDialogIndex === 5) finalNovelScene = 4;
+            else if (currentNovelDialogIndex === 6) finalNovelScene = 5;
+            else if (currentNovelDialogIndex === 7) finalNovelScene = 6;
+
+            startTypingNovelText();
+        } else {
+            dispatch('complete');
+        }
     }
 
     function initGame() {
@@ -266,7 +365,7 @@
     <div class="intro-scene">
         <img src="/game/backgrounds/school.png" class="intro-bg" alt="School" />
         <img src="/game/characters/Michael/base.png" class="michael-character" alt="Michael" />
-        
+
         {#if currentState === 'intro'}
             <div class="dialog-box">
                 <p class="dialog-text">{dialogText1}<span class="cursor">|</span></p>
@@ -305,15 +404,57 @@
             {/if}
         </div>
     </div>
+{:else if currentState === 'finalNovel'}
+    <div class="final-novel-scene">
+        <img src={finalNovelImages[finalNovelScene - 1]} class="novel-bg" alt="Novel Scene {finalNovelScene}" />
+
+        {#if finalNovelTexts[currentNovelDialogIndex].character === 'girl'}
+            <div class="dialog-box dialog-box-pink">
+                <p class="dialog-text">{currentNovelText}<span class="cursor">|</span></p>
+                {#if currentNovelTypingComplete}
+                    <button class="continue-btn continue-btn-pink" on:click={nextNovelScene}>
+                        {currentNovelDialogIndex < finalNovelTexts.length - 1 ? 'Continue' : 'Finish'}
+                    </button>
+                {/if}
+            </div>
+        {:else if finalNovelTexts[currentNovelDialogIndex].character === 'boy'}
+            <div class="dialog-box">
+                <p class="dialog-text">{currentNovelText}<span class="cursor">|</span></p>
+                {#if currentNovelTypingComplete}
+                    <button class="continue-btn" on:click={nextNovelScene}>
+                        {currentNovelDialogIndex < finalNovelTexts.length - 1 ? 'Continue' : 'Finish'}
+                    </button>
+                {/if}
+            </div>
+        {:else if finalNovelTexts[currentNovelDialogIndex].character === 'teacher'}
+            <div class="dialog-box dialog-box-teacher">
+                <p class="dialog-text">{currentNovelText}<span class="cursor">|</span></p>
+                {#if currentNovelTypingComplete}
+                    <button class="continue-btn continue-btn-teacher" on:click={nextNovelScene}>
+                        {currentNovelDialogIndex < finalNovelTexts.length - 1 ? 'Continue' : 'Finish'}
+                    </button>
+                {/if}
+            </div>
+        {:else if finalNovelTexts[currentNovelDialogIndex].character === 'classmates'}
+            <div class="dialog-box dialog-box-classmates">
+                <p class="dialog-text">{currentNovelText}<span class="cursor">|</span></p>
+                {#if currentNovelTypingComplete}
+                    <button class="continue-btn continue-btn-classmates" on:click={nextNovelScene}>
+                        {currentNovelDialogIndex < finalNovelTexts.length - 1 ? 'Continue' : 'Finish'}
+                    </button>
+                {/if}
+            </div>
+        {/if}
+    </div>
 {:else}
     <div class="memory-level">
         <div class="grid-container">
             {#each cards as card}
-                <button 
-                    class="card" 
-                    class:flipped={card.isFlipped} 
-                    class:matched={card.isMatched}
-                    on:click={() => handleCardClick(card)}
+                <button
+                        class="card"
+                        class:flipped={card.isFlipped}
+                        class:matched={card.isMatched}
+                        on:click={() => handleCardClick(card)}
                 >
                     <div class="card-inner">
                         <div class="card-front">
@@ -331,7 +472,7 @@
 
 <style>
     .memory-level {
-        width: 100%; 
+        width: 100%;
         height: 100%;
         display: flex;
         flex-direction: column;
@@ -373,7 +514,7 @@
     .card.matched .card-inner {
         transform: rotateY(180deg);
     }
-    
+
     .card.matched .card-front img {
         border: 4px solid #4cd137;
         opacity: 0.7;
@@ -412,7 +553,7 @@
         object-fit: cover;
     }
 
-    .intro-scene {
+    .intro-scene, .final-novel-scene {
         position: absolute;
         inset: 0;
         width: 100%;
@@ -423,7 +564,7 @@
         z-index: 10000;
     }
 
-    .intro-bg {
+    .intro-bg, .novel-bg {
         position: absolute;
         inset: 0;
         width: 100%;
@@ -540,6 +681,40 @@
 
     .continue-btn-pink:active {
         box-shadow: 0 2px 0 #e94c8f;
+    }
+
+    .dialog-box-teacher {
+        border: 3px solid #8e44ad;
+    }
+
+    .dialog-box-teacher .cursor {
+        color: #8e44ad;
+    }
+
+    .continue-btn-teacher {
+        background: linear-gradient(180deg, #9b59b6, #8e44ad);
+        box-shadow: 0 3px 0 #732d91;
+    }
+
+    .continue-btn-teacher:active {
+        box-shadow: 0 2px 0 #732d91;
+    }
+
+    .dialog-box-classmates {
+        border: 3px solid #27ae60;
+    }
+
+    .dialog-box-classmates .cursor {
+        color: #27ae60;
+    }
+
+    .continue-btn-classmates {
+        background: linear-gradient(180deg, #2ecc71, #27ae60);
+        box-shadow: 0 3px 0 #219653;
+    }
+
+    .continue-btn-classmates:active {
+        box-shadow: 0 2px 0 #219653;
     }
 
     @keyframes blink {
