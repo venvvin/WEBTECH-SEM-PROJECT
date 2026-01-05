@@ -1,15 +1,81 @@
 {
   "meta": {
     "gameId": "school-day-journey",
-    "version": "1.0.0",
     "totalHearts": 3,
-    "shuffleWithinTier": true,
-    "tiers": {
-      "1": "Getting Ready",
-      "2": "Bus Ride",
-      "3": "School Entrance"
+    "intro": {
+      "title": "First Day Adventures",
+      "music": "/game/sfx/calm_music.wav",
+      "slides": [
+        {
+          "image": "/game/intro/scene_0.png",
+          "lines": [
+            "Welcome to 'First Day Adventures'!",
+            "A gentle journey designed for young hearts facing school for the very first time.",
+            "Join Lina as she discovers that with a little courage and preparation,",
+            "every new beginning can become a beautiful adventure.",
+            "Let's help children find confidence, calmness,",
+            "and excitement for their very first school day!"
+          ]
+        },
+        {
+          "image": "/game/intro/scene_1.png",
+          "lines": [
+            "Good morning!",
+            "Today is Lina's first day at school.",
+            "The sun is rising gently through the window...",
+            "Listen to the birds singing outside."
+          ]
+        },
+        {
+          "image": "/game/intro/scene_2.png",
+          "lines": [
+            "Zzz... Zzz...",
+            "Lina is still peacefully asleep.",
+            "Her soft breathing fills the cozy room.",
+            "But it's time to wake up for the big day ahead!"
+          ]
+        },
+        {
+          "image": "/game/intro/scene_3.png",
+          "lines": [
+            "Nature is already awake and ready!",
+            "Butterflies dance in the morning breeze,",
+            "birds sing their cheerful songs,",
+            "and the whole world welcomes this special day."
+          ]
+        },
+        {
+          "image": "/game/intro/scene_4.png",
+          "lines": [
+            "Yawn... Stretch...",
+            "Good morning, world!",
+            "Lina rubs her eyes and smiles,",
+            "remembering today's exciting adventure."
+          ]
+        },
+        {
+          "image": "/game/intro/scene_5.png",
+          "lines": [
+            "Quickly making her bed,",
+            "Lina prepares her room for the day.",
+            "Everything must be perfect",
+            "for this important first day of school!"
+          ]
+        },
+        {
+          "image": "/game/intro/scene_6.png",
+          "lines": [
+            "Yay! I'm so excited!",
+            "Today is my first day at school!",
+            "I'm a little nervous about catching the bus...",
+            "Can you help me get ready?"
+          ]
+        }
+      ],
+      "startButton": "Help Lina Get Ready!"
     }
   },
+
   "levels": [
     {
       "id": "lvl_backpack",
