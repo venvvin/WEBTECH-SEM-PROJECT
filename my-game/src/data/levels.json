@@ -447,7 +447,12 @@
       "type": "traffic-light",
       "description": "Cross the Road",
       "config": {
-        "background": "bg_crosswalk.png",
+        "background": "/game/backgrounds/crosswalk.png",
+        "story": {
+          "exitBusImage": "/game/story/cross_road_1.png",
+          "aroundCross": "/game/story/cross_road_2.png",
+          "aroundSchool": "/game/story/cross_road_4.png"
+        },
         "lights": [
           { "state": "red", "durationMs": 2200 },
           { "state": "yellow", "durationMs": 900 },
@@ -455,21 +460,20 @@
         ],
         "button": {
           "label": "GO",
-          "image": "ui/go_button.png"
+          "image": "/game/items/button_go.png"
         },
         "rules": {
           "pressOnGreenOnly": true,
-          "pressOnRed": "gameover",
+          "pressOnRed": "mistake",
           "pressOnYellow": "warning",
           "warningText": "Wait!"
         },
         "visuals": {
-          "gameoverImage": "fx/car_hit.png",
+          "gameoverImage": "/game/story/car_hit.png",
           "warningFlash": true
         },
         "sounds": {
           "warning": "sfx/warn.wav",
-          "gameover": "sfx/gameover.wav",
           "success": "sfx/success.wav"
         }
       }
