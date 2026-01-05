@@ -9,7 +9,6 @@
   import LevelPassword from "./levels/LevelPassword.svelte";
   import LevelCrossRoad from "./levels/LevelCrossRoad.svelte";
   import LevelMemory from "./levels/LevelMemory.svelte";
-  import UnknownLevel from "./levels/UnknownLevel.svelte";
 
   $: currentLevelData = $levels[$currentLevelIndex];
   let levelComplete = false;
@@ -82,7 +81,6 @@
           case "password": return LevelPassword;
           case "traffic-light": return LevelCrossRoad;
           case "memory": return LevelMemory;
-          default: return UnknownLevel;
       }
   }
 
