@@ -1,29 +1,29 @@
 <script>
-  import { onMount, onDestroy } from "svelte";
-  import { levels, currentLevelIndex, hearts, characterOutfit, gameTimer, isTimerRunning, currentScreen, gameConfig, forceMenuOpen } from "../../stores/gameStore.js";
-  import { generateGameQueue } from "../../utils/levelManager.js";
-  import MenuButton from "../ui/MenuButton.svelte";
-  import MenuOverlay from "../ui/MenuOverlay.svelte";
-  import { getLevelComponent } from "../../utils/levelComponents.js";
-  import HintButton from "../ui/HintButton.svelte";
-  import LevelTransition from "../ui/LevelTransition.svelte";
-  import { saveCurrentTime, saveBestTime, clearCurrentTime } from "../../utils/timerManager.js";
-  import fullGameData from "../../data/levels.json";
+    import { onMount, onDestroy } from "svelte";
+    import { levels, currentLevelIndex, hearts, characterOutfit, gameTimer, isTimerRunning, currentScreen, gameConfig, forceMenuOpen } from "../../stores/gameStore.js";
+    import { generateGameQueue } from "../../utils/levelManager.js";
+    import MenuButton from "../ui/MenuButton.svelte";
+    import MenuOverlay from "../ui/MenuOverlay.svelte";
+    import { getLevelComponent } from "../../utils/levelComponents.js";
+    import HintButton from "../ui/HintButton.svelte";
+    import LevelTransition from "../ui/LevelTransition.svelte";
+    import { saveCurrentTime, saveBestTime, clearCurrentTime } from "../../utils/timerManager.js";
+    import fullGameData from "../../data/levels.json";
 
-  $: currentLevelData = $levels[$currentLevelIndex];
-  $: isGameComplete = $currentLevelIndex >= $levels.length;
-  let levelComplete = false;
-  let timerInterval = null;
-  let showTransition = false;
-  let transitionInstruction = "";
-  let menuOpen = false;
+    $: currentLevelData = $levels[$currentLevelIndex];
+    $: isGameComplete = $currentLevelIndex >= $levels.length;
+    let levelComplete = false;
+    let timerInterval = null;
+    let showTransition = false;
+    let transitionInstruction = "";
+    let menuOpen = false;
 
-  $: {
-      if ($forceMenuOpen) {
-          menuOpen = true;
-          forceMenuOpen.set(false);
-      }
-  }
+    $: {
+        if ($forceMenuOpen) {
+            menuOpen = true;
+            forceMenuOpen.set(false);
+        }
+    }
 
     const charImages = {
         pajamas: {
@@ -55,15 +55,15 @@
         }
     }
 
-  function handleLevelComplete() {
-      levelComplete = true;
-      const nextIndex = $currentLevelIndex + 1;
-      if (nextIndex >= $levels.length) {
-          stopTimer();
-          saveCurrentTime($gameTimer);
-          currentLevelIndex.set(nextIndex);
-      }
-  }
+    function handleLevelComplete() {
+        levelComplete = true;
+        const nextIndex = $currentLevelIndex + 1;
+        if (nextIndex >= $levels.length) {
+            stopTimer();
+            saveCurrentTime($gameTimer);
+            currentLevelIndex.set(nextIndex);
+        }
+    }
 
     function handleMistake() {
         if (levelComplete) return;
@@ -73,7 +73,7 @@
     function nextLevel() {
         levelComplete = false;
         const nextIndex = $currentLevelIndex + 1;
-        
+
         if (nextIndex >= $levels.length) {
             stopTimer();
             saveCurrentTime($gameTimer);
@@ -81,7 +81,7 @@
             currentLevelIndex.set(nextIndex);
             return;
         }
-        
+
         const nextLevelData = $levels[nextIndex];
         if (nextLevelData) {
             transitionInstruction = nextLevelData.instruction || "";
@@ -91,66 +91,68 @@
         }
     }
 
-  function handleTransitionComplete() {
-      showTransition = false;
-      const nextIndex = $currentLevelIndex + 1;
-      currentLevelIndex.set(nextIndex);
-  }
+    function handleTransitionComplete() {
+        showTransition = false;
+        const nextIndex = $currentLevelIndex + 1;
+        currentLevelIndex.set(nextIndex);
+    }
 
-  function finishGame() {
-      saveBestTime($gameTimer);
-      currentScreen.set('results');
-  }
-  function restartGame() {
-      const allAudioElements = document.querySelectorAll('audio');
-      allAudioElements.forEach(audio => {
-          audio.pause();
-          audio.currentTime = 0;
-      });
-      if (typeof window !== 'undefined' && window['_passwordMusicSound']) {
-          try {
-              window['_passwordMusicSound'].pause();
-              window['_passwordMusicSound'].currentTime = 0;
-              window['_passwordMusicSound'] = null;
-          } catch (e) {}
-      }
-      stopTimer();
-      clearCurrentTime();
-      gameTimer.set(0);
-      hearts.set(3);
-      currentLevelIndex.set(0);
-      characterOutfit.set('pajamas');
-      levelComplete = false;
-  }
+    function finishGame() {
+        saveBestTime($gameTimer);
+        currentScreen.set('results');
+    }
 
-  function restartGameFromMenu() {
-      stopTimer();
-      clearCurrentTime();
-      gameTimer.set(0);
-      hearts.set(fullGameData.meta?.totalHearts || 3);
-      currentLevelIndex.set(0);
-      characterOutfit.set('pajamas');
-      levelComplete = false;
-      
-      gameConfig.set(fullGameData);
-      const gameQueue = generateGameQueue(fullGameData);
-      levels.set(gameQueue);
-      
-      const allAudioElements = document.querySelectorAll('audio');
-      allAudioElements.forEach(audio => {
-          audio.pause();
-          audio.currentTime = 0;
-      });
-      if (typeof window !== 'undefined' && window['_passwordMusicSound']) {
-          try {
-              window['_passwordMusicSound'].pause();
-              window['_passwordMusicSound'].currentTime = 0;
-              window['_passwordMusicSound'] = null;
-          } catch (e) {}
-      }
-      
-      currentScreen.set('intro');
-  }
+    function restartGame() {
+        const allAudioElements = document.querySelectorAll('audio');
+        allAudioElements.forEach(audio => {
+            audio.pause();
+            audio.currentTime = 0;
+        });
+        if (typeof window !== 'undefined' && window['_passwordMusicSound']) {
+            try {
+                window['_passwordMusicSound'].pause();
+                window['_passwordMusicSound'].currentTime = 0;
+                window['_passwordMusicSound'] = null;
+            } catch (e) {}
+        }
+        stopTimer();
+        clearCurrentTime();
+        gameTimer.set(0);
+        hearts.set(3);
+        currentLevelIndex.set(0);
+        characterOutfit.set('pajamas');
+        levelComplete = false;
+    }
+
+    function restartGameFromMenu() {
+        stopTimer();
+        clearCurrentTime();
+        gameTimer.set(0);
+        hearts.set(fullGameData.meta?.totalHearts || 3);
+        currentLevelIndex.set(0);
+        characterOutfit.set('pajamas');
+        levelComplete = false;
+
+        gameConfig.set(fullGameData);
+        const gameQueue = generateGameQueue(fullGameData);
+        levels.set(gameQueue);
+
+        const allAudioElements = document.querySelectorAll('audio');
+        allAudioElements.forEach(audio => {
+            audio.pause();
+            audio.currentTime = 0;
+        });
+        if (typeof window !== 'undefined' && window['_passwordMusicSound']) {
+            try {
+                window['_passwordMusicSound'].pause();
+                window['_passwordMusicSound'].currentTime = 0;
+                window['_passwordMusicSound'] = null;
+            } catch (e) {}
+        }
+
+        currentScreen.set('intro');
+    }
+
     function startTimer() {
         if (timerInterval) return;
         isTimerRunning.set(true);
@@ -167,7 +169,6 @@
         isTimerRunning.set(false);
     }
 
-  /** @type {any} */
     $: CurrentComponent = currentLevelData ? getLevelComponent(currentLevelData.type) : null;
 
     $: {
@@ -196,69 +197,117 @@
 </script>
 
 <div class="game-container">
-  
-  {#if showTransition}
-    <LevelTransition instruction={transitionInstruction} on:complete={handleTransitionComplete} />
-  {/if}
-  <div class="game-screen">
-  {#if currentLevelData && CurrentComponent && !showTransition}
-      <svelte:component
-              this={CurrentComponent}
-              data={currentLevelData}
-              on:complete={handleLevelComplete}
-              on:mistake={handleMistake}
-              on:restartGame={restartGame}
-      />
-  {:else if isGameComplete}
-      <div class="game-complete-overlay">
-          <div class="character-box">
-              <img src={happyChar} alt="Lina Happy" class="char-img" />
-              <div class="dialog-bubble">
-                  <p>Congratulations! You completed all levels!</p>
-                  <button on:click={finishGame}>Finish the Game</button>
-              </div>
-          </div>
-      </div>
-  {/if}
 
-  {#if levelComplete  && !isGameComplete}
-      <div class="win-overlay">
-          <div class="character-box">
-              <img src={happyChar} alt="Lina Happy" class="char-img" />
-              <div class="dialog-bubble">
-                  <p>Great! Everything is ready!</p>
-                  <p>What should I do next?</p>
-                  <button on:click={nextLevel}>Next Step ➡</button>
-              </div>
-          </div>
-      </div>
-
-  {:else if isGameOver}
-      <div class="gameover-overlay">
-          <div class="character-box">
-              <img src={sadChar} alt="Lina Sad" class="char-img" />
-              <div class="dialog-bubble">
-                  <p>Oh no… I made too many mistakes.</p>
-                  <button on:click={restartGame}>Start again</button>
-              </div>
-          </div>
-      </div>
-  {/if}
-
-  {#if currentLevelData && !levelComplete && !isGameOver && !showTransition  || isGameComplete}
-    <HintButton hintText={currentLevelData.config?.hint || "Text will be here."} />
-  {/if}
-  <MenuButton bind:isOpen={menuOpen}>
-    {#if menuOpen}
-      <MenuOverlay 
-        onRestart={restartGameFromMenu}
-        onContinue={() => {}}
-        onClose={() => menuOpen = false}
-      />
+    {#if showTransition}
+        <LevelTransition instruction={transitionInstruction} on:complete={handleTransitionComplete} />
     {/if}
-  </MenuButton>
+
+    <div class="game-screen">
+        {#if currentLevelData && CurrentComponent && !showTransition}
+            <svelte:component
+                    this={CurrentComponent}
+                    data={currentLevelData}
+                    on:complete={handleLevelComplete}
+                    on:mistake={handleMistake}
+                    on:restartGame={restartGame}
+            />
+        {:else if isGameComplete}
+            <div class="game-complete-overlay">
+                <div class="character-box">
+                    <img src={happyChar} alt="Lina Happy" class="char-img" />
+                    <div class="dialog-bubble">
+                        <p>Congratulations! You completed all levels!</p>
+                        <button on:click={finishGame}>Finish the Game</button>
+                    </div>
+                </div>
+            </div>
+        {/if}
+
+        {#if levelComplete && !isGameComplete}
+            <div class="win-overlay">
+                <div class="character-box">
+                    <img src={happyChar} alt="Lina Happy" class="char-img" />
+                    <div class="dialog-bubble">
+                        <p>Great! Everything is ready!</p>
+                        <p>What should I do next?</p>
+                        <button on:click={nextLevel}>Next Step ➡</button>
+                    </div>
+                </div>
+            </div>
+        {:else if isGameOver}
+            <div class="gameover-overlay">
+                <div class="character-box">
+                    <img src={sadChar} alt="Lina Sad" class="char-img" />
+                    <div class="dialog-bubble">
+                        <p>Oh no… I made too many mistakes.</p>
+                        <button on:click={restartGame}>Start again</button>
+                    </div>
+                </div>
+            </div>
+        {/if}
+
+        {#if currentLevelData && !levelComplete && !isGameOver && !showTransition || isGameComplete}
+            <HintButton hintText={currentLevelData.config?.hint || "Text will be here."} />
+        {/if}
+
+        <MenuButton bind:isOpen={menuOpen}>
+            {#if menuOpen}
+                <MenuOverlay
+                        onRestart={restartGameFromMenu}
+                        onContinue={() => {}}
+                        onClose={() => menuOpen = false}
+                />
+            {/if}
+        </MenuButton>
+    </div>
+
+    {#if currentLevelData}
+        <div class="print-hints">
+            <h1 class="print-title">{currentLevelData.title ?? ""}</h1>
+
+            {#if currentLevelData.instruction}
+                <p class="print-block"><b>Instruction:</b> {currentLevelData.instruction}</p>
+            {/if}
+
+            {#if currentLevelData.config?.hint}
+                <p class="print-block"><b>Hint:</b> {currentLevelData.config.hint}</p>
+            {/if}
+
+            {#if currentLevelData.config?.ui?.stepPopup?.lines?.length}
+                <h2 class="print-subtitle">Intro</h2>
+                <ul class="print-list">
+                    {#each currentLevelData.config.ui.stepPopup.lines as line}
+                        <li>{line}</li>
+                    {/each}
+                </ul>
+            {/if}
+
+            {#if currentLevelData.config?.recipe?.steps?.length}
+                <h2 class="print-subtitle">Steps</h2>
+                <ol class="print-list">
+                    {#each currentLevelData.config.recipe.steps as s}
+                        {#if s?.text}
+                            <li>{s.text}</li>
+                        {/if}
+                    {/each}
+                </ol>
+            {/if}
+
+            {#if currentLevelData.config?.controls?.desktop || currentLevelData.config?.controls?.mobile}
+                <h2 class="print-subtitle">Controls</h2>
+                <ul class="print-list">
+                    {#if currentLevelData.config?.controls?.desktop}
+                        <li><b>Desktop:</b> {currentLevelData.config.controls.desktop}</li>
+                    {/if}
+                    {#if currentLevelData.config?.controls?.mobile}
+                        <li><b>Mobile:</b> {currentLevelData.config.controls.mobile}</li>
+                    {/if}
+                </ul>
+            {/if}
+        </div>
+    {/if}
 </div>
-</div>
+
 <style>
     .game-container {
         width: 100%;
@@ -271,16 +320,16 @@
         height: 100%;
     }
 
-.win-overlay, .gameover-overlay .game-complete-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(255, 255, 255, 0.9);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
-    animation: fadeIn 0.5s;
-}
+    .win-overlay, .gameover-overlay, .game-complete-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+        animation: fadeIn 0.5s;
+    }
 
     .character-box {
         display: flex;
@@ -352,9 +401,15 @@
         .game-screen,
         .win-overlay,
         .gameover-overlay,
+        .game-complete-overlay,
         .hint-button,
+        .menu-button,
         button,
-        canvas {
+        canvas,
+        [class*="timer"],
+        [class*="heart"],
+        [class*="level"],
+        [class*="menu"] {
             display: none !important;
         }
 
@@ -365,6 +420,7 @@
             height: auto !important;
             margin: 0 !important;
             padding: 0 !important;
+            background: white !important;
         }
 
         .print-hints {
@@ -374,49 +430,63 @@
             height: auto !important;
             background: white !important;
             color: black !important;
-            padding: 0 !important;
+            padding: 20px !important;
             margin: 0 !important;
             page-break-inside: avoid;
+            font-family: "Times New Roman", Times, serif !important;
         }
 
         .print-title {
-            margin: 0 0 15px 0 !important;
-            font-size: 24pt !important;
+            margin: 0 0 20px 0 !important;
+            font-size: 28pt !important;
             font-weight: bold !important;
             color: #000 !important;
+            text-align: center !important;
+            border-bottom: 2px solid #000 !important;
+            padding-bottom: 15px !important;
         }
 
         .print-subtitle {
-            margin: 20px 0 10px 0 !important;
-            font-size: 16pt !important;
+            margin: 25px 0 12px 0 !important;
+            font-size: 18pt !important;
             font-weight: bold !important;
             color: #000 !important;
-            border-bottom: 1px solid #ccc !important;
+            border-bottom: 1px solid #333 !important;
             padding-bottom: 5px !important;
         }
 
         .print-block {
-            margin: 10px 0 !important;
-            font-size: 12pt !important;
-            line-height: 1.5 !important;
+            margin: 15px 0 !important;
+            font-size: 14pt !important;
+            line-height: 1.6 !important;
             color: #000 !important;
         }
 
         .print-list {
-            margin: 10px 0 10px 20px !important;
-            font-size: 12pt !important;
-            line-height: 1.5 !important;
+            margin: 12px 0 12px 25px !important;
+            font-size: 13pt !important;
+            line-height: 1.7 !important;
             color: #000 !important;
         }
 
         .print-list li {
-            margin-bottom: 5px !important;
+            margin-bottom: 8px !important;
         }
 
         * {
             background: transparent !important;
             box-shadow: none !important;
             text-shadow: none !important;
+            border-color: #000 !important;
+        }
+
+        a, a:visited {
+            color: #000 !important;
+            text-decoration: none !important;
+        }
+
+        img {
+            display: none !important;
         }
     }
 </style>
