@@ -25,8 +25,8 @@
       top: 10px;
       left: 10px;
       right: 10px;
-      display: flex;
-      justify-content: space-between; 
+      display: grid;
+      grid-template-columns: auto 1fr auto;
       align-items: center;
       gap: 20px;
       
@@ -44,15 +44,18 @@
     }
 
     .center-section {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
       display: flex;
+      justify-content: center;
       align-items: center;
+      pointer-events: none;
     }
 
     .timer {
       font-family: 'Courier New', monospace;
       font-weight: bold;
+    }
+
+    .progress {
+      text-align: right;
     }
   </style>
