@@ -30,9 +30,6 @@
   function handleCloseStats() {
     showStats = false;
   }
-  
-  function handlePrintHint() {
-  }
 </script>
 
 <div class="menu-overlay" on:click={onClose} role="dialog" aria-modal="true" aria-label="Game menu" tabindex="-1" on:keydown={(e) => e.key === 'Escape' && onClose()}>
@@ -47,7 +44,6 @@
         <button class="menu-item" on:click={handleRestart}>Restart Game</button>
         <button class="menu-item" on:click={handleContinue}>Continue Game</button>
         <button class="menu-item" on:click={handleShowStats}>Show Statistics</button>
-        <button class="menu-item" on:click={handlePrintHint} disabled>Print Hint</button>
       </div>
     {:else}
       <div class="stats-content">
