@@ -1,5 +1,6 @@
 const STORAGE_KEY = 'school_journey_timer';
 const BEST_TIME_KEY = 'school_journey_best_time';
+const MAX_REASONABLE_TIME = 999999;
 
 export function saveCurrentTime(timeInSeconds) {
   if (typeof window === 'undefined') return;
@@ -32,7 +33,7 @@ export function saveBestTime(timeInSeconds) {
   
   try {
     const currentBest = getBestTime();
-    if (!currentBest || timeInSeconds < currentBest) {
+    if (currentBest === null || currentBest > MAX_REASONABLE_TIME || timeInSeconds < currentBest) {
       localStorage.setItem(BEST_TIME_KEY, JSON.stringify({
         time: timeInSeconds,
         timestamp: Date.now()
@@ -53,7 +54,11 @@ export function getBestTime() {
     const stored = localStorage.getItem(BEST_TIME_KEY);
     if (!stored) return null;
     const data = JSON.parse(stored);
-    return data.time;
+    const time = data.time;
+    if (time > MAX_REASONABLE_TIME) {
+      return null;
+    }
+    return time;
   } catch (e) {
     console.error('Error loading best time:', e);
     return null;

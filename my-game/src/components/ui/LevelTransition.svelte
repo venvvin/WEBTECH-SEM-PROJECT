@@ -41,7 +41,7 @@
   <div class="video-container">
     <video
       bind:this={videoElement}
-      src="/game/scene.mp4"
+      src="/game/backgrounds/scene.mp4"
       class="transition-video"
       on:ended={handleVideoEnded}
       muted
@@ -77,7 +77,7 @@
   .transition-video {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
   }
 
   .instruction-overlay {
