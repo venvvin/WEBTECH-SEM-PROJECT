@@ -3,11 +3,14 @@
   import { levels, currentLevelIndex, hearts, characterOutfit, gameTimer, isTimerRunning } from "../../stores/gameStore.js";
   import { getLevelComponent } from "../../utils/levelComponents.js";
   import HintButton from "../ui/HintButton.svelte";
+  import LevelTransition from "../ui/LevelTransition.svelte";
   import { saveCurrentTime, saveBestTime, clearCurrentTime } from "../../utils/timerManager.js";
 
   $: currentLevelData = $levels[$currentLevelIndex];
   let levelComplete = false;
   let timerInterval = null;
+  let showTransition = false;
+  let transitionInstruction = "";
       $: console.log("Current Outfit in Store:", $characterOutfit);
     $: console.log("Selected Happy Image:", happyChar);
 
@@ -53,13 +56,28 @@
   function nextLevel() {
       levelComplete = false;
       const nextIndex = $currentLevelIndex + 1;
-      currentLevelIndex.set(nextIndex);
       
       if (nextIndex >= $levels.length) {
           stopTimer();
           saveCurrentTime($gameTimer);
           saveBestTime($gameTimer);
+          currentLevelIndex.set(nextIndex);
+          return;
       }
+      
+      const nextLevelData = $levels[nextIndex];
+      if (nextLevelData) {
+          transitionInstruction = nextLevelData.instruction || "";
+          showTransition = true;
+      } else {
+          currentLevelIndex.set(nextIndex);
+      }
+  }
+
+  function handleTransitionComplete() {
+      showTransition = false;
+      const nextIndex = $currentLevelIndex + 1;
+      currentLevelIndex.set(nextIndex);
   }
 
   function restartGame() {
@@ -130,7 +148,11 @@
 
 <div class="game-container">
   
-  {#if currentLevelData && CurrentComponent}
+  {#if showTransition}
+    <LevelTransition instruction={transitionInstruction} on:complete={handleTransitionComplete} />
+  {/if}
+  
+  {#if currentLevelData && CurrentComponent && !showTransition}
       <svelte:component
               this={CurrentComponent}
               data={currentLevelData}
@@ -166,7 +188,7 @@
       </div>
   {/if}
 
-  {#if currentLevelData && !levelComplete && !isGameOver}
+  {#if currentLevelData && !levelComplete && !isGameOver && !showTransition}
     <HintButton hintText={currentLevelData.config?.hint || "Text will be here."} />
   {/if}
 

@@ -157,11 +157,11 @@ function playSound(path) {
     </div>
   {/each}
   
-    <div class="checklist">
-      <h3>{config.checklist.title}</h3>
+    <div class="information">
+      <h3>Information</h3>
       <ul>
         {#each config.checklist.requirements as req}
-          <li>⬜ {req.label} (Need: {req.minCorrect})</li>
+          <li>- {req.label} (Need: {req.minCorrect})</li>
         {/each}
       </ul>
     </div>
@@ -225,7 +225,7 @@ function playSound(path) {
       z-index: 30;
     }
   
-    .checklist {
+    .information {
       position: absolute;
       top: 20px;
       right: 20px;
@@ -237,7 +237,7 @@ function playSound(path) {
       min-width: 220px;
       border: 2px solid #fff;
     }
-    .checklist h3 {
+    .information h3 {
       margin: 0 0 15px 0;
       font-size: 1.4rem;
       color: #2c3e50;
@@ -304,7 +304,7 @@ function playSound(path) {
     .item {
       width: 110px;
     }
-    .checklist {
+    .information {
       transform: scale(0.7);
       transform-origin: top right;
       top: 10px;

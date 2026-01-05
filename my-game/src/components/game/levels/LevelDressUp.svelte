@@ -352,12 +352,11 @@
         position: absolute;
         top: 50%; left: 50%;
         transform: translate(-50%, -50%);
+        width: min(520px, 92vw);
         background: white;
-        padding: 30px 40px;
-        border-radius: 25px;
-        width: 80%;
-        max-width: 400px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        border-radius: 18px;
+        padding: 18px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
         z-index: 100;
         text-align: center;
         border: 4px solid #ff90b3;
@@ -365,28 +364,24 @@
     }
 
     .bubble-center p {
-        font-size: 1.2rem;
+        margin-bottom: 14px;
+        line-height: 1.35;
         color: #333;
-        margin-bottom: 20px;
         font-family: sans-serif;
     }
     
     .btn-ok {
-        background: #ff69b4;
-        border: none;
-        color: white;
-        padding: 10px 30px;
-        border-radius: 20px;
-        font-size: 1.2rem;
-        font-weight: bold;
+        border: 0;
+        border-radius: 12px;
+        padding: 10px 14px;
         cursor: pointer;
-        box-shadow: 0 4px 0 #d14785;
-        transition: transform 0.1s;
+        background: #ff69b4;
+        color: white;
+        font-weight: bold;
     }
     
     .btn-ok:active {
-        transform: translateY(4px);
-        box-shadow: none;
+        transform: scale(0.95);
     }
 
     .full-screen-click, .full-screen-relative {

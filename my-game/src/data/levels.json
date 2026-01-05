@@ -16,7 +16,7 @@
       "tier": 1,
       "type": "drag-drop-sort",
       "title": "Pack your Backpack",
-      "instruction": "Drag the correct items into the backpack.",
+      "instruction": "For the first time, you will pack your school bag.",
       "config": {
         "hint": "Try to take only the necessary items that you will need at school. New knowledge awaits you at school, and you will need to write it down. Also, don't forget to bring a snack.",
         "background": "/game/backgrounds/backpack_room.png",
@@ -143,7 +143,7 @@
       "tier": 1,
       "type": "cooking",
       "title": "Make Breakfast",
-      "instruction": "Follow the steps in order. First, slice the food.",
+      "instruction": "This morning you'll make your own breakfast!",
       "config": {
         "hint": "The tomato needs to be chopped first. Mum has already prepared everything else for you. Drag all the items to the left board, then collect them on the right board.",
         "background": "/game/backgrounds/kitchen.png",
@@ -261,7 +261,7 @@
       "tier": 1,
       "type": "dress-up-iron",
       "title": "Get Dressed",
-      "instruction": "Choose the right outfit and iron it.",
+      "instruction": "It's time to get dressed and do it right!",
       "config": {
         "hint": "Choose the right outfit and iron it. You don't have a physical education class on your timetable today.",
         "backgrounds": {
@@ -322,7 +322,7 @@
         "introText": "Help Lina find the way to the bus!",
         "introButton": "Got it!"
       },
-      "instruction": "Find the way from home to the bus.",
+      "instruction": "Now the main thing is to find the right path.",
       "config": {
         "hint": "Use the arrows to move Lina. The bus is waiting for you at the bottom right of the maze.",
         "background": "/game/backgrounds/maze_scene.png",
@@ -354,7 +354,7 @@
       "id": "lvl_fix_wires",
       "tier": 2,
       "type": "wires-connect",
-      "description": "Fix the Wires on the Bus",
+      "instruction": "Things don't always go according to plan. But it's not your fault.",
       "config": {
         "hint": "Connect the wires to the correct terminals. The terminals are the points where the wires connect.",
         "background": "/game/backgrounds/wires.png",
@@ -399,7 +399,7 @@
       "tier": 2,
       "type": "password",
       "title": "Enter Password",
-      "instruction": "Enter the password code that mom sent.",
+      "instruction": "Sometimes you have to use your smarts.",
       "config": {
         "hint": "The password is the code that mom sent you. You need to remember three passwords.",
         "rules": {
@@ -419,6 +419,7 @@
       "tier": 2,
       "type": "traffic-light",
       "description": "Cross the Road",
+      "instruction": "The outside world is dangerous. Be careful.",
       "config": {
         "hint": "Wait for the green light to cross the road. The red light means you can't cross the road.",
         "background": "/game/backgrounds/crosswalk.png",
@@ -457,7 +458,7 @@
       "tier": 3,
       "type": "memory",
       "title": "Find the Pairs",
-      "instruction": "Match the pairs of cards to win!",
+      "instruction": "A little excitement never hurts.",
       "config": {
         "hint": "Match the pairs of cards to win! For a pair, you need to find two identical cards.",
         "sounds": {
