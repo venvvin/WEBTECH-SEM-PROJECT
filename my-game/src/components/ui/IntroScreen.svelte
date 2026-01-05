@@ -46,16 +46,33 @@
 <style>
     .wrap {
         width: 100vw;
-        height: 100vh;
-        display: grid;
-        grid-template-rows: auto auto 1fr auto;
-        place-items: center;
+        height: 100svh; /* важно для мобильных */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         gap: 14px;
-        padding: 24px;
+        padding: 16px;
         background: #f0f8ff;
         text-align: center;
         box-sizing: border-box;
+        overflow-y: auto;
     }
+
+    .actions {
+        position: sticky;
+        bottom: 0;
+        width: 100%;
+        padding: 12px 0;
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        background: linear-gradient(
+                to top,
+                #f0f8ff 70%,
+                rgba(240, 248, 255, 0)
+        );
+    }
+
 
     .title {
         margin: 0;
@@ -79,12 +96,7 @@
         font-size: 1.1rem;
     }
 
-    .actions {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        justify-content: center;
-    }
+
 
     .btn {
         padding: 12px 22px;
