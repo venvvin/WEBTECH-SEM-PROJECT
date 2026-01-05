@@ -7,7 +7,6 @@
       "music": "/game/sfx/calm_music.wav",
       "slides": [
         {
-          "image": "/game/intro/scene_0.png",
           "lines": [
             "Welcome to 'First Day Adventures'!",
             "A gentle journey designed for young hearts facing school for the very first time.",

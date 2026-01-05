@@ -1,13 +1,13 @@
 <script>
   import { onMount, onDestroy } from "svelte";
   import { levels, currentLevelIndex, hearts, characterOutfit, gameTimer, isTimerRunning, currentScreen, gameConfig, forceMenuOpen } from "../../stores/gameStore.js";
-  import { getLevelComponent } from "../../utils/levelComponents.js";
   import { generateGameQueue } from "../../utils/levelManager.js";
-  import HintButton from "../ui/HintButton.svelte";
   import MenuButton from "../ui/MenuButton.svelte";
   import MenuOverlay from "../ui/MenuOverlay.svelte";
+  import { getLevelComponent } from "../../utils/levelComponents.js";
+  import HintButton from "../ui/HintButton.svelte";
   import LevelTransition from "../ui/LevelTransition.svelte";
-  import { saveCurrentTime, saveBestTime, clearCurrentTime, getBestTime } from "../../utils/timerManager.js";
+  import { saveCurrentTime, saveBestTime, clearCurrentTime } from "../../utils/timerManager.js";
   import fullGameData from "../../data/levels.json";
 
   $: currentLevelData = $levels[$currentLevelIndex];
@@ -24,23 +24,21 @@
           forceMenuOpen.set(false);
       }
   }
-      $: console.log("Current Outfit in Store:", $characterOutfit);
-    $: console.log("Selected Happy Image:", happyChar);
 
-  const charImages = {
-      pajamas: {
-          happy: '/game/characters/Lina/pajamas/happy.png', 
-          sad: '/game/characters/Lina/pajamas/sad.png'
-      },
-      school_uniform: {
-          happy: '/game/characters/Lina/suit/happy.png', 
-          sad: '/game/characters/Lina/suit/sad.png'
-      }
-  };
+    const charImages = {
+        pajamas: {
+            happy: '/game/characters/Lina/pajamas/happy.png',
+            sad: '/game/characters/Lina/pajamas/sad.png'
+        },
+        school_uniform: {
+            happy: '/game/characters/Lina/suit/happy.png',
+            sad: '/game/characters/Lina/suit/sad.png'
+        }
+    };
 
-  $: currentOutfitImages = charImages[$characterOutfit] || charImages.pajamas;
+    $: currentOutfitImages = charImages[$characterOutfit] || charImages.pajamas;
 
-  $: happyChar = $characterOutfit !== 'pajamas'
+    $: happyChar = $characterOutfit !== 'pajamas'
         ? (charImages[$characterOutfit]?.happy || charImages.pajamas.happy)
         : (currentLevelData?.config?.character?.happy || charImages.pajamas.happy);
 
@@ -48,14 +46,14 @@
         ? (charImages[$characterOutfit]?.sad || charImages.pajamas.sad)
         : (currentLevelData?.config?.character?.sad || charImages.pajamas.sad);
 
-  $: isGameOver = $hearts <= 0 && !(currentLevelData?.config?.rules?.restartOnFail && $currentLevelIndex === 0);
-  
-  $: {
-      if (isGameOver) {
-          stopTimer();
-          saveCurrentTime($gameTimer);
-      }
-  }
+    $: isGameOver = $hearts <= 0 && !(currentLevelData?.config?.rules?.restartOnFail && $currentLevelIndex === 0);
+
+    $: {
+        if (isGameOver) {
+            stopTimer();
+            saveCurrentTime($gameTimer);
+        }
+    }
 
   function handleLevelComplete() {
       levelComplete = true;
@@ -67,30 +65,31 @@
       }
   }
 
-  function handleMistake() {
-      if (levelComplete) return;
-      hearts.update((h) => Math.max(0, h - 1));
-  }
+    function handleMistake() {
+        if (levelComplete) return;
+        hearts.update((h) => Math.max(0, h - 1));
+    }
 
-  function nextLevel() {
-      levelComplete = false;
-      const nextIndex = $currentLevelIndex + 1;
-      
-      if (nextIndex >= $levels.length) {
-          stopTimer();
-          saveCurrentTime($gameTimer);
-          currentLevelIndex.set(nextIndex);
-          return;
-      }
-      
-      const nextLevelData = $levels[nextIndex];
-      if (nextLevelData) {
-          transitionInstruction = nextLevelData.instruction || "";
-          showTransition = true;
-      } else {
-          currentLevelIndex.set(nextIndex);
-      }
-  }
+    function nextLevel() {
+        levelComplete = false;
+        const nextIndex = $currentLevelIndex + 1;
+        
+        if (nextIndex >= $levels.length) {
+            stopTimer();
+            saveCurrentTime($gameTimer);
+            saveBestTime($gameTimer);
+            currentLevelIndex.set(nextIndex);
+            return;
+        }
+        
+        const nextLevelData = $levels[nextIndex];
+        if (nextLevelData) {
+            transitionInstruction = nextLevelData.instruction || "";
+            showTransition = true;
+        } else {
+            currentLevelIndex.set(nextIndex);
+        }
+    }
 
   function handleTransitionComplete() {
       showTransition = false;
@@ -102,7 +101,6 @@
       saveBestTime($gameTimer);
       currentScreen.set('results');
   }
-
   function restartGame() {
       const allAudioElements = document.querySelectorAll('audio');
       allAudioElements.forEach(audio => {
@@ -153,48 +151,48 @@
       
       currentScreen.set('intro');
   }
+    function startTimer() {
+        if (timerInterval) return;
+        isTimerRunning.set(true);
+        timerInterval = setInterval(() => {
+            gameTimer.update(t => t + 1);
+        }, 1000);
+    }
 
-  function startTimer() {
-      if (timerInterval) return;
-      isTimerRunning.set(true);
-      timerInterval = setInterval(() => {
-          gameTimer.update(t => t + 1);
-      }, 1000);
-  }
+    function stopTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        isTimerRunning.set(false);
+    }
 
-  function stopTimer() {
-      if (timerInterval) {
-          clearInterval(timerInterval);
-          timerInterval = null;
-      }
-      isTimerRunning.set(false);
-  }
+  /** @type {any} */
+    $: CurrentComponent = currentLevelData ? getLevelComponent(currentLevelData.type) : null;
 
-  $: CurrentComponent = currentLevelData ? getLevelComponent(currentLevelData.type) : null;
+    $: {
+        if (currentLevelData) {
+            const allAudioElements = document.querySelectorAll('audio');
+            allAudioElements.forEach(audio => {
+                audio.pause();
+                audio.currentTime = 0;
+            });
 
-  $: {
-      if (currentLevelData) {
-          const allAudioElements = document.querySelectorAll('audio');
-          allAudioElements.forEach(audio => {
-              audio.pause();
-              audio.currentTime = 0;
-          });
-          
-          if ($currentLevelIndex === 0 && !$isTimerRunning) {
-              startTimer();
-          }
-      }
-  }
+            if ($currentLevelIndex === 0 && !$isTimerRunning) {
+                startTimer();
+            }
+        }
+    }
 
-  onMount(() => {
-      if ($levels.length > 0 && $currentLevelIndex === 0) {
-          startTimer();
-      }
-  });
+    onMount(() => {
+        if ($levels.length > 0 && $currentLevelIndex === 0) {
+            startTimer();
+        }
+    });
 
-  onDestroy(() => {
-      stopTimer();
-  });
+    onDestroy(() => {
+        stopTimer();
+    });
 </script>
 
 <div class="game-container">
@@ -202,7 +200,7 @@
   {#if showTransition}
     <LevelTransition instruction={transitionInstruction} on:complete={handleTransitionComplete} />
   {/if}
-  
+  <div class="game-screen">
   {#if currentLevelData && CurrentComponent && !showTransition}
       <svelte:component
               this={CurrentComponent}
@@ -223,7 +221,7 @@
       </div>
   {/if}
 
-  {#if levelComplete && !isGameComplete}
+  {#if levelComplete  && !isGameComplete}
       <div class="win-overlay">
           <div class="character-box">
               <img src={happyChar} alt="Lina Happy" class="char-img" />
@@ -247,29 +245,33 @@
       </div>
   {/if}
 
-  {#if (currentLevelData && !levelComplete && !isGameOver && !showTransition) || isGameComplete}
-    {#if currentLevelData && !levelComplete && !isGameOver && !showTransition}
-      <HintButton hintText={currentLevelData.config?.hint || "Text will be here."} />
-    {/if}
-    <MenuButton bind:isOpen={menuOpen}>
-      {#if menuOpen}
-        <MenuOverlay 
-          onRestart={restartGameFromMenu}
-          onContinue={() => {}}
-          onClose={() => menuOpen = false}
-        />
-      {/if}
-    </MenuButton>
+  {#if currentLevelData && !levelComplete && !isGameOver && !showTransition  || isGameComplete}
+    <HintButton hintText={currentLevelData.config?.hint || "Text will be here."} />
   {/if}
-
+  <MenuButton bind:isOpen={menuOpen}>
+    {#if menuOpen}
+      <MenuOverlay 
+        onRestart={restartGameFromMenu}
+        onContinue={() => {}}
+        onClose={() => menuOpen = false}
+      />
+    {/if}
+  </MenuButton>
 </div>
-
+</div>
 <style>
-.game-container {
-    width: 100%; height: 100%; position: relative;
-}
+    .game-container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
 
-.win-overlay, .gameover-overlay, .game-complete-overlay {
+    .game-screen {
+        width: 100%;
+        height: 100%;
+    }
+
+.win-overlay, .gameover-overlay .game-complete-overlay {
     position: absolute;
     inset: 0;
     background: rgba(255, 255, 255, 0.9);
@@ -280,64 +282,141 @@
     animation: fadeIn 0.5s;
 }
 
-.character-box {
-    display: flex;
-    align-items: center;
-    gap: 30px;
-}
+    .character-box {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+    }
 
-.char-img {
-    height: 400px;
-    width: auto;
-    object-fit: contain;
-    filter: drop-shadow(5px 5px 15px rgba(0,0,0,0.2));
-}
+    .char-img {
+        height: 400px;
+        width: auto;
+        object-fit: contain;
+        filter: drop-shadow(5px 5px 15px rgba(0,0,0,0.2));
+    }
 
-.dialog-bubble {
-    background: white;
-    border-radius: 20px;
-    padding: 30px;
-    max-width: 300px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    border: 4px solid #3498db;
-    position: relative;
-}
+    .dialog-bubble {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 300px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        border: 4px solid #3498db;
+        position: relative;
+    }
 
-.dialog-bubble::before {
-    content: '';
-    position: absolute;
-    left: -20px; top: 50%;
-    transform: translateY(-50%);
-    border: 10px solid transparent;
-    border-right-color: #3498db;
-}
+    .dialog-bubble::before {
+        content: '';
+        position: absolute;
+        left: -20px;
+        top: 50%;
+        transform: translateY(-50%);
+        border: 10px solid transparent;
+        border-right-color: #3498db;
+    }
 
-.dialog-bubble p {
-    margin: 0 0 10px;
-    font-size: 1.2rem;
-    color: #2c3e50;
-}
+    .dialog-bubble p {
+        margin: 0 0 10px;
+        font-size: 1.2rem;
+        color: #2c3e50;
+    }
 
-.dialog-bubble button {
-    margin-top: 15px;
-    padding: 12px 24px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    background: #2ecc71;
-    color: white;
-    font-size: 1.1rem;
-    width: 100%;
-    transition: transform 0.1s;
-    font-weight: bold;
-}
+    .dialog-bubble button {
+        margin-top: 15px;
+        padding: 12px 24px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        background: #2ecc71;
+        color: white;
+        font-size: 1.1rem;
+        width: 100%;
+        transition: transform 0.1s;
+        font-weight: bold;
+    }
 
-.dialog-bubble button:active {
-    transform: scale(0.95);
-}
+    .dialog-bubble button:active {
+        transform: scale(0.95);
+    }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .print-hints {
+        display: none;
+    }
+
+    @media print {
+        .game-screen,
+        .win-overlay,
+        .gameover-overlay,
+        .hint-button,
+        button,
+        canvas {
+            display: none !important;
+        }
+
+        .game-container {
+            display: block !important;
+            position: static !important;
+            width: 100% !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .print-hints {
+            display: block !important;
+            position: static !important;
+            width: 100% !important;
+            height: auto !important;
+            background: white !important;
+            color: black !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            page-break-inside: avoid;
+        }
+
+        .print-title {
+            margin: 0 0 15px 0 !important;
+            font-size: 24pt !important;
+            font-weight: bold !important;
+            color: #000 !important;
+        }
+
+        .print-subtitle {
+            margin: 20px 0 10px 0 !important;
+            font-size: 16pt !important;
+            font-weight: bold !important;
+            color: #000 !important;
+            border-bottom: 1px solid #ccc !important;
+            padding-bottom: 5px !important;
+        }
+
+        .print-block {
+            margin: 10px 0 !important;
+            font-size: 12pt !important;
+            line-height: 1.5 !important;
+            color: #000 !important;
+        }
+
+        .print-list {
+            margin: 10px 0 10px 20px !important;
+            font-size: 12pt !important;
+            line-height: 1.5 !important;
+            color: #000 !important;
+        }
+
+        .print-list li {
+            margin-bottom: 5px !important;
+        }
+
+        * {
+            background: transparent !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+        }
+    }
 </style>
