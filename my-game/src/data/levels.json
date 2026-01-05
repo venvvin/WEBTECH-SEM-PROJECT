@@ -390,39 +390,6 @@
       }
     },
     {
-      "id": "lvl_pay_fare",
-      "tier": 2,
-      "type": "pin-memory",
-      "description": "Pay the Fare",
-      "config": {
-        "background": "bg_bus_terminal.png",
-        "rounds": 3,
-        "pin": {
-          "length": 4,
-          "showDurationMs": 2200,
-          "hideDelayMs": 400
-        },
-        "phoneMessage": {
-          "from": "Mom",
-          "bubbleImage": "ui/phone_bubble.png",
-          "position": "right"
-        },
-        "keypad": {
-          "layout": "default",
-          "sound": "sfx/keypad.wav"
-        },
-        "rules": {
-          "mistakePenaltyHearts": 1,
-          "maxMistakesBeforeFail": 2,
-          "regeneratePinEachRound": true
-        },
-        "sounds": {
-          "success": "sfx/success.wav",
-          "fail": "sfx/fail.wav"
-        }
-      }
-    },
-    {
       "id": "lvl_password",
       "tier": 2,
       "type": "password",
