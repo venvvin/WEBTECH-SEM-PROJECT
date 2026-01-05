@@ -1,14 +1,6 @@
 <script>
   import { levels, currentLevelIndex, hearts, characterOutfit } from "../../stores/gameStore.js";
-
-  import LevelBackpack from "./levels/LevelBackpack.svelte";
-  import LevelCooking from "./levels/LevelCooking.svelte";
-  import LevelDressUp from './levels/LevelDressUp.svelte';
-  import LevelMaze from "./levels/LevelMaze.svelte";
-  import LevelFixWires from "./levels/LevelFixWires.svelte";
-  import LevelPassword from "./levels/LevelPassword.svelte";
-  import LevelCrossRoad from "./levels/LevelCrossRoad.svelte";
-  import LevelMemory from "./levels/LevelMemory.svelte";
+  import { getLevelComponent } from "../../utils/levelComponents.js";
 
   $: currentLevelData = $levels[$currentLevelIndex];
   let levelComplete = false;
@@ -71,21 +63,8 @@
       levelComplete = false;
   }
 
-  function getComponent(type) {
-      switch (type) {
-          case "drag-drop-sort": return LevelBackpack;
-          case "cooking": return LevelCooking;
-          case 'dress-up-iron': return LevelDressUp;
-          case "maze": return LevelMaze;
-          case "wires-connect": return LevelFixWires;
-          case "password": return LevelPassword;
-          case "traffic-light": return LevelCrossRoad;
-          case "memory": return LevelMemory;
-      }
-  }
-
   /** @type {any} */
-  $: CurrentComponent = currentLevelData ? getComponent(currentLevelData.type) : null;
+  $: CurrentComponent = currentLevelData ? getLevelComponent(currentLevelData.type) : null;
 
   $: {
       if (currentLevelData) {
