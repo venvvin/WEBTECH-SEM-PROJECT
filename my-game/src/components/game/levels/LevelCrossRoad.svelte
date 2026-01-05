@@ -193,22 +193,22 @@
         {@const step = steps[stepIndex]}
         {@const imgSrc = step?.image || background}
 
-        <div class="novel">
+        <div class="novel-screen">
             {#if imgSrc}
-                <img class="sceneImg" src={imgSrc} alt="" draggable="false" />
+                <img class="novel-image" src={imgSrc} alt="" draggable="false" />
             {/if}
 
-            <div class="bubble mobile-friendly-bubble">
+            <div class="dialogue-box">
                 {#if step?.speaker}
-                    <div class="speaker mobile-speaker">{step.speaker}</div>
+                    <div class="speaker-name">{step.speaker}</div>
                 {/if}
-                <div class="text mobile-text">{step?.text || ""}</div>
+                <div class="dialogue-text">{step?.text || ""}</div>
 
-                <div class="actions mobile-actions">
-                    <button class="btn ghost mobile-btn" on:click={skipToTask}>
+                <div class="dialogue-actions">
+                    <button class="action-btn skip-btn" on:click={skipToTask}>
                         Skip
                     </button>
-                    <button class="btn mobile-btn" on:click={nextScene}>
+                    <button class="action-btn next-btn" on:click={nextScene}>
                         {stepIndex < steps.length - 1 ? "Next" : "Finish"}
                     </button>
                 </div>
@@ -223,9 +223,9 @@
             <div class="game-content">
                 <div class="traffic-light-container">
                     <div class="traffic-light">
-                        <div class={`light red ${currentState === "red" ? "active" : ""}`}></div>
-                        <div class={`light yellow ${currentState === "yellow" ? "active" : ""}`}></div>
-                        <div class={`light green ${currentState === "green" ? "active" : ""}`}></div>
+                        <div class="light red {currentState === 'red' ? 'active' : ''}"></div>
+                        <div class="light yellow {currentState === 'yellow' ? 'active' : ''}"></div>
+                        <div class="light green {currentState === 'green' ? 'active' : ''}"></div>
                     </div>
                 </div>
 
@@ -255,14 +255,13 @@
         -webkit-tap-highlight-color: transparent;
     }
 
-    /* СТИЛЬ НОВЕЛЛЫ КАК НА КАРТИНКЕ */
-    .novel {
+    .novel-screen {
         position: absolute;
         inset: 0;
         background: #000;
     }
 
-    .sceneImg {
+    .novel-image {
         position: absolute;
         inset: 0;
         width: 100%;
@@ -273,7 +272,7 @@
         -webkit-user-drag: none;
     }
 
-    .mobile-friendly-bubble {
+    .dialogue-box {
         position: absolute;
         left: 10px;
         right: 10px;
@@ -290,28 +289,28 @@
         border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .mobile-speaker {
+    .speaker-name {
         font-weight: 800;
         font-size: 14px;
         margin-bottom: 4px;
         opacity: 0.95;
     }
 
-    .mobile-text {
+    .dialogue-text {
         font-size: 16px;
         line-height: 1.3;
         opacity: 0.98;
         margin-bottom: 8px;
     }
 
-    .mobile-actions {
+    .dialogue-actions {
         margin-top: 8px;
         display: flex;
         gap: 8px;
         justify-content: flex-end;
     }
 
-    .mobile-btn {
+    .action-btn {
         border: 0;
         padding: 8px 12px;
         border-radius: 10px;
@@ -325,15 +324,19 @@
         touch-action: manipulation;
     }
 
-    .mobile-btn:hover {
-        background: rgba(255, 255, 255, 0.3);
-    }
-
-    .btn.ghost {
+    .skip-btn {
         background: rgba(255, 255, 255, 0.1);
     }
 
-    /* ИГРОВОЙ ЭКРАН */
+    .next-btn {
+        background: #4CAF50;
+        color: white;
+    }
+
+    .action-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
     .game-screen {
         position: absolute;
         width: 100%;
@@ -348,15 +351,12 @@
 
     .game-content {
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        inset: 0;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        gap: 30px;
+        gap: 22px;
         padding: 20px;
         box-sizing: border-box;
     }
@@ -366,22 +366,21 @@
         justify-content: center;
         align-items: center;
         width: 100%;
-        max-width: 400px;
+        max-width: 420px;
     }
 
     .traffic-light {
         background: rgba(0, 0, 0, 0.7);
         border-radius: 24px;
-        padding: 25px;
+        width: clamp(90px, 18vmin, 150px);
+        padding: clamp(12px, 2.2vmin, 22px);
+        gap: clamp(10px, 2vmin, 18px);
         display: flex;
         flex-direction: column;
-        gap: 20px;
-        min-width: 120px;
-        max-width: 150px;
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
         border: 2px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
     }
 
     .light {
@@ -389,17 +388,14 @@
         aspect-ratio: 1;
         border-radius: 50%;
         opacity: 0.3;
-        transition: all 0.3s ease;
+        transition: all 0.25s ease;
         position: relative;
     }
 
     .light::after {
-        content: '';
+        content: "";
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        inset: 0;
         border-radius: 50%;
         box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
     }
@@ -424,28 +420,26 @@
     .warning-message {
         background: rgba(255, 255, 255, 0.95);
         color: #333;
-        padding: 12px 24px;
+        padding: 10px 18px;
         border-radius: 20px;
-        font-size: 22px;
-        font-weight: 800;
-        animation: warningFlash 0.7s ease-in-out;
+        font-size: clamp(16px, 4.2vw, 22px);
+        font-weight: 900;
         text-align: center;
         max-width: 80%;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
     }
 
     .action-button {
         background: linear-gradient(145deg, #4CAF50, #2E7D32);
         color: white;
         border: none;
-        border-radius: 20px;
-        padding: 18px 36px;
-        font-size: 24px;
+        border-radius: 16px;
+        padding: clamp(8px, 1.8vmin, 14px);
+        font-size: clamp(14px, 3.5vmin, 18px);
         font-weight: 900;
         cursor: pointer;
         transition: all 0.2s;
-        min-width: 160px;
-        min-height: 60px;
+        min-width: 120px;
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         display: flex;
         justify-content: center;
@@ -464,79 +458,51 @@
     }
 
     .action-button img {
-        max-width: 180px;
+        width: clamp(120px, 30vmin, 180px);
         height: auto;
     }
 
-    @keyframes warningFlash {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.1); }
-    }
-
-    @media (max-width: 768px) {
-        .traffic-light {
-            padding: 20px;
-            gap: 15px;
-            min-width: 100px;
-            max-width: 130px;
-        }
-
-        .warning-message {
-            font-size: 18px;
-            padding: 10px 20px;
-        }
-
-        .action-button {
-            padding: 15px 30px;
-            font-size: 20px;
-            min-width: 140px;
-            min-height: 55px;
-        }
-    }
-
     @media (max-width: 480px) {
-        .mobile-friendly-bubble {
+        .traffic-light-container {
+            max-width: 260px;
+        }
+
+        .traffic-light {
+            width: 110px;
+            padding: 14px;
+            gap: 12px;
+            border-radius: 18px;
+        }
+
+        .light.active {
+            box-shadow: 0 0 16px currentColor;
+        }
+
+        .dialogue-box {
             padding: 10px 12px;
             bottom: 8px;
             left: 8px;
             right: 8px;
         }
 
-        .mobile-speaker {
+        .speaker-name {
             font-size: 13px;
         }
 
-        .mobile-text {
+        .dialogue-text {
             font-size: 15px;
         }
 
-        .mobile-btn {
+        .action-btn {
             padding: 6px 10px;
             font-size: 13px;
             min-height: 32px;
         }
+    }
 
+    @media (max-width: 360px) {
         .traffic-light {
-            padding: 15px;
-            gap: 12px;
-            min-width: 90px;
-            max-width: 110px;
-        }
-
-        .warning-message {
-            font-size: 16px;
-            padding: 8px 16px;
-        }
-
-        .action-button {
-            padding: 12px 24px;
-            font-size: 18px;
-            min-width: 120px;
-            min-height: 50px;
-        }
-
-        .action-button img {
-            max-width: 140px;
+            transform: scale(0.9);
         }
     }
 
