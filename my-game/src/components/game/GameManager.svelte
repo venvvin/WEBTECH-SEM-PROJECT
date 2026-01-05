@@ -1,9 +1,16 @@
 <script>
-  import { levels, currentLevelIndex, hearts, characterOutfit } from "../../stores/gameStore.js";
+  import { onMount, onDestroy } from "svelte";
+  import { levels, currentLevelIndex, hearts, characterOutfit, gameTimer, isTimerRunning } from "../../stores/gameStore.js";
   import { getLevelComponent } from "../../utils/levelComponents.js";
+  import HintButton from "../ui/HintButton.svelte";
+  import LevelTransition from "../ui/LevelTransition.svelte";
+  import { saveCurrentTime, saveBestTime, clearCurrentTime } from "../../utils/timerManager.js";
 
   $: currentLevelData = $levels[$currentLevelIndex];
   let levelComplete = false;
+  let timerInterval = null;
+  let showTransition = false;
+  let transitionInstruction = "";
       $: console.log("Current Outfit in Store:", $characterOutfit);
     $: console.log("Selected Happy Image:", happyChar);
 
@@ -29,6 +36,13 @@
         : (currentLevelData?.config?.character?.sad || charImages.pajamas.sad);
 
   $: isGameOver = $hearts <= 0 && !(currentLevelData?.config?.rules?.restartOnFail && $currentLevelIndex === 0);
+  
+  $: {
+      if (isGameOver) {
+          stopTimer();
+          saveCurrentTime($gameTimer);
+      }
+  }
 
   function handleLevelComplete() {
       levelComplete = true;
@@ -41,7 +55,29 @@
 
   function nextLevel() {
       levelComplete = false;
-      currentLevelIndex.update((n) => n + 1);
+      const nextIndex = $currentLevelIndex + 1;
+      
+      if (nextIndex >= $levels.length) {
+          stopTimer();
+          saveCurrentTime($gameTimer);
+          saveBestTime($gameTimer);
+          currentLevelIndex.set(nextIndex);
+          return;
+      }
+      
+      const nextLevelData = $levels[nextIndex];
+      if (nextLevelData) {
+          transitionInstruction = nextLevelData.instruction || "";
+          showTransition = true;
+      } else {
+          currentLevelIndex.set(nextIndex);
+      }
+  }
+
+  function handleTransitionComplete() {
+      showTransition = false;
+      const nextIndex = $currentLevelIndex + 1;
+      currentLevelIndex.set(nextIndex);
   }
 
   function restartGame() {
@@ -57,10 +93,29 @@
               window['_passwordMusicSound'] = null;
           } catch (e) {}
       }
+      stopTimer();
+      clearCurrentTime();
+      gameTimer.set(0);
       hearts.set(3);
       currentLevelIndex.set(0);
       characterOutfit.set('pajamas');
       levelComplete = false;
+  }
+
+  function startTimer() {
+      if (timerInterval) return;
+      isTimerRunning.set(true);
+      timerInterval = setInterval(() => {
+          gameTimer.update(t => t + 1);
+      }, 1000);
+  }
+
+  function stopTimer() {
+      if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+      }
+      isTimerRunning.set(false);
   }
 
   /** @type {any} */
@@ -73,13 +128,31 @@
               audio.pause();
               audio.currentTime = 0;
           });
+          
+          if ($currentLevelIndex === 0 && !$isTimerRunning) {
+              startTimer();
+          }
       }
   }
+
+  onMount(() => {
+      if ($levels.length > 0 && $currentLevelIndex === 0) {
+          startTimer();
+      }
+  });
+
+  onDestroy(() => {
+      stopTimer();
+  });
 </script>
 
 <div class="game-container">
   
-  {#if currentLevelData && CurrentComponent}
+  {#if showTransition}
+    <LevelTransition instruction={transitionInstruction} on:complete={handleTransitionComplete} />
+  {/if}
+  
+  {#if currentLevelData && CurrentComponent && !showTransition}
       <svelte:component
               this={CurrentComponent}
               data={currentLevelData}
@@ -113,6 +186,10 @@
               </div>
           </div>
       </div>
+  {/if}
+
+  {#if currentLevelData && !levelComplete && !isGameOver && !showTransition}
+    <HintButton hintText={currentLevelData.config?.hint || "Text will be here."} />
   {/if}
 
 </div>

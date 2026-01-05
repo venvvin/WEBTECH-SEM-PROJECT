@@ -1,35 +1,36 @@
 <script>
-    import OrientationGuard from './components/ui/OrientationGuard.svelte';
+  import OrientationGuard from './components/ui/OrientationGuard.svelte';
+  import IntroScreen from './components/ui/IntroScreen.svelte';
+  import { clearCurrentTime } from './utils/timerManager.js';
+  import GameManager from './components/game/GameManager.svelte';
+  import HUD from './components/ui/HUD.svelte';
+  
+  import { currentScreen, levels, hearts, gameConfig, gameTimer, currentLevelIndex } from './stores/gameStore.js';
+  import { generateGameQueue } from './utils/levelManager.js';
+  
+  import fullGameData from './data/levels.json';
 
-    import IntroScreen from './components/ui/IntroScreen.svelte';
-    import GameManager from './components/game/GameManager.svelte';
-    import HUD from './components/ui/HUD.svelte';
-
-    import { currentScreen, levels, hearts, gameConfig } from './stores/gameStore.js';
-    import { generateGameQueue } from './utils/levelManager.js';
-
-    import fullGameData from './data/levels.json';
-
-    function initGame() {
+  function initGame() {
         gameConfig.set(fullGameData);
         hearts.set(fullGameData.meta?.totalHearts || 3);
 
         const gameQueue = generateGameQueue(fullGameData);
         levels.set(gameQueue);
+        gameTimer.set(0);
+        currentLevelIndex.set(0);
+        clearCurrentTime();
     }
 
-    function startGame() {
-        initGame();
-
-        const intro = fullGameData?.meta?.intro;
+  function startGame() {
+    initGame();
+    const intro = fullGameData?.meta?.intro;
         if (intro?.slides?.length) {
             currentScreen.set('intro');
         } else {
             currentScreen.set('game');
         }
-    }
-
-    function finishIntro() {
+  }
+  function finishIntro() {
         currentScreen.set('game');
     }
 
@@ -48,7 +49,7 @@
         </div>
 
     {:else if $currentScreen === 'intro'}
-        <IntroScreen intro={$gameConfig?.meta?.intro} on:done={finishIntro} />
+        <IntroScreen intro={fullGameData?.meta?.intro} on:done={finishIntro} />
 
     {:else if $currentScreen === 'game'}
         <div class="screen game-screen">

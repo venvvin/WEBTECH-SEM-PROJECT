@@ -526,6 +526,7 @@
         border-radius: 18px;
         padding: 18px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        border: 4px solid #ff90b3;
     }
     .card .h {
         font-size: 18px;
@@ -541,6 +542,12 @@
         border-radius: 12px;
         padding: 10px 14px;
         cursor: pointer;
+        background: #ff69b4;
+        color: white;
+        font-weight: bold;
+    }
+    .card button:active {
+        transform: scale(0.95);
     }
     .char {
         width: 120px;
