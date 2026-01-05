@@ -1,16 +1,21 @@
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { levels, currentLevelIndex, hearts, characterOutfit, gameTimer, isTimerRunning } from "../../stores/gameStore.js";
+  import { levels, currentLevelIndex, hearts, characterOutfit, gameTimer, isTimerRunning, currentScreen, gameConfig } from "../../stores/gameStore.js";
   import { getLevelComponent } from "../../utils/levelComponents.js";
+  import { generateGameQueue } from "../../utils/levelManager.js";
   import HintButton from "../ui/HintButton.svelte";
+  import MenuButton from "../ui/MenuButton.svelte";
+  import MenuOverlay from "../ui/MenuOverlay.svelte";
   import LevelTransition from "../ui/LevelTransition.svelte";
-  import { saveCurrentTime, saveBestTime, clearCurrentTime } from "../../utils/timerManager.js";
+  import { saveCurrentTime, saveBestTime, clearCurrentTime, getBestTime } from "../../utils/timerManager.js";
+  import fullGameData from "../../data/levels.json";
 
   $: currentLevelData = $levels[$currentLevelIndex];
   let levelComplete = false;
   let timerInterval = null;
   let showTransition = false;
   let transitionInstruction = "";
+  let menuOpen = false;
       $: console.log("Current Outfit in Store:", $characterOutfit);
     $: console.log("Selected Happy Image:", happyChar);
 
@@ -102,6 +107,40 @@
       levelComplete = false;
   }
 
+  function restartGameFromMenu() {
+      const currentBest = getBestTime();
+      if (currentBest === null || $gameTimer < currentBest) {
+          saveBestTime($gameTimer);
+      }
+      
+      stopTimer();
+      clearCurrentTime();
+      gameTimer.set(0);
+      hearts.set(fullGameData.meta?.totalHearts || 3);
+      currentLevelIndex.set(0);
+      characterOutfit.set('pajamas');
+      levelComplete = false;
+      
+      gameConfig.set(fullGameData);
+      const gameQueue = generateGameQueue(fullGameData);
+      levels.set(gameQueue);
+      
+      const allAudioElements = document.querySelectorAll('audio');
+      allAudioElements.forEach(audio => {
+          audio.pause();
+          audio.currentTime = 0;
+      });
+      if (typeof window !== 'undefined' && window['_passwordMusicSound']) {
+          try {
+              window['_passwordMusicSound'].pause();
+              window['_passwordMusicSound'].currentTime = 0;
+              window['_passwordMusicSound'] = null;
+          } catch (e) {}
+      }
+      
+      currentScreen.set('intro');
+  }
+
   function startTimer() {
       if (timerInterval) return;
       isTimerRunning.set(true);
@@ -118,7 +157,6 @@
       isTimerRunning.set(false);
   }
 
-  /** @type {any} */
   $: CurrentComponent = currentLevelData ? getLevelComponent(currentLevelData.type) : null;
 
   $: {
@@ -190,6 +228,15 @@
 
   {#if currentLevelData && !levelComplete && !isGameOver && !showTransition}
     <HintButton hintText={currentLevelData.config?.hint || "Text will be here."} />
+    <MenuButton bind:isOpen={menuOpen}>
+      {#if menuOpen}
+        <MenuOverlay 
+          onRestart={restartGameFromMenu}
+          onContinue={() => {}}
+          onClose={() => menuOpen = false}
+        />
+      {/if}
+    </MenuButton>
   {/if}
 
 </div>
