@@ -521,4 +521,5 @@
             min-height: 45px;
         }
     }
+
 </style>
