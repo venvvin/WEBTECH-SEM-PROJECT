@@ -676,7 +676,7 @@
                     transform-origin: top left;
                 "
             >
-                {#if overlayImage}
+                {#if overlayImage && !preIntroVisible && !houseSceneVisible && !mazeSceneVisible && !busSceneVisible && !introVisible}
                     <img
                             class="mazeOverlay"
                             src={overlayImage}
@@ -703,32 +703,34 @@
                     {/each}
                 </div>
 
-                <div
-                        class="finish"
-                        style="
-                        left:{endPosition.x * cellSize}px;
-                        top:{endPosition.y * cellSize}px;
-                        width:{cellSize}px;
-                        height:{cellSize}px;
-                    "
-                ></div>
+                {#if !preIntroVisible && !houseSceneVisible && !mazeSceneVisible && !busSceneVisible && !introVisible}
+                    <div
+                            class="finish"
+                            style="
+                            left:{endPosition.x * cellSize}px;
+                            top:{endPosition.y * cellSize}px;
+                            width:{cellSize}px;
+                            height:{cellSize}px;
+                        "
+                    ></div>
 
-                <div
-                        class="player {facingDirection}"
-                        style="
-                        left:{playerPixelX}px;
-                        top:{playerPixelY}px;
-                        width:{cellSize * 1.5}px;
-                        height:{cellSize * 1.5}px;
-                        --ps:{playerScale};
-                    "
-                >
-                    {#if playerImage}
-                        <img src={playerImage} alt="player" draggable="false" />
-                    {:else}
-                        <div class="fallback"></div>
-                    {/if}
-                </div>
+                    <div
+                            class="player {facingDirection}"
+                            style="
+                            left:{playerPixelX}px;
+                            top:{playerPixelY}px;
+                            width:{cellSize * 1.5}px;
+                            height:{cellSize * 1.5}px;
+                            --ps:{playerScale};
+                        "
+                    >
+                        {#if playerImage}
+                            <img src={playerImage} alt="player" draggable="false" />
+                        {:else}
+                            <div class="fallback"></div>
+                        {/if}
+                    </div>
+                {/if}
 
                 {#if debugGrid}
                     <div class="grid">

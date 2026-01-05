@@ -479,49 +479,12 @@
       }
     },
     {
-      "id": "lvl_memory_pairs",
+      "id": "lvl_memory",
       "tier": 3,
-      "type": "memory-pairs",
-      "description": "Defeat the Classmate: Find the Pairs",
-      "config": {
-        "background": "bg_school_entrance.png",
-        "npc": {
-          "name": "Classmate",
-          "image": "npc/classmate.png",
-          "dialogue": [
-            "Don't know where to go?",
-            "Okay, let's play. Find the pairs and I'll show you the classroom."
-          ]
-        },
-        "board": {
-          "cols": 4,
-          "rows": 3,
-          "cardBack": "cards/back.png",
-          "pairs": [
-            { "id": "p1", "front": "cards/pencil.png" },
-            { "id": "p2", "front": "cards/bus.png" },
-            { "id": "p3", "front": "cards/apple.png" },
-            { "id": "p4", "front": "cards/book.png" },
-            { "id": "p5", "front": "cards/star.png" },
-            { "id": "p6", "front": "cards/heart.png" }
-          ]
-        },
-        "rules": {
-          "timeLimitSec": 50,
-          "mistakePenaltyHearts": 1,
-          "maxMistakesBeforeFail": 3,
-          "shuffleCards": true
-        },
-        "sounds": {
-          "flip": "sfx/flip.wav",
-          "match": "sfx/match.wav",
-          "fail": "sfx/fail.wav",
-          "success": "sfx/success.wav"
-        },
-        "endings": {
-          "successTransition": { "type": "gif", "asset": "transitions/arrive_classroom.gif" }
-        }
-      }
+      "type": "memory",
+      "title": "Find the Pairs",
+      "instruction": "Match the pairs of cards to win!",
+      "config": {}
     }
   ],
   "endScreens": {
