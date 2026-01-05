@@ -1,6 +1,7 @@
 <script>
   import { levels, currentLevelIndex, hearts, characterOutfit } from "../../stores/gameStore.js";
   import { getLevelComponent } from "../../utils/levelComponents.js";
+  import HintButton from "../ui/HintButton.svelte";
 
   $: currentLevelData = $levels[$currentLevelIndex];
   let levelComplete = false;
@@ -113,6 +114,10 @@
               </div>
           </div>
       </div>
+  {/if}
+
+  {#if currentLevelData && !levelComplete && !isGameOver}
+    <HintButton hintText={currentLevelData.config?.hint || "Text will be here."} />
   {/if}
 
 </div>

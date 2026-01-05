@@ -18,6 +18,7 @@
       "title": "Pack your Backpack",
       "instruction": "Drag the correct items into the backpack.",
       "config": {
+        "hint": "Try to take only the necessary items that you will need at school. New knowledge awaits you at school, and you will need to write it down. Also, don't forget to bring a snack.",
         "background": "/game/backgrounds/backpack_room.png",
         "character": {
           "happy": "/game/characters/Lina/pajamas/happy.png",
@@ -144,6 +145,7 @@
       "title": "Make Breakfast",
       "instruction": "Follow the steps in order. First, slice the food.",
       "config": {
+        "hint": "The tomato needs to be chopped first. Mum has already prepared everything else for you. Drag all the items to the left board, then collect them on the right board.",
         "background": "/game/backgrounds/kitchen.png",
 
         "ui": {
@@ -261,6 +263,7 @@
       "title": "Get Dressed",
       "instruction": "Choose the right outfit and iron it.",
       "config": {
+        "hint": "Choose the right outfit and iron it. You don't have a physical education class on your timetable today.",
         "backgrounds": {
           "closed": "/game/backgrounds/wardrobeclosed.png",
           "opened": "/game/backgrounds/wardrobeopened.png",
@@ -321,6 +324,7 @@
       },
       "instruction": "Find the way from home to the bus.",
       "config": {
+        "hint": "Use the arrows to move Lina. The bus is waiting for you at the bottom right of the maze.",
         "background": "/game/backgrounds/maze_scene.png",
         "mazeImage": "/game/backgrounds/maze_overlay.jpg",
         "player": {
@@ -352,6 +356,7 @@
       "type": "wires-connect",
       "description": "Fix the Wires on the Bus",
       "config": {
+        "hint": "Connect the wires to the correct terminals. The terminals are the points where the wires connect.",
         "background": "/game/backgrounds/wires.png",
         "story": {
           "enterBusImage": "/game/story/enter_bus.png",
@@ -396,6 +401,7 @@
       "title": "Enter Password",
       "instruction": "Enter the password code that mom sent.",
       "config": {
+        "hint": "The password is the code that mom sent you. You need to remember three passwords.",
         "rules": {
           "mistakePenaltyHearts": 1,
           "maxMistakesBeforeFail": 2
@@ -414,6 +420,7 @@
       "type": "traffic-light",
       "description": "Cross the Road",
       "config": {
+        "hint": "Wait for the green light to cross the road. The red light means you can't cross the road.",
         "background": "/game/backgrounds/crosswalk.png",
         "story": {
           "exitBusImage": "/game/story/cross_road_1.png",
@@ -451,7 +458,15 @@
       "type": "memory",
       "title": "Find the Pairs",
       "instruction": "Match the pairs of cards to win!",
-      "config": {}
+      "config": {
+        "hint": "Match the pairs of cards to win! For a pair, you need to find two identical cards.",
+        "sounds": {
+          "success": "/game/sfx/success.wav",
+          "fail": "/game/sfx/fail.wav",
+          "cardflip": "/game/sfx/cardflip.wav",
+          "cardmatch": "/game/sfx/cardmatch.wav"
+        }
+      }
     }
   ],
   "endScreens": {
