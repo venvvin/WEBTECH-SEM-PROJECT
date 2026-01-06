@@ -92,7 +92,7 @@
         font-size: 1.2rem;
         margin-top: 20px;
         cursor: pointer;
-        background: #3498db;
+        background: #ff69b4;
         color: white;
         border: none;
         border-radius: 10px;

@@ -102,14 +102,14 @@
         border: none;
         border-radius: 12px;
         cursor: pointer;
-        background: #3498db;
+        background: #ff69b4;
         color: white;
     }
 
     .ghost {
         background: transparent;
-        color: #3498db;
-        border: 2px solid #3498db;
+        color: #ff69b4;
+        border: 2px solid #ff69b4;
     }
 
     @media (min-width: 768px) {
