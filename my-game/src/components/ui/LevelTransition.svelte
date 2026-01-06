@@ -22,8 +22,11 @@
   
   onMount(() => {
     if (videoElement) {
-      videoElement.play().catch(e => {
-        console.error('Error playing video:', e);
+      videoElement.addEventListener('error', () => {
+        handleVideoEnded();
+      });
+      
+      videoElement.play().catch(() => {
         handleVideoEnded();
       });
     }
@@ -46,7 +49,7 @@
       on:ended={handleVideoEnded}
       muted
       playsinline
-    />
+    ></video>
   </div>
 {/if}
 

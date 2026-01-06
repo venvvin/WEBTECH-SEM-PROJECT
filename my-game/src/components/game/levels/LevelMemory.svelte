@@ -3,7 +3,6 @@
     import { gameTimer, forceMenuOpen } from '../../../stores/gameStore.js';
     import { saveBestTime, getBestTime } from '../../../utils/timerManager.js';
 
-    export let data = {};
     const dispatch = createEventDispatcher();
 
     const cardIcons = [
@@ -97,6 +96,7 @@
     let bellSound = null;
     let classroomSound = null;
 
+    // stop all audio elements and cleanup
     function stopAllSounds() {
         const allAudioElements = document.querySelectorAll('audio');
         allAudioElements.forEach(audio => {
@@ -159,13 +159,14 @@
     function startIntro() {
         birdnatureSound = new Audio('/game/sfx/birdnature.wav');
         birdnatureSound.loop = true;
-        birdnatureSound.play().catch(e => console.log('Audio play error:', e));
+        birdnatureSound.play().catch(() => {});
 
         setTimeout(() => {
             startTypingDialog1();
         }, 500);
     }
 
+    // typing animation for first dialog
     function startTypingDialog1() {
         if (dialogTypingIndex1 < dialogFullText1.length) {
             dialogText1 = dialogFullText1.substring(0, dialogTypingIndex1 + 1);
@@ -186,6 +187,7 @@
         }
     }
 
+    // transition between dialogs or to game
     function nextDialog() {
         if (currentState === 'intro') {
             currentState = 'dialog2';
@@ -205,9 +207,10 @@
     function startCardGameMusic() {
         cardgamemusicSound = new Audio('/game/sfx/cardgamemusic.wav');
         cardgamemusicSound.loop = true;
-        cardgamemusicSound.play().catch(e => console.log('Audio play error:', e));
+        cardgamemusicSound.play().catch(() => {});
     }
 
+    // transition to ending scenes after game win
     function startEnding() {
         if (birdnatureSound) {
             birdnatureSound.pause();
@@ -219,7 +222,7 @@
         currentState = 'michaelEnding';
 
         bellSound = new Audio('/game/sfx/bell.wav');
-        bellSound.play().catch(e => console.log('Audio play error:', e));
+        bellSound.play().catch(() => {});
 
         setTimeout(() => {
             startTypingMichaelEnding();
@@ -243,7 +246,7 @@
         michaelEndingTypingComplete = false;
 
         joySound = new Audio('/game/sfx/joy.wav');
-        joySound.play().catch(e => console.log('Audio play error:', e));
+        joySound.play().catch(() => {});
 
         setTimeout(() => {
             startTypingLinaEnding();
@@ -271,7 +274,7 @@
 
         classroomSound = new Audio('/game/sfx/classroom.wav');
         classroomSound.loop = true;
-        classroomSound.play().catch(e => console.log('Audio play error:', e));
+        classroomSound.play().catch(() => {});
 
         startTypingNovelText();
     }
@@ -286,6 +289,7 @@
         }
     }
 
+    // advance to next novel scene or complete level
     function nextNovelScene() {
         if (currentNovelDialogIndex < finalNovelTexts.length - 1) {
             currentNovelDialogIndex++;
@@ -309,6 +313,7 @@
         }
     }
 
+    // masha will try to fix card initialization and shuffling
     function initGame() {
         let items = [...cardIcons, ...cardIcons];
         items.sort(() => Math.random() - 0.5);
@@ -321,11 +326,12 @@
         }));
     }
 
+    // handle card click and flip animation
     function handleCardClick(card) {
         if (isChecking || card.isFlipped || card.isMatched) return;
 
         const flipSound = new Audio('/game/sfx/cardflip.wav');
-        flipSound.play().catch(e => console.log('Audio play error:', e));
+        flipSound.play().catch(() => {});
 
         card.isFlipped = true;
         cards = cards;
@@ -336,6 +342,7 @@
         }
     }
 
+    // liza should fix match checking logic
     function checkForMatch() {
         isChecking = true;
         const [card1, card2] = flippedCards;
@@ -367,6 +374,7 @@
     }
 </script>
 
+<!-- intro scene: michael introduces himself and explains the game -->
 {#if currentState === 'intro' || currentState === 'dialog2'}
     <div class="intro-scene">
         <img src="/game/backgrounds/school.png" class="intro-bg" alt="School" />
@@ -388,6 +396,7 @@
             </div>
         {/if}
     </div>
+<!-- michael ending scene: michael congratulates player after winning -->
 {:else if currentState === 'michaelEnding'}
     <div class="intro-scene">
         <img src="/game/backgrounds/school.png" class="intro-bg" alt="School" />
@@ -399,6 +408,7 @@
             {/if}
         </div>
     </div>
+<!-- lina ending scene: lina celebrates and decides to go to school -->
 {:else if currentState === 'linaEnding'}
     <div class="intro-scene">
         <img src="/game/backgrounds/school.png" class="intro-bg" alt="School" />
@@ -410,6 +420,7 @@
             {/if}
         </div>
     </div>
+<!-- final novel scene: classroom introduction and ending sequence -->
 {:else if currentState === 'finalNovel'}
     <div class="final-novel-scene">
         <img src={finalNovelImages[finalNovelScene - 1]} class="novel-bg" alt="Novel Scene {finalNovelScene}" />
@@ -452,6 +463,7 @@
             </div>
         {/if}
     </div>
+<!-- memory game scene: card matching minigame -->
 {:else}
     <div class="memory-level">
         <div class="grid-container">
@@ -490,6 +502,7 @@
         background-repeat: no-repeat;
     }
 
+    /* grid layout for cards, 3 columns */
     .grid-container {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -516,17 +529,20 @@
         transform-style: preserve-3d;
     }
 
+    /* cards */
     .card.flipped .card-inner,
     .card.matched .card-inner {
         transform: rotateY(180deg);
     }
 
+    /* matched cards */
     .card.matched .card-front img {
         border: 4px solid #4cd137;
         opacity: 0.7;
         border-radius: 10px;
     }
 
+    /* cards */
     .card-front, .card-back {
         position: absolute;
         width: 100%;
@@ -553,6 +569,7 @@
         background: transparent;
     }
 
+    /* card back image styling */
     .card-back img {
         width: 100%;
         height: 100%;
@@ -579,6 +596,7 @@
         z-index: 1;
     }
 
+    /* michael */
     .michael-character {
         position: absolute;
         bottom: 15%;
@@ -589,6 +607,7 @@
         animation: fadeInChar 0.5s ease-in;
     }
 
+    /* lina */
     .lina-character {
         position: absolute;
         bottom: 15%;
@@ -599,6 +618,7 @@
         animation: fadeInChar 0.5s ease-in;
     }
 
+    /* michael and boy dialogs */
     .dialog-box {
         position: absolute;
         bottom: 10%;
@@ -613,6 +633,7 @@
         max-width: 450px;
     }
 
+    /* dialog text */
     .dialog-text {
         margin: 0 0 12px;
         font-size: 16px;
@@ -621,6 +642,7 @@
         min-height: 60px;
     }
 
+    /* mobile */
     @media (max-width: 767px) {
         .dialog-box {
             bottom: 5%;
@@ -643,11 +665,13 @@
         }
     }
 
+    /* cursor */
     .cursor {
         animation: blink 1s infinite;
         color: #3498db;
     }
 
+    /* continue button for michael and boy dialogs */
     .continue-btn {
         padding: 8px 20px;
         border: none;
@@ -672,14 +696,17 @@
         box-shadow: 0 2px 0 #2980b9;
     }
 
+    /* lina dialogs */
     .dialog-box-pink {
         border: 3px solid #ff8fb8;
     }
 
+    /* cursor */
     .dialog-box-pink .cursor {
         color: #ff8fb8;
     }
 
+    /* lina dialogs */
     .continue-btn-pink {
         background: linear-gradient(180deg, #ff7fb3, #ff5fa2);
         box-shadow: 0 3px 0 #e94c8f;
@@ -702,18 +729,22 @@
         box-shadow: 0 3px 0 #732d91;
     }
 
+    /* teacher dialogs */
     .continue-btn-teacher:active {
         box-shadow: 0 2px 0 #732d91;
     }
 
+    /* classmates dialogs */
     .dialog-box-classmates {
         border: 3px solid #27ae60;
     }
+
 
     .dialog-box-classmates .cursor {
         color: #27ae60;
     }
 
+    /* classmates dialogs */
     .continue-btn-classmates {
         background: linear-gradient(180deg, #2ecc71, #27ae60);
         box-shadow: 0 3px 0 #219653;
@@ -723,6 +754,7 @@
         box-shadow: 0 2px 0 #219653;
     }
 
+    /* cursor */
     @keyframes blink {
         0%, 50% { opacity: 1; }
         51%, 100% { opacity: 0; }

@@ -1,32 +1,34 @@
 <script>
-    import { onMount } from 'svelte';
     import { hearts } from '../../../stores/gameStore.js';
     export let data;
     import { createEventDispatcher } from 'svelte';
     import { characterOutfit } from '../../../stores/gameStore.js'
   
+    // masha: get config from props, need to check if data exists
     const config = data?.config ?? {};
     let items = (config.items || []).map(item => ({ ...item }));
     let backpack = config.backpack ?? {};
     let background = config.background ?? '';
     let backpackEl;
     let draggedItem = null;
-    let startX = 0; 
+    let startX = 0; // liza: save original position for reset
     let startY = 0;
-    let offsetX = 0;
-    let offsetY = 0;
 
+    // character images based on outfit
     const images = {
         pajamas: '/game/characters/Lina/pajamas/thinking.png', 
         school_uniform: '/game/characters/Lina/suit/thinking.png'
     };
 
+    // reactive update when outfit changes
     $: currentCharacterImage = images[$characterOutfit] || images.pajamas; 
   
     const dispatch = createEventDispatcher();
 
+  // count how many correct items left
   $: remainingRequired = items.filter(i => i.isCorrect && !i.message).length;
 
+  // masha will try to fix: check if level complete
   $: if (remainingRequired === 0) {
      playSound(config.sounds?.joy);
      setTimeout(() => {
@@ -37,23 +39,29 @@
      }, 1000);
   }
 
+    // catch the error here if item is null
     function startDrag(event, item) {
     event.preventDefault();
     draggedItem = item;
     
+    // save starting position for reset
     startX = parseFloat(item.x);
     startY = parseFloat(item.y);
   }
 
+  // liza should fix
   function onMove(event) {
     if (!draggedItem) return;
 
+    // check if touch event or mouse
     const clientX = event.touches ? event.touches[0].clientX : event.clientX;
     const clientY = event.touches ? event.touches[0].clientY : event.clientY;
 
+    // convert to percentage for responsive
     const xPercent = (clientX / window.innerWidth) * 100;
     const yPercent = (clientY / window.innerHeight) * 100;
 
+    // update item position
     items = items.map(i => {
       if (i.id === draggedItem.id) {
         return { ...i, x: xPercent, y: yPercent };
@@ -62,28 +70,35 @@
     });
   }
   
+// masha: check if item is close enough to backpack
 function checkDrop(item) {
     if (!backpackEl) return false;
     const backpackRect = backpackEl.getBoundingClientRect();
+    // convert percentage to pixels
     const itemXpx = (item.x / 100) * window.innerWidth;
     const itemYpx = (item.y / 100) * window.innerHeight;
     
+    // get center of backpack
     const bpX = backpackRect.left + backpackRect.width / 2;
     const bpY = backpackRect.top + backpackRect.height / 2;
     
+    // calculate distance
     const dist = Math.sqrt(Math.pow(itemXpx - bpX, 2) + Math.pow(itemYpx - bpY, 2));
     
+    // liza should fix: maybe adjust this threshold?
     return dist < 150; 
 }
 
+// catch the error here if audio fails
 function playSound(path) {
     if (!path) return;
     const audio = new Audio(path);
-    audio.play().catch(e => console.log('Audio play error:', e));
+    audio.play().catch(() => {}); // masha: silent fail if can't play
   }
 
   let showMessage = null;
 
+  // liza should fix: this function is too long maybe?
   function endDrag() {
     if (!draggedItem) return;
 
@@ -91,16 +106,19 @@ function playSound(path) {
     const isInside = checkDrop(currentItemState);
 
     if (isInside) {
+      // masha: check if item has message to show
       if (draggedItem.message) {
          playSound(config.sounds?.success);
          showMessage = draggedItem.message;
          items = items.filter(i => i.id !== draggedItem.id);
          
       } else if (draggedItem.isCorrect) {
+        // correct item, remove it
         items = items.filter(i => i.id !== draggedItem.id);
         playSound(config.sounds?.drop);
         
       } else {
+        // wrong item, lose heart and reset position
         hearts.update(h => h - 1);
         playSound(config.sounds?.fail);
         
@@ -111,6 +129,7 @@ function playSound(path) {
           return i;
         });
         
+        // vibrate on mobile if wrong
         if (navigator.vibrate) navigator.vibrate(200);
       }
     }
@@ -136,6 +155,7 @@ function playSound(path) {
         alt="Lina" 
     />
 
+    <!-- backpack drop zone -->
     <div 
       class="backpack-zone"
       bind:this={backpackEl} 
@@ -144,6 +164,7 @@ function playSound(path) {
       <img src={backpack.image || ''} alt="Backpack" />
     </div>
   
+  <!-- render all draggable items -->
   {#each items as item}
     <div 
       class="item" 
@@ -157,6 +178,7 @@ function playSound(path) {
     </div>
   {/each}
   
+    <!--show requirements checklist -->
     <div class="information">
       <h3>Information</h3>
       <ul>
@@ -166,6 +188,7 @@ function playSound(path) {
       </ul>
     </div>
     
+    <!-- liza should fix: maybe add animation? -->
     {#if showMessage}
       <div 
         class="message-overlay" 
@@ -292,11 +315,7 @@ function playSound(path) {
     cursor: pointer;
   }
   
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
+    /* responsive styles for small screens */
     @media (max-height: 500px), (max-width: 900px) {
     .backpack-zone {
       width: 300px;
@@ -311,13 +330,14 @@ function playSound(path) {
       right: 10px;
     }
   }
+  /* haracter image positioning */
   .character-standing {
         position: absolute;
         bottom: 0;
         left: 0;
         height: 85%;
         z-index: 10;
-        pointer-events: none;
+        pointer-events: none; /* so clicks go through */
         object-fit: contain;
     }
   </style>  

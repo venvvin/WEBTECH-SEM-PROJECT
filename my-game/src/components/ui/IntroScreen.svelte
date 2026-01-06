@@ -46,7 +46,7 @@
 <style>
     .wrap {
         width: 100vw;
-        height: 100svh; /* важно для мобильных */
+        height: 100svh;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -96,8 +96,6 @@
         font-size: 1.1rem;
     }
 
-
-
     .btn {
         padding: 12px 22px;
         font-size: 1.05rem;
@@ -112,5 +110,49 @@
         background: transparent;
         color: #3498db;
         border: 2px solid #3498db;
+    }
+
+    @media (min-width: 768px) {
+        .wrap {
+            gap: 18px;
+            padding: 20px;
+        }
+
+        .title {
+            font-size: 2rem;
+        }
+
+        .text p {
+            margin: 8px 0;
+            font-size: 1.25rem;
+            line-height: 1.5;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 1.1rem;
+        }
+    }
+
+    @media (min-width: 1200px) {
+        .wrap {
+            gap: 20px;
+            padding: 24px;
+        }
+
+        .title {
+            font-size: 2.2rem;
+        }
+
+        .text p {
+            margin: 8px 0;
+            font-size: 1.35rem;
+            line-height: 1.5;
+        }
+
+        .btn {
+            padding: 12px 26px;
+            font-size: 1.15rem;
+        }
     }
 </style>
