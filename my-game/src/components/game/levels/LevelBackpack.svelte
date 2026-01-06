@@ -79,7 +79,7 @@ function checkDrop(item) {
 function playSound(path) {
     if (!path) return;
     const audio = new Audio(path);
-    audio.play().catch(e => console.log('Audio play error:', e));
+    audio.play().catch(() => {});
   }
 
   let showMessage = null;

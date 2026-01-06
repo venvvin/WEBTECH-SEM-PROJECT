@@ -115,6 +115,7 @@
                         playSound("/game/sfx/msg.wav");
                         passwordMusicSound = new Audio("/game/sfx/passwordmusic.wav");
                         passwordMusicSound.loop = true;
+                        passwordMusicSound.volume = 0.7;
                         if (typeof window !== 'undefined') {
                             window['_passwordMusicSound'] = passwordMusicSound;
                         }
@@ -163,6 +164,7 @@
             playSound("/game/sfx/msg.wav");
             passwordMusicSound = new Audio("/game/sfx/passwordmusic.wav");
             passwordMusicSound.loop = true;
+            passwordMusicSound.volume = 0.7;
             if (typeof window !== 'undefined') {
                 window['_passwordMusicSound'] = passwordMusicSound;
             }

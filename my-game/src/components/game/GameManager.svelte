@@ -266,17 +266,16 @@
 
         {#if (currentLevelData && !levelComplete && !isGameOver && !showTransition)  || isGameComplete}
             <HintButton hintText={currentLevelData.config?.hint || "Text will be here."} />
+            <MenuButton bind:isOpen={menuOpen}>
+                {#if menuOpen}
+                    <MenuOverlay
+                            onRestart={restartGameFromMenu}
+                            onContinue={() => {}}
+                            onClose={() => menuOpen = false}
+                    />
+                {/if}
+            </MenuButton>
         {/if}
-
-        <MenuButton bind:isOpen={menuOpen}>
-            {#if menuOpen}
-                <MenuOverlay
-                        onRestart={restartGameFromMenu}
-                        onContinue={() => {}}
-                        onClose={() => menuOpen = false}
-                />
-            {/if}
-        </MenuButton>
     </div>
 
     {#if currentLevelData}

@@ -84,10 +84,13 @@
         if (!a) {
             a = new Audio(path);
             audioCache.set(path, a);
+            a.addEventListener('error', () => {
+            });
         }
         try {
             a.currentTime = 0;
-            a.play();
+            a.play().catch(() => {
+            });
         } catch {}
     }
 

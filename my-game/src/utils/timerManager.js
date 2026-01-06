@@ -11,7 +11,6 @@ export function saveCurrentTime(timeInSeconds) {
       timestamp: Date.now()
     }));
   } catch (e) {
-    console.error('Error saving time:', e);
   }
 }
 
@@ -23,7 +22,6 @@ export function loadCurrentTime() {
     if (!stored) return null;
     return JSON.parse(stored);
   } catch (e) {
-    console.error('Error loading time:', e);
     return null;
   }
 }
@@ -42,7 +40,6 @@ export function saveBestTime(timeInSeconds) {
     }
     return false;
   } catch (e) {
-    console.error('Error saving best time:', e);
     return false;
   }
 }
@@ -60,7 +57,6 @@ export function getBestTime() {
     }
     return time;
   } catch (e) {
-    console.error('Error loading best time:', e);
     return null;
   }
 }
@@ -71,7 +67,6 @@ export function clearCurrentTime() {
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch (e) {
-    console.error('Error clearing time:', e);
   }
 }
 

@@ -2,7 +2,6 @@
     import { createEventDispatcher, onMount } from 'svelte';
     import { hearts, characterOutfit } from '../../../stores/gameStore.js';
   
-    export let data;
     const dispatch = createEventDispatcher();
     
     const images = {
@@ -65,7 +64,7 @@
     function playSound(path) {
         if (!path) return;
         const audio = new Audio(path);
-        audio.play().catch(e => console.log('Audio play error:', e));
+        audio.play().catch(() => {});
         return audio;
     }
 
@@ -93,8 +92,6 @@
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
         ctx.globalCompositeOperation = 'destination-out';
-        
-        console.log("Canvas initialized for ironing");
     }
 
     function getPos(e) {
@@ -148,8 +145,6 @@
             isFinishing = true;
             isDrawing = false;
             
-            console.log("Ironing complete! Waiting...");
-            
             stopSound(ironingAudio);
             ironingAudio = null;
             playSound('/game/sfx/joy.wav');
@@ -174,7 +169,6 @@
 
     function chooseOutfit(outfit) {
         if (outfit.isCorrect) {
-            console.log('Correct outfit!');
             playSound('/game/sfx/correctdress.wav');
             playSound('/game/sfx/joy.wav');
             selectedOutfit = outfit;
@@ -183,7 +177,6 @@
                 ironingAudio = playSound('/game/sfx/ironing.wav');
             }, 500);
         } else {
-            console.log('Wrong outfit!');
             playSound('/game/sfx/fail.wav');
             hearts.update(n => Math.max(0, n - 1));
             state = 'wrong_choice';
@@ -203,7 +196,6 @@
     });
     
     function finishIroning() {
-    console.log("Setting outfit to: school_uniform");
     
     characterOutfit.set('school_uniform'); 
     

@@ -125,7 +125,6 @@
         const src = sounds?.[name];
 
         if (!src) {
-            console.warn(`Sound "${name}" not found in config`);
             return null;
         }
 
@@ -147,14 +146,11 @@
             const playPromise = audio.play();
 
             if (playPromise) {
-                playPromise.catch(error => {
-                    console.warn(`Failed to play ${name}:`, error);
-                });
+                playPromise.catch(() => {});
             }
 
             return audio;
         } catch (error) {
-            console.error(`Exception playing ${name}:`, error);
             return null;
         }
     }

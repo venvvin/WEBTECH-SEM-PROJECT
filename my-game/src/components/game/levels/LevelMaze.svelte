@@ -259,6 +259,7 @@
         
         mazeMusicSound = new Audio("/game/sfx/mazemusic.wav");
         mazeMusicSound.loop = true;
+        mazeMusicSound.volume = 0.7;
         if (typeof window !== 'undefined') {
             window['_mazeMusicSound'] = mazeMusicSound;
         }
@@ -633,7 +634,6 @@
                 initializePlayerPosition();
                 updateViewportScale();
             } catch (error) {
-                console.error("Failed to build maze from image:", imageSource, error);
                 initializationError = "Image load failed: " + imageSource;
                 mazeGrid = defaultCells;
                 if (mazeGrid && mazeGrid.length > 0) {

@@ -124,7 +124,6 @@
             audio.volume = 0.8;
             audio.play().catch(() => {});
         } catch (e) {
-            console.log("Audio error:", e);
         }
     }
 

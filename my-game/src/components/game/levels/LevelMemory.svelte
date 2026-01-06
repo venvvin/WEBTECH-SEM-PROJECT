@@ -3,7 +3,6 @@
     import { gameTimer, forceMenuOpen } from '../../../stores/gameStore.js';
     import { saveBestTime, getBestTime } from '../../../utils/timerManager.js';
 
-    export let data = {};
     const dispatch = createEventDispatcher();
 
     const cardIcons = [
@@ -159,7 +158,7 @@
     function startIntro() {
         birdnatureSound = new Audio('/game/sfx/birdnature.wav');
         birdnatureSound.loop = true;
-        birdnatureSound.play().catch(e => console.log('Audio play error:', e));
+        birdnatureSound.play().catch(() => {});
 
         setTimeout(() => {
             startTypingDialog1();
@@ -205,7 +204,7 @@
     function startCardGameMusic() {
         cardgamemusicSound = new Audio('/game/sfx/cardgamemusic.wav');
         cardgamemusicSound.loop = true;
-        cardgamemusicSound.play().catch(e => console.log('Audio play error:', e));
+        cardgamemusicSound.play().catch(() => {});
     }
 
     function startEnding() {
@@ -219,7 +218,7 @@
         currentState = 'michaelEnding';
 
         bellSound = new Audio('/game/sfx/bell.wav');
-        bellSound.play().catch(e => console.log('Audio play error:', e));
+        bellSound.play().catch(() => {});
 
         setTimeout(() => {
             startTypingMichaelEnding();
@@ -243,7 +242,7 @@
         michaelEndingTypingComplete = false;
 
         joySound = new Audio('/game/sfx/joy.wav');
-        joySound.play().catch(e => console.log('Audio play error:', e));
+        joySound.play().catch(() => {});
 
         setTimeout(() => {
             startTypingLinaEnding();
@@ -271,7 +270,7 @@
 
         classroomSound = new Audio('/game/sfx/classroom.wav');
         classroomSound.loop = true;
-        classroomSound.play().catch(e => console.log('Audio play error:', e));
+        classroomSound.play().catch(() => {});
 
         startTypingNovelText();
     }
@@ -325,7 +324,7 @@
         if (isChecking || card.isFlipped || card.isMatched) return;
 
         const flipSound = new Audio('/game/sfx/cardflip.wav');
-        flipSound.play().catch(e => console.log('Audio play error:', e));
+        flipSound.play().catch(() => {});
 
         card.isFlipped = true;
         cards = cards;
