@@ -11,12 +11,12 @@
     import fullGameData from "../../data/levels.json";
 
     $: currentLevelData = ($currentLevelIndex >= 0 && $currentLevelIndex < $levels.length) ? $levels[$currentLevelIndex] : null;
-  $: isGameComplete = $currentLevelIndex >= $levels.length;
-  let levelComplete = false;
-  let timerInterval = null;
-  let showTransition = false;
-  let transitionInstruction = "";
-  let menuOpen = false;
+    $: isGameComplete = $currentLevelIndex >= $levels.length;
+    let levelComplete = false;
+    let timerInterval = null;
+    let showTransition = false;
+    let transitionInstruction = "";
+    let menuOpen = false;
 
     $: {
         if ($forceMenuOpen) {
@@ -81,7 +81,7 @@
             currentLevelIndex.set(nextIndex);
             return;
         }
-        
+
         if (nextIndex >= 0 && nextIndex < $levels.length) {
             const nextLevelData = $levels[nextIndex];
             if (nextLevelData) {
@@ -250,19 +250,66 @@
             </div>
         {/if}
 
-  {#if (currentLevelData && !levelComplete && !isGameOver && !showTransition)  || isGameComplete}
-    <HintButton hintText={currentLevelData.config?.hint || "Text will be here."} />
-  {/if}
-  <MenuButton bind:isOpen={menuOpen}>
-    {#if menuOpen}
-      <MenuOverlay 
-        onRestart={restartGameFromMenu}
-        onContinue={() => {}}
-        onClose={() => menuOpen = false}
-      />
+        {#if (currentLevelData && !levelComplete && !isGameOver && !showTransition)  || isGameComplete}
+            <HintButton hintText={currentLevelData.config?.hint || "Text will be here."} />
+        {/if}
+
+        <MenuButton bind:isOpen={menuOpen}>
+            {#if menuOpen}
+                <MenuOverlay
+                        onRestart={restartGameFromMenu}
+                        onContinue={() => {}}
+                        onClose={() => menuOpen = false}
+                />
+            {/if}
+        </MenuButton>
+    </div>
+
+    {#if currentLevelData}
+        <div class="print-hints">
+            <h1 class="print-title">{currentLevelData.title ?? ""}</h1>
+
+            {#if currentLevelData.instruction}
+                <p class="print-block"><b>Instruction:</b> {currentLevelData.instruction}</p>
+            {/if}
+
+            {#if currentLevelData.config?.hint}
+                <p class="print-block"><b>Hint:</b> {currentLevelData.config.hint}</p>
+            {/if}
+
+            {#if currentLevelData.config?.ui?.stepPopup?.lines?.length}
+                <h2 class="print-subtitle">Intro</h2>
+                <ul class="print-list">
+                    {#each currentLevelData.config.ui.stepPopup.lines as line}
+                        <li>{line}</li>
+                    {/each}
+                </ul>
+            {/if}
+
+            {#if currentLevelData.config?.recipe?.steps?.length}
+                <h2 class="print-subtitle">Steps</h2>
+                <ol class="print-list">
+                    {#each currentLevelData.config.recipe.steps as s}
+                        {#if s?.text}
+                            <li>{s.text}</li>
+                        {/if}
+                    {/each}
+                </ol>
+            {/if}
+
+            {#if currentLevelData.config?.controls?.desktop || currentLevelData.config?.controls?.mobile}
+                <h2 class="print-subtitle">Controls</h2>
+                <ul class="print-list">
+                    {#if currentLevelData.config?.controls?.desktop}
+                        <li><b>Desktop:</b> {currentLevelData.config.controls.desktop}</li>
+                    {/if}
+                    {#if currentLevelData.config?.controls?.mobile}
+                        <li><b>Mobile:</b> {currentLevelData.config.controls.mobile}</li>
+                    {/if}
+                </ul>
+            {/if}
+        </div>
     {/if}
-  </MenuButton>
-</div>
 </div>
 
 <style>
@@ -278,15 +325,15 @@
     }
 
     .win-overlay, .gameover-overlay, .game-complete-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(255, 255, 255, 0.9);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
-    animation: fadeIn 0.5s;
-}
+        position: absolute;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+        animation: fadeIn 0.5s;
+    }
 
     .character-box {
         display: flex;
@@ -355,95 +402,158 @@
     }
 
     @media print {
-        .game-screen,
-        .win-overlay,
-        .gameover-overlay,
-        .game-complete-overlay,
-        .hint-button,
-        .menu-button,
-        button,
-        canvas,
-        [class*="timer"],
-        [class*="heart"],
-        [class*="level"],
-        [class*="menu"] {
-            display: none !important;
+
+        @page {
+            margin: 0;
+            size: auto;
         }
 
-        .game-container {
-            display: block !important;
-            position: static !important;
-            width: 100% !important;
-            height: auto !important;
+
+        html, body {
             margin: 0 !important;
             padding: 0 !important;
+            height: auto !important;
+            width: 100% !important;
             background: white !important;
+            overflow: visible !important;
         }
+
+
+        body * {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            height: 0 !important;
+            width: 0 !important;
+            position: absolute !important;
+            top: -9999px !important;
+            left: -9999px !important;
+        }
+
 
         .print-hints {
             display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
             position: static !important;
-            width: 100% !important;
+            top: auto !important;
+            left: auto !important;
             height: auto !important;
+            width: 100% !important;
+        }
+
+
+        .print-hints,
+        .print-hints * {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            position: static !important;
+            top: auto !important;
+            left: auto !important;
+            height: auto !important;
+            width: auto !important;
+        }
+
+
+        .print-hints {
             background: white !important;
             color: black !important;
             padding: 20px !important;
             margin: 0 !important;
-            page-break-inside: avoid;
             font-family: "Times New Roman", Times, serif !important;
+            font-size: 12pt !important;
+            line-height: 1.5 !important;
+            min-height: 100vh !important;
+            box-sizing: border-box !important;
         }
+
 
         .print-title {
             margin: 0 0 20px 0 !important;
-            font-size: 28pt !important;
+            font-size: 24pt !important;
             font-weight: bold !important;
             color: #000 !important;
-            text-align: center !important;
+            text-align: left !important;
+            padding-bottom: 10px !important;
             border-bottom: 2px solid #000 !important;
-            padding-bottom: 15px !important;
         }
 
         .print-subtitle {
-            margin: 25px 0 12px 0 !important;
-            font-size: 18pt !important;
+            margin: 20px 0 10px 0 !important;
+            font-size: 16pt !important;
             font-weight: bold !important;
             color: #000 !important;
-            border-bottom: 1px solid #333 !important;
             padding-bottom: 5px !important;
+            border-bottom: 1px solid #333 !important;
         }
 
         .print-block {
-            margin: 15px 0 !important;
-            font-size: 14pt !important;
-            line-height: 1.6 !important;
+            margin: 10px 0 !important;
+            font-size: 12pt !important;
+            line-height: 1.4 !important;
             color: #000 !important;
         }
 
+
         .print-list {
-            margin: 12px 0 12px 25px !important;
-            font-size: 13pt !important;
-            line-height: 1.7 !important;
+            margin: 8px 0 8px 20px !important;
+            font-size: 11pt !important;
+            line-height: 1.4 !important;
             color: #000 !important;
         }
 
         .print-list li {
-            margin-bottom: 8px !important;
+            margin-bottom: 6px !important;
+            display: list-item !important;
         }
+
+
+        img, canvas, video, audio, iframe, embed, object,
+        button, input, textarea, select, form,
+        svg, path, rect, circle, polygon,
+        .menu-button, .hint-button,
+        [class*="timer"], [class*="heart"], [class*="level"],
+        [class*="ui"], [class*="control"], [class*="icon"] {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            width: 0 !important;
+            opacity: 0 !important;
+        }
+
 
         * {
             background: transparent !important;
             box-shadow: none !important;
             text-shadow: none !important;
             border-color: #000 !important;
+            filter: none !important;
+            transform: none !important;
         }
+
 
         a, a:visited {
             color: #000 !important;
             text-decoration: none !important;
         }
 
-        img {
-            display: none !important;
+
+        @page {
+            margin: 0;
+        }
+
+
+        @page :first {
+            margin: 0;
+        }
+
+        @page :left {
+            margin: 0;
+        }
+
+        @page :right {
+            margin: 0;
         }
     }
 </style>
