@@ -5,7 +5,6 @@
     export let data;
     const dispatch = createEventDispatcher();
     
-    // reference data to satisfy linter (required prop from GameManager)
     $: data;
 
     const passwords = ["8XGHC4", "WO78QC", "LCXHG2"];

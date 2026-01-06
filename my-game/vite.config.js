@@ -16,6 +16,12 @@ function replacePathsPlugin() {
                     file.code = file.code.replace(/["']\/game\//g, (match) => {
                         return match.replace('/game/', './game/')
                     })
+                    file.code = file.code.replace(/`\/game\//g, '`./game/')
+                }
+
+                if (file.type === 'asset' && fileName.endsWith('.html')) {
+                    file.source = String(file.source).replace(/\/game\//g, './game/')
+                    file.source = String(file.source).replace(/href="\/pwa-/g, 'href="./pwa-')
                 }
             })
         }

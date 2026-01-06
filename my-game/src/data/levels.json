@@ -314,7 +314,7 @@
         "sounds": {
           "success": "/game/sfx/success.wav",
           "fail": "/game/sfx/fail.wav",
-
+          "drop": "/game/sfx/drop.wav",
           "cut": "/game/sfx/cut.wav",
           "joy": "/game/sfx/joy.wav",
           "clap": "/game/sfx/clap.wav"
@@ -450,9 +450,9 @@
           "maxMistakesBeforeFail": 2
         },
         "sounds": {
-          "connect": "sfx/connect.wav",
-          "fail": "sfx/fail.wav",
-          "success": "sfx/success.wav",
+          "connect": "/game/sfx/connect.wav",
+          "fail": "/game/sfx/fail.wav",
+          "success": "/game/sfx/success.wav",
           "cut": "/game/sfx/cut.wav",
           "broken": "/game/sfx/broken_wires.wav",
           "music":"/game/sfx/angel_music.wav"
@@ -513,8 +513,8 @@
           "warningFlash": true
         },
         "sounds": {
-          "warning": "sfx/warn.wav",
-          "success": "sfx/success.wav"
+          "warning": "/game/sfx/warn.wav",
+          "success": "/game/sfx/success.wav"
         }
       }
     },
