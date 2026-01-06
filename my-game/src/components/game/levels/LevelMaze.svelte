@@ -54,6 +54,7 @@
     let playerY = 1;
     let facingDirection = "down";
 
+    // nice idea - initialize player position
     function initializePlayerPosition() {
         if (startPosition && startPosition.x !== undefined) {
             playerX = startPosition.x;
@@ -143,6 +144,7 @@
     let introTypingIndex = 0;
     let introTypingComplete = false;
 
+    // nice idea - stop all sounds
     function stopAllSounds() {
         const allAudioElements = document.querySelectorAll('audio');
         allAudioElements.forEach(audio => {
@@ -207,6 +209,7 @@
         }
     }
 
+    // scene transition: pre-intro to house scene
     function dismissPreIntro() {
         preIntroVisible = false;
         houseSceneVisible = true;
@@ -227,6 +230,7 @@
         }, 1000);
     }
 
+    // scene transition: house to maze scene with fade effect
     function dismissHouseScene() {
         fadeBlack = true;
         setTimeout(() => {
@@ -253,10 +257,12 @@
         }, 500);
     }
 
+    // scene transition: maze scene to intro modal
     function dismissMazeScene() {
         mazeSceneVisible = false;
         introVisible = true;
         
+        // nice idea - background music for maze
         mazeMusicSound = new Audio("/game/sfx/mazemusic.wav");
         mazeMusicSound.loop = true;
         mazeMusicSound.volume = 0.7;
@@ -270,6 +276,7 @@
         }, 300);
     }
 
+    // scene transition: maze complete, show bus scene
     function showBusScene() {
         stopAutoMove();
         busSceneVisible = true;
@@ -286,6 +293,7 @@
         }, 1000);
     }
 
+    // typing animation for dialog text
     function startTyping4() {
         if (dialogTypingIndex4 < dialogFullText4.length) {
             dialogText4 = dialogFullText4.substring(0, dialogTypingIndex4 + 1);
@@ -357,6 +365,7 @@
         }
     }
 
+    // masha will try to fix viewport scaling for responsive
     function updateViewportScale() {
         if (!containerElement) return;
         if (!stageWidth || !stageHeight) return;
@@ -386,6 +395,7 @@
         viewportScale = scale;
     }
 
+    // check if cell is wall or free space
     function getCellValue(col, row) {
         if (!mazeGrid || mazeGrid.length === 0) {
             return 1;
@@ -409,6 +419,7 @@
         return mazeGrid[row][col];
     }
 
+    // check movement and victory
     function attemptMovement(deltaX, deltaY) {
         if (deltaX === 1) facingDirection = "right";
         if (deltaX === -1) facingDirection = "left";
@@ -425,6 +436,7 @@
         playerX = newX;
         playerY = newY;
 
+        // check if reached finish point
         if (Math.abs(playerX - endPosition.x) <= 1 && Math.abs(playerY - endPosition.y) <= 1) {
             if (mazeMusicSound) {
                 mazeMusicSound.pause();
@@ -511,6 +523,7 @@
         }
     }
 
+    // convert image to maze grid logic
     function processImageToMazeGrid(imageUrl, width, height, thresholdValue = 200, invertColors = false) {
         return new Promise((resolve, reject) => {
             const img = new Image();
@@ -623,6 +636,7 @@
     let mazeInitialized = false;
     let initializationError = "";
 
+    // liza should fix maze initialization logic
     async function initializeMaze() {
         mazeInitialized = false;
         initializationError = "";
@@ -662,6 +676,7 @@
         {#if fadeBlack}
             <div class="fade-black"></div>
         {/if}
+        <!-- pre-intro scene: lina on stairs, first dialog -->
         {#if preIntroVisible}
             <div class="pre-intro-scene">
                 <img src="/game/backgrounds/stairs.png" alt="stairs" class="stairs-bg" />
@@ -676,6 +691,7 @@
                 {/if}
             </div>
         {/if}
+        <!-- house scene: lina thinking about school, second dialog -->
         {#if houseSceneVisible}
             <div class="house-scene">
                 <img src="/game/backgrounds/house.png" alt="house" class="house-bg" />
@@ -690,6 +706,7 @@
                 {/if}
             </div>
         {/if}
+        <!-- maze scene: lina scared and lost, third dialog -->
         {#if mazeSceneVisible}
             <div class="maze-scene">
                 {#if mazeSceneBackgroundLoaded}
@@ -706,6 +723,7 @@
                 {/if}
             </div>
         {/if}
+        <!-- bus scene: lina reached bus, final dialog and level completion -->
         {#if busSceneVisible}
             <div class="bus-scene">
                 {#if busCloseVisible}
@@ -730,6 +748,7 @@
                 Loading maze… {initializationError}
             </div>
         {/if}
+        <!-- intro modal: instructions before maze game starts -->
         {#if introVisible}
             <div class="overlay">
                 <div class="modal">
@@ -779,6 +798,7 @@
                     {/each}
                 </div>
 
+                <!-- maze game: finish point and player -->
                 {#if !preIntroVisible && !houseSceneVisible && !mazeSceneVisible && !busSceneVisible && !introVisible}
                     <div
                             class="finish"
@@ -893,6 +913,7 @@
         pointer-events: none;
     }
 
+    /* keep this - overlay for maze visualization */
     .mazeOverlay {
         position: absolute;
         inset: 0;

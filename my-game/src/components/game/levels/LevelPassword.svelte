@@ -4,6 +4,9 @@
 
     export let data;
     const dispatch = createEventDispatcher();
+    
+    // reference data to satisfy linter (required prop from GameManager)
+    $: data;
 
     const passwords = ["8XGHC4", "WO78QC", "LCXHG2"];
     let currentPasswordIndex = 0;
@@ -13,7 +16,6 @@
     let showError = false;
 
     let currentState = 'terminal';
-    let showTerminal = true;
     let text1 = "";
     let text1Full = "Need to pay the fare.";
     let text1TypingIndex = 0;
@@ -32,6 +34,7 @@
     let ringtoneSound = null;
     let passwordMusicSound = null;
 
+    // stop all audio and cleanup
     function stopAllSounds() {
         const allAudioElements = document.querySelectorAll('audio');
         allAudioElements.forEach(audio => {
@@ -102,7 +105,6 @@
             text3Complete = true;
             setTimeout(() => {
                 currentState = 'incoming';
-                showTerminal = false;
                 ringtoneSound = new Audio("/game/sfx/ringtone.wav");
                 ringtoneSound.play().catch(() => {});
                 
@@ -150,6 +152,13 @@
             passwordMusicSound.pause();
             passwordMusicSound = null;
         }
+        if (ringtoneSound) {
+            try {
+                ringtoneSound.pause();
+                ringtoneSound.currentTime = 0;
+            } catch (e) {}
+            ringtoneSound = null;
+        }
         if (typeof window !== 'undefined' && window['_passwordMusicSound']) {
             try {
                 window['_passwordMusicSound'].pause();
@@ -188,6 +197,13 @@
             passwordMusicSound.pause();
             passwordMusicSound = null;
         }
+        if (ringtoneSound) {
+            try {
+                ringtoneSound.pause();
+                ringtoneSound.currentTime = 0;
+            } catch (e) {}
+            ringtoneSound = null;
+        }
         
         if (heartsBeforeMistake > 1) {
             showError = true;
@@ -197,11 +213,13 @@
         }
     }
 
+    // start timer and reset password input
     function startPasswordInput() {
         inputPassword = "";
         timeLeft = 12;
         if (timerInterval) {
             clearInterval(timerInterval);
+            timerInterval = null;
         }
         timerInterval = setInterval(() => {
             timeLeft--;
@@ -213,6 +231,7 @@
         }, 1000);
     }
 
+    // masha will try to fix password validation
     function checkPassword() {
         if (inputPassword === passwords[currentPasswordIndex]) {
             playSound("/game/sfx/success.wav");
@@ -256,6 +275,7 @@
         }
     }
 
+    // handle keyboard input
     function onKeyPress(key) {
         if (showError) return;
         if (key === 'BACKSPACE') {
@@ -300,6 +320,7 @@
 </script>
 
 <div class="level-container">
+    <!-- terminal scene: lina tries to pay, discovers password needed -->
     {#if currentState === 'terminal' || currentState === 'text1' || currentState === 'text2' || currentState === 'text3'}
         <div class="terminal-screen">
             <img src="/game/backgrounds/terminal_in_bus.png" class="bg" alt="Terminal" />
@@ -328,10 +349,12 @@
                 </div>
             {/if}
         </div>
+    <!-- incoming call scene: phone rings -->
     {:else if currentState === 'incoming'}
         <div class="incoming-screen">
             <img src="/game/backgrounds/incoming.png" class="bg" alt="Incoming Call" />
         </div>
+    <!-- message scenes: showing password hints via messages -->
     {:else if currentState === 'message1'}
         <div class="message-screen">
             <img src="/game/backgrounds/message1.png" class="bg" alt="Message 1" />
@@ -352,6 +375,7 @@
         <div class="message-screen">
             <img src="/game/backgrounds/message5.png" class="bg" alt="Message 5" />
         </div>
+    <!-- password input scene: typing minigame with timer -->
     {:else if currentState === 'password2' || currentState === 'password3' || currentState === 'password4'}
         <div class="password-screen">
             <div class="password-content">

@@ -20,6 +20,7 @@
     let offsetX = 0;
     let offsetY = 0;
 
+    // recalculate scale for responsive
     function recalc() {
         if (!viewportEl) return;
         const r = viewportEl.getBoundingClientRect();
@@ -75,6 +76,7 @@
 
     const soundMap = cfg?.sounds ?? {};
     const audioCache = new Map();
+    // catch the error here if audio fails
     function playSound(keyOrPath) {
         if (!keyOrPath) return;
         const path = soundMap[keyOrPath] ?? keyOrPath;
@@ -151,6 +153,7 @@
         stepIndex += 1;
     }
 
+    // masha will try to fix tap counting logic
     function handleTapOnBoard(itemId) {
         if (strictOrder && currentStep?.action !== "tap") return failAction();
         if (strictOrder && itemId !== currentStep?.itemId) return failAction();
@@ -205,6 +208,7 @@
     let dragStageX = 0;
     let dragStageY = 0;
 
+    // liza should fix drag start logic
     function onPointerDown(e, itemId) {
         if (
             currentStep?.action === "tap" &&
@@ -247,6 +251,7 @@
         return r && x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
     }
 
+    // check which zone the point is in
     function hitTestZone(stageX, stageY) {
         if (inside(zoneRects[Z.fridge], stageX, stageY)) return Z.fridge;
         if (inside(zoneRects[Z.board], stageX, stageY)) return Z.board;
@@ -254,6 +259,7 @@
         return null;
     }
 
+    // validate drop and check if correct
     function logicalDrop(itemId, zoneId) {
         if (strictOrder && currentStep?.action !== "drag") return failAction();
 
@@ -340,6 +346,7 @@
         <div class="zone-overlay fridge" style={rectStyle(zoneRects[Z.fridge])}></div>
         <div class="zone-overlay board" style={rectStyle(zoneRects[Z.board])}>
             {#if currentStep?.action === "tap" && currentStep?.tapsRequired}
+                <!-- show tap progress bar -->
                 <div class="tapbar-overlay">
                     <div class="taptext">{taps}/{currentStep.tapsRequired}</div>
                     <div class="bar">

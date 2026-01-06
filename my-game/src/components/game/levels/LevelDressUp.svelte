@@ -9,6 +9,7 @@
         school_uniform: '/game/characters/Lina/suit/thinking.png'
     };
 
+    // reactive update when outfit changes
     $: currentCharacterImage = images[$characterOutfit] || images.pajamas;
     
     const config = {
@@ -61,6 +62,7 @@
     let ironingProgress = 0;
     let ironingAudio = null;
 
+    // catch the error here if audio fails
     function playSound(path) {
         if (!path) return;
         const audio = new Audio(path);
@@ -79,6 +81,7 @@
         setTimeout(initCanvas, 100);
     }
 
+    // setup canvas for ironing minigame
     function initCanvas() {
         if (!canvas) return;
         
@@ -94,6 +97,7 @@
         ctx.globalCompositeOperation = 'destination-out';
     }
 
+    // get mouse or touch position on canvas
     function getPos(e) {
         const rect = canvas.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -127,6 +131,7 @@
 
     let isFinishing = false;
 
+    // masha will try to fix win condition check
     function checkWinCondition() {
         if (!ctx || isFinishing) return;
         
@@ -156,6 +161,7 @@
         }
     }
 
+    // move to next scene state
     function nextState() {
       if (state === 'intro') {
           state = 'closed';
@@ -167,6 +173,7 @@
       }
     }
 
+    // liza should fix outfit validation logic
     function chooseOutfit(outfit) {
         if (outfit.isCorrect) {
             playSound('/game/sfx/correctdress.wav');
@@ -205,6 +212,7 @@
   
   <div class="level-container">
   
+    <!-- intro scene: character greeting and introduction -->
     {#if state === 'intro'}
     <div class="intro-screen">
        <img src={config.backgrounds.intro} class="bg" alt="Room" />
@@ -216,6 +224,7 @@
        </div>
     </div>
 
+       <!-- closed wardrobe scene: tap to open -->
        {:else if state === 'closed'}
        <div class="full-screen-click" on:click={nextState} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && nextState()}>
            <img src={config.backgrounds.closed} class="bg" alt="Closed wardrobe" />
@@ -225,6 +234,7 @@
            </div>
        </div>
   
+       <!-- opened wardrobe scene: choose outfit from grid -->
        {:else if state === 'opened'}
        <div class="full-screen-relative">
            <img src={config.backgrounds.opened} class="bg" alt="Wardrobe Open" />
@@ -248,6 +258,7 @@
            </div>
        </div>   
   
+       <!-- selection scene: alternative outfit selection view -->
        {:else if state === 'selection'}
        <img src={config.backgrounds.empty} class="bg" alt="Empty wardrobe" />
        <div class="outfits-row">
@@ -267,6 +278,7 @@
        </div>
        <div class="instruction">{config.dialogs.choice}</div>
        
+       <!-- wrong choice scene: error message and retry button -->
        {:else if state === 'wrong_choice'}
        <div class="error-screen">
            <img src={config.backgrounds.opened} class="bg bg-dimmed" alt="Wardrobe background" />
@@ -279,6 +291,7 @@
            </div>
        </div>
        
+       <!-- ironing scene: canvas minigame to smooth out wrinkles -->
        {:else if state === 'ironing'}
        <div class="ironing-screen">
            <img src={config.backgrounds.opened} class="bg bg-dimmed" alt="Background" />
@@ -498,6 +511,7 @@
         text-shadow: 0 2px 4px rgba(0,0,0,0.5);
     }
 
+    /* canvas container for ironing minigame */
     .fabric-container {
         position: relative;
         width: 80vw; 

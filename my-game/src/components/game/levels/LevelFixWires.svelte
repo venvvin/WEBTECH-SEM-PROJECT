@@ -23,41 +23,42 @@
     $: rules = cfg?.rules ?? {};
     $: mistakePenaltyHearts = Number(rules?.mistakePenaltyHearts ?? 1);
 
+    // story scenes sequence: intro, problem, help offer, task setup, success, conclusion
     const steps = [
         {
-            type: "scene",
+            type: "scene", // scene 1: driver explains bus is broken
             image: "/game/story/enter_bus.png",
             speaker: "Driver",
-            text: "Sorry, kid… the bus is stuck. The wires are fried and I can’t get it running. Everyone will have to walk today."
+            text: "Sorry, kid… the bus is stuck. The wires are fried and I can't get it running. Everyone will have to walk today."
         },
         {
-            type: "scene",
+            type: "scene", // scene 2: driver is sad
             image: "/game/story/driver_sad.png",
             speaker: "",
             text: "The driver slumps in the cabin, staring at the dashboard like it personally betrayed him."
         },
         {
-            type: "scene",
+            type: "scene", // scene 3: lina offers to help
             image: "/game/story/lina_help.png",
             speaker: "Lina",
             text: "Don't worry. I can fix it. Just tell me which wires go together."
         },
         {
-            type: "scene",
+            type: "scene", // scene 4: broken wires panel shown
             image: "/game/story/broken_wires.png",
             speaker: "",
             text: "The wiring panel is open. Connect the matching colors to restore power.",
             sound: "broken"
         },
-        { type: "task" },
+        { type: "task" }, // scene 5: wire connection minigame
         {
-            type: "scene",
+            type: "scene", // scene 6: wires fixed successfully
             image: "/game/story/fixed_wires.png",
             speaker: "",
             text: "Click. Click. The connections hold. The bus hums back to life."
         },
         {
-            type: "scene",
+            type: "scene", // scene 7: driver happy and thanks lina
             image: "/game/story/driver_happy.png",
             speaker: "Driver",
             text: "You actually did it! Alright everyone, back on the bus. Next stop: school!"
@@ -121,6 +122,7 @@
         dispatch("complete");
     }
 
+    // catch the error here if audio fails
     function play(name) {
         const src = sounds?.[name];
 
@@ -195,6 +197,7 @@
 
     const BASE_SCREEN_WIDTH = 1920;
 
+    // calculate wire connection points for screen size
     function updatePointsForScreen() {
         if (!stageEl) return;
 
@@ -266,6 +269,7 @@
         return Math.max(a, Math.min(b, v));
     }
 
+    // convert pointer position to svg coordinates
     function pointerToSvg(e) {
         updateRects();
         const px = (e.clientX - imgBox.left) / imgBox.width;
@@ -295,6 +299,7 @@
         active = null;
     }
 
+    // liza should fix wire drag start
     function startWire(color, e) {
         if (phase !== "task") return;
         if (connected.has(color)) return;
@@ -312,6 +317,7 @@
         } catch (_) {}
     }
 
+    // update wire position while dragging
     function onMove(e) {
         if (phase !== "task") return;
         if (!active) return;
@@ -319,6 +325,7 @@
         active = { ...active, x2: end.x, y2: end.y };
     }
 
+    // masha will try to fix wire connection validation
     function finishWire(e) {
         if (phase !== "task") return;
         if (!active) return;
@@ -350,6 +357,7 @@
         }
     }
 
+    // reset level when data changes
     let lastId = null;
     $: if (data?.id && data.id !== lastId) {
         lastId = data.id;
@@ -390,11 +398,12 @@
 </script>
 
 <div class="root">
+    <!-- story scenes: dialogue and narrative progression -->
     {#if phase !== "task"}
         {@const s = steps[stepIndex]}
         {@const sceneSrc = s?.image || taskBg}
 
-        <div class="novel" on:click={handleUserInteraction}>
+        <div class="novel" on:click={handleUserInteraction} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' || e.key === ' ' ? handleUserInteraction() : null}>
             {#if sceneSrc}
                 <img class="sceneImg" src={sceneSrc} alt="" draggable="false" />
             {:else}
@@ -415,12 +424,14 @@
                 </div>
             </div>
         </div>
+    <!-- task scene: wire connection minigame -->
     {:else}
         <div class="stage" bind:this={stageEl} on:pointermove={onMove} on:pointerup={finishWire}>
             {#if taskBg}
                 <img class="bg" bind:this={imgEl} src={taskBg} alt="" on:load={onTaskBgLoad} draggable="false" />
             {/if}
 
+            <!-- svg canvas for drawing wires -->
             <svg class="wires" viewBox="0 0 100 100" preserveAspectRatio="none">
                 {#each leftOrder as color (color)}
                     {#if connected.has(color)}
@@ -553,6 +564,7 @@
         pointer-events: none;
     }
 
+    /* svg layer for wire connections */
     .wires{
         position: absolute;
         inset: 0;

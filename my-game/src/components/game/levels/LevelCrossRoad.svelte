@@ -46,12 +46,14 @@
     let phase = "story";
     let gameFinished = false;
 
+    // traffic light state variables
     let lightIndex = 0;
     let currentState = "red";
     let warningText = "";
     let timer = null;
     let canPress = true;
 
+    // move to next story scene
     function nextScene() {
         if (phase === "task" || gameFinished) return;
 
@@ -94,6 +96,7 @@
         scheduleNextLight();
     }
 
+    // stop timer and cleanup
     function stopTrafficLight() {
         if (timer) {
             clearTimeout(timer);
@@ -101,6 +104,7 @@
         }
     }
 
+    // masha will try to fix light switching timing
     function scheduleNextLight() {
         if (timer) clearTimeout(timer);
 
@@ -115,6 +119,7 @@
         }, duration);
     }
 
+    // catch the error here if audio fails
     function playSound(soundName) {
         const src = sounds[soundName];
         if (!src) return;
@@ -136,6 +141,7 @@
         }, 800);
     }
 
+    // disable button for 1 second after mistake
     function handleMistake() {
         canPress = false;
         playSound("fail");
@@ -147,6 +153,7 @@
         }, 1000);
     }
 
+    // liza should fix button click validation
     function handleButtonClick() {
         if (!canPress) return;
 
@@ -171,6 +178,7 @@
         showWarning("Wrong! -1 Heart");
     }
 
+    // reset level when data changes
     let lastLevelId = null;
     $: if (data?.id && data.id !== lastLevelId) {
         lastLevelId = data.id;
@@ -197,6 +205,7 @@
                 <img class="novel-image" src={imgSrc} alt="" draggable="false" />
             {/if}
 
+            <!-- dialogue box for story scenes -->
             <div class="dialogue-box">
                 {#if step?.speaker}
                     <div class="speaker-name">{step.speaker}</div>
@@ -220,6 +229,7 @@
             {/if}
 
             <div class="game-content">
+                <!-- traffic light display -->
                 <div class="traffic-light-container">
                     <div class="traffic-light">
                         <div class="light red {currentState === 'red' ? 'active' : ''}"></div>
@@ -399,6 +409,7 @@
         box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
     }
 
+    /* active light glow effect */
     .light.active {
         opacity: 1;
         box-shadow: 0 0 30px currentColor;
@@ -461,6 +472,7 @@
         height: auto;
     }
 
+    /* responsive styles for mobile */
     @media (max-width: 480px) {
         .traffic-light-container {
             max-width: 260px;

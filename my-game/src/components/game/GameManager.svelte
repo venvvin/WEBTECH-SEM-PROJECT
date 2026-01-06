@@ -422,7 +422,7 @@
         }
 
 
-        html, body {
+        :global(html), :global(body) {
             margin: 0 !important;
             padding: 0 !important;
             height: auto !important;
@@ -432,7 +432,7 @@
         }
 
 
-        body * {
+        :global(body *) {
             display: none !important;
             visibility: hidden !important;
             opacity: 0 !important;
@@ -522,12 +522,12 @@
         }
 
 
-        img, canvas, video, audio, iframe, embed, object,
-        button, input, textarea, select, form,
-        svg, path, rect, circle, polygon,
-        .menu-button, .hint-button,
-        [class*="timer"], [class*="heart"], [class*="level"],
-        [class*="ui"], [class*="control"], [class*="icon"] {
+        :global(img), :global(canvas), :global(video), :global(audio), :global(iframe), :global(embed), :global(object),
+        :global(button), :global(input), :global(textarea), :global(select), :global(form),
+        :global(svg), :global(path), :global(rect), :global(circle), :global(polygon),
+        :global(.menu-button), :global(.hint-button),
+        :global([class*="timer"]), :global([class*="heart"]), :global([class*="level"]),
+        :global([class*="ui"]), :global([class*="control"]), :global([class*="icon"]) {
             display: none !important;
             visibility: hidden !important;
             height: 0 !important;
@@ -546,7 +546,7 @@
         }
 
 
-        a, a:visited {
+        :global(a), :global(a:visited) {
             color: #000 !important;
             text-decoration: none !important;
         }
