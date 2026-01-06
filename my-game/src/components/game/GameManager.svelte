@@ -119,6 +119,13 @@
                 window['_passwordMusicSound'] = null;
             } catch (e) {}
         }
+        if (typeof window !== 'undefined' && window['_mazeMusicSound']) {
+            try {
+                window['_mazeMusicSound'].pause();
+                window['_mazeMusicSound'].currentTime = 0;
+                window['_mazeMusicSound'] = null;
+            } catch (e) {}
+        }
         stopTimer();
         clearCurrentTime();
         gameTimer.set(0);
@@ -151,6 +158,13 @@
                 window['_passwordMusicSound'].pause();
                 window['_passwordMusicSound'].currentTime = 0;
                 window['_passwordMusicSound'] = null;
+            } catch (e) {}
+        }
+        if (typeof window !== 'undefined' && window['_mazeMusicSound']) {
+            try {
+                window['_mazeMusicSound'].pause();
+                window['_mazeMusicSound'].currentTime = 0;
+                window['_mazeMusicSound'] = null;
             } catch (e) {}
         }
 

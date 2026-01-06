@@ -143,6 +143,70 @@
     let introTypingIndex = 0;
     let introTypingComplete = false;
 
+    function stopAllSounds() {
+        const allAudioElements = document.querySelectorAll('audio');
+        allAudioElements.forEach(audio => {
+            audio.pause();
+            audio.currentTime = 0;
+        });
+        if (mazeMusicSound) {
+            try {
+                mazeMusicSound.pause();
+                mazeMusicSound.currentTime = 0;
+            } catch (e) {}
+            mazeMusicSound = null;
+        }
+        if (typeof window !== 'undefined' && window['_mazeMusicSound']) {
+            try {
+                window['_mazeMusicSound'].pause();
+                window['_mazeMusicSound'].currentTime = 0;
+            } catch (e) {}
+            window['_mazeMusicSound'] = null;
+        }
+        if (stairsSound) {
+            try {
+                stairsSound.pause();
+                stairsSound.currentTime = 0;
+            } catch (e) {}
+            stairsSound = null;
+        }
+        if (birdNatureSound) {
+            try {
+                birdNatureSound.pause();
+                birdNatureSound.currentTime = 0;
+            } catch (e) {}
+            birdNatureSound = null;
+        }
+        if (fromHouseSound) {
+            try {
+                fromHouseSound.pause();
+                fromHouseSound.currentTime = 0;
+            } catch (e) {}
+            fromHouseSound = null;
+        }
+        if (fromHouseToMazeSound) {
+            try {
+                fromHouseToMazeSound.pause();
+                fromHouseToMazeSound.currentTime = 0;
+            } catch (e) {}
+            fromHouseToMazeSound = null;
+        }
+        if (busStoppedSound) {
+            try {
+                busStoppedSound.pause();
+                busStoppedSound.currentTime = 0;
+            } catch (e) {}
+            busStoppedSound = null;
+        }
+        if (busDoorsSound) {
+            try {
+                busDoorsSound.pause();
+                busDoorsSound.currentTime = 0;
+            } catch (e) {}
+            busDoorsSound = null;
+        }
+    }
+
     function dismissPreIntro() {
         preIntroVisible = false;
         houseSceneVisible = true;
@@ -194,6 +258,10 @@
         introVisible = true;
         
         mazeMusicSound = new Audio("/game/sfx/mazemusic.wav");
+        mazeMusicSound.loop = true;
+        if (typeof window !== 'undefined') {
+            window['_mazeMusicSound'] = mazeMusicSound;
+        }
         mazeMusicSound.play().catch(() => {});
         
         setTimeout(() => {
@@ -361,6 +429,13 @@
                 mazeMusicSound.pause();
                 mazeMusicSound.currentTime = 0;
             }
+            if (typeof window !== 'undefined' && window['_mazeMusicSound']) {
+                try {
+                    window['_mazeMusicSound'].pause();
+                    window['_mazeMusicSound'].currentTime = 0;
+                    window['_mazeMusicSound'] = null;
+                } catch (e) {}
+            }
             showBusScene();
         }
     }
@@ -524,6 +599,7 @@
     });
 
     onDestroy(() => {
+        stopAllSounds();
         if (mediaQuery) {
             if (mediaQuery.removeEventListener) {
                 mediaQuery.removeEventListener("change", handlePointerTypeChange);

@@ -149,6 +149,13 @@
             passwordMusicSound.pause();
             passwordMusicSound = null;
         }
+        if (typeof window !== 'undefined' && window['_passwordMusicSound']) {
+            try {
+                window['_passwordMusicSound'].pause();
+                window['_passwordMusicSound'].currentTime = 0;
+            } catch (e) {}
+            window['_passwordMusicSound'] = null;
+        }
         currentState = 'message1';
         playSound("/game/sfx/msg.wav");
         setTimeout(() => {
@@ -156,6 +163,9 @@
             playSound("/game/sfx/msg.wav");
             passwordMusicSound = new Audio("/game/sfx/passwordmusic.wav");
             passwordMusicSound.loop = true;
+            if (typeof window !== 'undefined') {
+                window['_passwordMusicSound'] = passwordMusicSound;
+            }
             passwordMusicSound.play().catch(() => {});
             setTimeout(() => {
                 currentState = 'password2';
